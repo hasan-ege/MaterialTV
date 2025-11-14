@@ -7,7 +7,6 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 MaterialTV is a modern IPTV / VOD (Video on Demand) player developed for the Android platform, adhering to Material Design 3 principles. It supports the XTream API infrastructure, allowing users to access and watch their own media content.
-## 🖼️ Screenshots
 
 ## 🖼️ Screenshots
 
@@ -65,6 +64,7 @@ Contributions are welcome! If you find a bug or want to suggest a new feature, p
 
 
 This project is licensed under the [MIT License](LICENSE.md). See the `LICENSE.md` file for details.
+
 
 
 
