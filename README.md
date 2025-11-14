@@ -11,7 +11,7 @@ MaterialTV is a modern IPTV / VOD (Video on Demand) player developed for the And
 
 ## 🖼️ Screenshots
 
-| Home Screen | Player Screen (Horizontal) | Profile Screen |
+| Home Screen | Player Screen | Profile Screen |
 | :---: | :---: | :---: |
 | ![Home Screen](./Images/home.png) | ![Player Screen](./Images/player.png) | ![Profile Screen](./Images/profile.png) |
 
@@ -65,5 +65,6 @@ Contributions are welcome! If you find a bug or want to suggest a new feature, p
 
 
 This project is licensed under the [MIT License](LICENSE.md). See the `LICENSE.md` file for details.
+
 
 
