@@ -7,13 +7,11 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 MaterialTV is a modern IPTV / VOD (Video on Demand) player developed for the Android platform, adhering to Material Design 3 principles. It supports the XTream API infrastructure, allowing users to access and watch their own media content.
-
 ## 🖼️ Screenshots
-*(You can add screenshots of your app's home, player, and profile screens here)*
 
-| Home Screen | Player Screen | Profile Screen |
-| [:---:](https://immich.hasanegebozkurt.com/api/assets/ac58b818-bd9d-4667-bb49-e9f5e93e6659/thumbnail?size=preview&c=TBgGCwLswzhZWjhQyoRgXzo%3D) | [:---:](https://immich.hasanegebozkurt.com/api/assets/d97a393d-f3ae-40e9-8bb9-2f5c2f3a027b/thumbnail?size=preview&c=DvgNC4IIeXeIdomI%2FaHMP6g%3D) | [:---:](https://immich.hasanegebozkurt.com/api/assets/82517739-d31b-41e8-b4d2-1ba0196bf1f3/thumbnail?size=preview&c=BhgCAwBImvaIlIm0Gc6v8fw%3D) |
-|  |  |  |
+| Home Screen | Player Screen (Horizontal) | Profile Screen |
+| :---: | :---: | :---: |
+| ![Home Screen](https://immich.hasanegebozkurt.com/api/assets/ac58b818-bd9d-4667-bb49-e9f5e93e6659/thumbnail?size=preview&c=TBgGCwLswzhZWjhQyoRgXzo%3D) | ![Player Screen](https://immich.hasanegebozkurt.com/api/assets/d97a393d-f3ae-40e9-8bb9-2f5c2f3a027b/thumbnail?size=preview&c=DvgNC4IIeXeIdomI%2FaHMP6g%3D) | ![Profile Screen](https://immich.hasanegebozkurt.com/api/assets/82517739-d31b-41e8-b4d2-1ba0196bf1f3/thumbnail?size=preview&c=BhgCAwBImvaIlIm0Gc6v8fw%3D) |
 
 ## ✨ Features
 
@@ -65,3 +63,4 @@ Contributions are welcome! If you find a bug or want to suggest a new feature, p
 
 
 This project is licensed under the [MIT License](LICENSE.md). See the `LICENSE.md` file for details.
+
