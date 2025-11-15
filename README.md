@@ -44,7 +44,7 @@ MaterialTV is a modern IPTV / VOD (Video on Demand) player developed for the And
 
 1.  Clone this repository to your local machine:
     ```sh
-    git clone [https://github.com/YOUR-USERNAME/MaterialTV.git](https://github.com/YOUR-USERNAME/MaterialTV.git)
+    git clone [https://github.com/hasan-ege/MaterialTV.git](https://github.com/hasan-ege/MaterialTV.git)
     ```
 2.  Open the project in Android Studio (Preferably the latest version, e.g., Hedgehog or Iguana).
 3.  Wait for the Gradle synchronization to complete.
@@ -64,6 +64,7 @@ Contributions are welcome! If you find a bug or want to suggest a new feature, p
 
 
 This project is licensed under the [MIT License](LICENSE.md). See the `LICENSE.md` file for details.
+
 
 
 
