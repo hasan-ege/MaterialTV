@@ -64,6 +64,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
             )
             
             repository.insertDownload(downloadItem)
+            saveMetadataJson(downloadItem) // Generate JSON
             
             // Servisi başlat
             DownloadService.start(context)
@@ -97,6 +98,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
             )
             
             repository.insertDownload(downloadItem)
+            saveMetadataJson(downloadItem) // Generate JSON
             
             // Servisi başlat
             DownloadService.start(context)
@@ -164,6 +166,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                 
                 // 2. Only delete from DB if file is gone (or wasn't there)
                 if (success) {
+                    deleteMetadataJson(download) // Delete JSON
                     repository.deleteDownload(id)
                     android.util.Log.d("DownloadManager", "Record deleted from DB: ${download.title}")
                     
@@ -292,6 +295,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                         thumbnailUrl = newThumbnailUrl
                     )
                     repository.updateDownload(updated)
+                    saveMetadataJson(updated) // Update JSON with new name/path
                 }
             }
         }
@@ -392,6 +396,13 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
 
     private fun scrapeMissingCovers() {
         scope.launch(Dispatchers.IO) {
+            val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(context)
+            val isCoversEnabled = settingsRepo.enableDownloadCovers.first()
+            if (!isCoversEnabled) {
+                android.util.Log.d("CoverDebug", "Cover scraping disabled in settings.")
+                return@launch
+            }
+
             val scraper = CoverScraper(context)
             val itemsWithoutCover = repository.getAllDownloads().first().filter { 
                 (it.thumbnailUrl.isNullOrEmpty() || it.thumbnailUrl == "null") && 
@@ -430,6 +441,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                             seriesCoverUrl = if(item.contentType == ContentType.EPISODE) result.coverPath else item.seriesCoverUrl
                         )
                         repository.updateDownload(updatedItem)
+                        saveMetadataJson(updatedItem) // Update JSON with new cover/title
                         _scanStatus.value = "Kapak bulundu: ${result.successfulQuery}"
                         android.util.Log.d("CoverDebug", "SUCCESS: Updated DB for ${result.successfulQuery}")
                     } else {
@@ -772,6 +784,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
             )
             
             repository.insertDownload(downloadItem)
+            saveMetadataJson(downloadItem) // Generate JSON for found item
             android.util.Log.d("DownloadManager", "Upserted item: $title ($uriOrPath)")
         } catch (e: Exception) {
             android.util.Log.e("DownloadManager", "Error processing file: ${e.message}")
@@ -779,5 +792,89 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
     }
     
 
+
+    /**
+     * Helper: Save DownloadItem as JSON sidecar file
+     */
+    private fun saveMetadataJson(item: DownloadItem) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                // Determine JSON path: video_path.json (or replaces extension)
+                // Common practice: "movie.mp4" -> "movie.json"
+                val jsonPath = if (item.filePath.contains(".")) {
+                    item.filePath.substringBeforeLast(".") + ".json"
+                } else {
+                    item.filePath + ".json"
+                }
+
+                val jsonString = kotlinx.serialization.json.Json { prettyPrint = true }.encodeToString(DownloadItem.serializer(), item)
+                
+                if (item.filePath.startsWith("content://")) {
+                    // DocumentFile logic
+                    try {
+                        val videoUri = android.net.Uri.parse(item.filePath)
+                        // This is tricky for DocumentFile as we can't just change extension of URI.
+                        // We need parent to create a new file.
+                        // Assuming the file exists, we can try to find neighbor.
+                        val videoDoc = androidx.documentfile.provider.DocumentFile.fromSingleUri(context, videoUri)
+                        val parent = videoDoc?.parentFile // Only works if TreeUri based or we constructed hierarchy?
+                        // Actually strictly speaking fromSingleUri doesn't support getParentFile() usually unless from Tree.
+                        // Best effort: If we scanned it via Tree, we might iterate.
+                        // For now, let's stick to java.io.File if possible, or skip JSON for pure content:// unless we have write access to folder.
+                        
+                        // BUT, if we have customDownloadUri (TreeUri), we can create files there.
+                        if (customDownloadUri != null) {
+                           // Use customDownloadUri to find/create file
+                           val treeDocs = androidx.documentfile.provider.DocumentFile.fromTreeUri(context, customDownloadUri!!)
+                           val name = item.title + ".json" 
+                           val existing = treeDocs?.findFile(name)
+                           val fileToWrite = existing ?: treeDocs?.createFile("application/json", name)
+                           
+                           fileToWrite?.uri?.let { uri ->
+                               context.contentResolver.openOutputStream(uri)?.use { 
+                                   it.write(jsonString.toByteArray()) 
+                               }
+                           }
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e("DownloadManager", "Failed to write JSON to content URI: ${e.message}")
+                    }
+                } else {
+                    // Standard File logic
+                    val file = java.io.File(jsonPath)
+                    file.writeText(jsonString)
+                    android.util.Log.d("DownloadManager", "Saved metadata JSON: ${file.name}")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("DownloadManager", "Error saving metadata JSON: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Helper: Delete JSON sidecar file
+     */
+    private fun deleteMetadataJson(item: DownloadItem) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val jsonPath = if (item.filePath.contains(".")) {
+                    item.filePath.substringBeforeLast(".") + ".json"
+                } else {
+                    item.filePath + ".json"
+                }
+                
+                if (!item.filePath.startsWith("content://")) {
+                    val file = java.io.File(jsonPath)
+                    if (file.exists()) {
+                        file.delete()
+                        android.util.Log.d("DownloadManager", "Deleted metadata JSON: ${file.name}")
+                    }
+                }
+                // Content URI deletion logic omitted for safety/complexity unless explicitly tracked
+            } catch (e: Exception) {
+                android.util.Log.e("DownloadManager", "Error deleting metadata JSON: ${e.message}")
+            }
+        }
+    }
 
 }

@@ -26,6 +26,12 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     val autoRetryFailedDownloads: StateFlow<Boolean> = repository.autoRetryFailedDownloads
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
+    val enableImdbScraping: StateFlow<Boolean> = repository.enableImdbScraping
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val enableDownloadCovers: StateFlow<Boolean> = repository.enableDownloadCovers
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     val useFFmpegDownloader: StateFlow<Boolean> = repository.useFFmpegDownloader
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -78,6 +84,18 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     fun setStartPage(value: String) {
         viewModelScope.launch {
             repository.setStartPage(value)
+        }
+    }
+
+    fun setEnableImdbScraping(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setEnableImdbScraping(enabled)
+        }
+    }
+
+    fun setEnableDownloadCovers(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setEnableDownloadCovers(enabled)
         }
     }
 

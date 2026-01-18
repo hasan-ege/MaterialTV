@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.hasanege.materialtv.DownloadFilter
 import com.hasanege.materialtv.DownloadsViewModel
 import com.hasanege.materialtv.download.ContentType
@@ -116,12 +117,8 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
     
     val scanMessage by viewModel.scanMessage.collectAsState()
     
-    LaunchedEffect(scanMessage) {
-        scanMessage?.let { msg ->
-            android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
-            viewModel.clearScanMessage()
-        }
-    }
+    // Toast notification removed explicitly by user request
+    // LaunchedEffect(scanMessage) { ... }
     
     // Rotation animation for scan button
     val infiniteTransition = rememberInfiniteTransition(label = "scanRotation")
@@ -193,11 +190,19 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
         )
     }
     
-    var isVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(selectedFilter) {
-        isVisible = false
-        delay(100)
-        isVisible = true
+    // Animation State
+    // User wants: Menu appears -> Wait -> Content drops down
+    var isContentVisible by remember { mutableStateOf(false) }
+    
+    // Logic: Wait for loading to finish, then trigger visibility
+    LaunchedEffect(isLoading) {
+        if (!isLoading) {
+             // Slight delay to ensure "loading" feel is perceived before dropping content
+             delay(100) 
+             isContentVisible = true
+        } else {
+             isContentVisible = false
+        }
     }
     
     // Group and sort downloads into a unified timeline
@@ -234,8 +239,8 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
             contentPadding = PaddingValues(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (downloads.isEmpty() && !isRefreshing) {
-                // Empty State inside LazyColumn to support Pull-to-Refresh
+            if (downloads.isEmpty() && !isRefreshing && !isLoading) {
+                // Empty State with simple fade in
                 item {
                     EmptyDownloadsView(
                         modifier = Modifier.fillParentMaxSize(),
@@ -245,12 +250,28 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                         onFolderSelect = { folderLauncher.launch(null) }
                     )
                 }
+            } else if (isLoading) {
+                 // Loading State - Use a subtle shimmer or just empty space while waiting for "drop"
+                 // Or we can show the stats card locally if we want, but user asked for "wait"
+                 // Let's show a centered CircularWavyProgressIndicator or similar effectively
+                 item {
+                     Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
+                         // Fallback to standard if Expressive unavailable in this scope, or usage of CircularProgressIndicator
+                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                     }
+                 }
             } else {
-                // Stats Card
+            // Stats Card - Drops down first
                 item {
                     AnimatedVisibility(
-                        visible = isVisible,
-                        enter = fadeIn() + slideInVertically(initialOffsetY = { -40 })
+                        visible = isContentVisible,
+                        enter = slideInVertically(
+                            animationSpec = androidx.compose.animation.core.spring(
+                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                                stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                            ),
+                            initialOffsetY = { -it } // Comes from top
+                        ) + fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + expandVertically() 
                     ) {
                         DownloadStatsCard(
                             downloads = downloads,
@@ -266,10 +287,16 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                     when (group) {
                         is DisplayGroup.Movie -> {
                             val download = group.download
-                            item(key = "movie_${download.id}") {
+                            item(key = "movie_${download.id}", contentType = "movie") {
                                 AnimatedVisibility(
-                                    visible = isVisible,
-                                    enter = fadeIn() + slideInVertically(initialOffsetY = { 100 })
+                                    visible = isContentVisible,
+                                    enter = slideInVertically(
+                                        animationSpec = androidx.compose.animation.core.spring(
+                                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                                        ),
+                                        initialOffsetY = { -it }
+                                    ) + fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + expandVertically()
                                 ) {
                                     DownloadItemCard(
                                         download = download,
@@ -289,10 +316,16 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                             val isExpanded = expandedSeries.contains(seriesName)
                             
                             // Series header
-                            item(key = "series_$seriesName") {
+                            item(key = "series_header_$seriesName", contentType = "series_header") {
                                 AnimatedVisibility(
-                                    visible = isVisible,
-                                    enter = fadeIn() + slideInVertically(initialOffsetY = { 100 })
+                                    visible = isContentVisible,
+                                    enter = slideInVertically(
+                                        animationSpec = androidx.compose.animation.core.spring(
+                                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                                        ),
+                                        initialOffsetY = { -it }
+                                    ) + fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + expandVertically()
                                 ) {
                                     SeriesGroupHeader(
                                         seriesName = seriesName,
@@ -315,42 +348,28 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                                 }
                             }
                             
-                            // Episodes (when expanded)
-                            item(key = "episodes_$seriesName") {
-                                AnimatedVisibility(
-                                    visible = isExpanded,
-                                    enter = fadeIn(animationSpec = tween(300)) + 
-                                            expandVertically(
-                                                animationSpec = spring(
-                                                    dampingRatio = Spring.DampingRatioLowBouncy,
-                                                    stiffness = Spring.StiffnessLow
-                                                )
-                                            ),
-                                    exit = fadeOut(animationSpec = tween(200)) + 
-                                           shrinkVertically(
-                                               animationSpec = spring(
-                                                   dampingRatio = Spring.DampingRatioNoBouncy,
-                                                   stiffness = Spring.StiffnessMedium
-                                                )
-                                           )
-                                ) {
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                                        modifier = Modifier.padding(top = 12.dp)
-                                    ) {
-                                        episodes.forEach { download ->
-                                            DownloadItemCard(
-                                                download = download,
-                                                onPause = { viewModel.pauseDownload(download.id) },
-                                                onResume = { viewModel.resumeDownload(download.id) },
-                                                onCancel = { viewModel.cancelDownload(download.id) },
-                                                onDelete = { viewModel.deleteDownload(download.id) },
-                                                onPlay = { viewModel.playDownload(context, download) },
-                                                onRename = { renamingItem = download },
-                                                isEpisode = true
-                                            )
-                                        }
-                                    }
+                            // Episodes (Flattened)
+                            if (isExpanded) {
+                                items(
+                                    items = episodes,
+                                    key = { "episode_${it.id}" },
+                                    contentType = { "episode" }
+                                ) { download ->
+                                     // Use a simple animation wrapper for individual items if needed
+                                     // Or just let them appear. For "Expressive" feel, we can animate.
+                                     // However, animating insertion in LazyColumn can be tricky without `animateItemPlacement`.
+                                     // We will simply display them for now, as standard LazyColumn doesn't support enter animations for specific items easily without experimental APIs.
+                                     // But since user wants "optimization", removing the nested column is key.
+                                    DownloadItemCard(
+                                        download = download,
+                                        onPause = { viewModel.pauseDownload(download.id) },
+                                        onResume = { viewModel.resumeDownload(download.id) },
+                                        onCancel = { viewModel.cancelDownload(download.id) },
+                                        onDelete = { viewModel.deleteDownload(download.id) },
+                                        onPlay = { viewModel.playDownload(context, download) },
+                                        onRename = { renamingItem = download },
+                                        isEpisode = true
+                                    )
                                 }
                             }
                         }
@@ -364,6 +383,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
+            backgroundColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.primary
         )
 
@@ -454,7 +474,11 @@ fun SeriesGroupHeader(
                 ) {
                     if (coverModel != null) {
                         AsyncImage(
-                            model = coverModel,
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(coverModel)
+                                .size(270, 405) // 90dp x 135dp @ 3x density approx
+                                .crossfade(true)
+                                .build(),
                             contentDescription = seriesName,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -918,7 +942,11 @@ private fun DownloadItemCard(
                 
                 if (coverModel != null) {
                     AsyncImage(
-                        model = coverModel,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(coverModel)
+                            .size(360, 210) // Approx max size for episode/movie thumb
+                            .crossfade(true)
+                            .build(),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -963,14 +991,7 @@ private fun DownloadItemCard(
                     )
                 }
 
-                if (download.status == DownloadStatus.COMPLETED && download.totalBytes > 0) {
-                    Text(
-                        text = download.formatFileSize(download.totalBytes),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+
                 
                 if ((download.status == DownloadStatus.DOWNLOADING || download.status == DownloadStatus.PAUSED) && download.progress >= 0) {
                      Spacer(modifier = Modifier.height(8.dp))

@@ -460,6 +460,7 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
                         onClick = {
                             val intent = Intent(context, com.hasanege.materialtv.DetailActivity::class.java).apply {
                                 putExtra("STREAM_ID", movie.streamId)
+                                putExtra("TITLE", movie.name)
                             }
                             context.startActivity(intent)
 
@@ -524,7 +525,8 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
                             fontWeight = FontWeight.Bold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            minLines = 2
                         )
                         movie.rating5Based?.let { rating ->
                             if (rating > 0) {
@@ -615,6 +617,7 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
                         onClick = {
                             val intent = Intent(context, com.hasanege.materialtv.SeriesDetailActivity::class.java).apply {
                                 putExtra("SERIES_ID", seriesItem.seriesId)
+                                putExtra("TITLE", seriesItem.name)
                             }
                             context.startActivity(intent)
 
@@ -682,7 +685,8 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
                             fontWeight = FontWeight.Bold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            minLines = 2
                         )
                         if (!seriesItem.releaseDate.isNullOrEmpty()) {
                             Text(
@@ -839,7 +843,8 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
                             fontWeight = FontWeight.Bold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            minLines = 2
                         )
                         Text(
                             text = stringResource(R.string.home_live_tv),

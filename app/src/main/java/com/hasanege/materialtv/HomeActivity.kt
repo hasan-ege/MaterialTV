@@ -53,6 +53,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -909,11 +910,31 @@ fun CategoryScreen(
                     when (val moviesByCategoriesState = viewModel.moviesByCategoriesState) {
                         is UiState.Loading -> item { CenteredProgressBar() }
                         is UiState.Success -> {
+                            // Hero Carousel with featured movies
+                            val allMovies = moviesByCategoriesState.data.values.flatten()
+                            if (allMovies.isNotEmpty()) {
+                                item(key = "hero_carousel") {
+                                    HeroCarousel(
+                                        items = allMovies.shuffled(),
+                                        key = { item -> item.streamId ?: 0 },
+                                        imageUrlProvider = { it.streamIcon },
+                                        titleProvider = { it.name },
+                                        subtitleProvider = { it.year },
+                                        onItemClick = { vodItem ->
+                                            val intent = Intent(context, DetailActivity::class.java).apply {
+                                                putExtra("STREAM_ID", vodItem.streamId)
+                                            }
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
+                            }
+                            
                             items(
                                 items = moviesByCategoriesState.data.entries.filter { it.value.isNotEmpty() }.toList(),
                                 key = { (category, _) -> category.categoryId }
                             ) { (category, movies) ->
-                                ContentRow(title = category.categoryName, items = movies.take(10), onSeeAllClick = {
+                                ContentRow(title = category.categoryName, items = movies, onSeeAllClick = {
                                     val intent = Intent(context, CategoryActivity::class.java).apply {
                                         putExtra("category_id", category.categoryId)
                                         putExtra("category_type", "movie")
@@ -935,11 +956,37 @@ fun CategoryScreen(
                     when (val seriesByCategoriesState = viewModel.seriesByCategoriesState) {
                         is UiState.Loading -> item { CenteredProgressBar() }
                         is UiState.Success -> {
+                            // Hero Carousel with featured series
+                            val allSeries = seriesByCategoriesState.data.values.flatten()
+                            if (allSeries.isNotEmpty()) {
+                                item(key = "hero_carousel_series") {
+                                    HeroCarousel(
+                                        items = allSeries.shuffled(),
+                                        key = { item -> item.seriesId ?: 0 },
+                                        imageUrlProvider = { it.cover },
+                                        titleProvider = { it.name },
+                                        subtitleProvider = { it.year },
+                                        onItemClick = { seriesItem ->
+                                            val intent = Intent(context, SeriesDetailActivity::class.java).apply {
+                                                putExtra("SERIES_ID", seriesItem.seriesId)
+                                                putExtra("TITLE", seriesItem.name)
+                                                putExtra("COVER", seriesItem.cover)
+                                            }
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
+                            }
+
                             items(
                                 items = seriesByCategoriesState.data.entries.filter { it.value.isNotEmpty() }.toList(),
                                 key = { (category, _) -> category.categoryId }
                             ) { (category, series) ->
-                                SeriesContentRow(title = category.categoryName, items = series.take(10), onSeeAllClick = {
+                                SeriesContentRow(
+                                    title = category.categoryName, 
+                                    items = series, 
+                                    key = { it.seriesId ?: 0 },
+                                    onSeeAllClick = {
                                     val intent = Intent(context, CategoryActivity::class.java).apply {
                                         putExtra("category_id", category.categoryId)
                                         putExtra("category_type", "series")
@@ -968,7 +1015,7 @@ fun CategoryScreen(
                             ) { (category, liveStreams) ->
                                 LiveStreamContentRow(
                                     title = category.categoryName,
-                                    items = liveStreams.take(10),
+                                    items = liveStreams,
                                     onSeeAllClick = {
                                         val intent = Intent(context, CategoryActivity::class.java).apply {
                                             putExtra("category_id", category.categoryId)
@@ -976,7 +1023,8 @@ fun CategoryScreen(
                                             putExtra("category_name", category.categoryName)
                                         }
                                         context.startActivity(intent)
-                                    }
+                                    },
+                                    key = { it.streamId ?: 0 }
                                 ) { liveStream ->
                                     val intent = Intent(context, PlayerActivity::class.java).apply {
                                         // For M3U, get URL from repository; for Xtream, construct it
@@ -1048,12 +1096,140 @@ fun CategoryChips(viewModel: HomeViewModel, selectedTab: Int) {
     }
 }
 
+// Netflix-style Hero Carousel for featured content
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun <T> HeroCarousel(
+    items: List<T>,
+    onItemClick: (T) -> Unit,
+    key: ((T) -> Any)? = null, // Added key provider support
+    imageUrlProvider: (T) -> String?,
+    titleProvider: (T) -> String?,
+    subtitleProvider: (T) -> String? = { null },
+    modifier: Modifier = Modifier
+) {
+    if (items.isEmpty()) return
+    
+    // Unlimited items, shuffled
+    val heroCarouselState = rememberCarouselState { items.size }
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val heroHeight = remember(configuration) { 
+        if (configuration.screenWidthDp > 600) 400.dp else 280.dp 
+    }
+    
+    Column(modifier = modifier.padding(bottom = 16.dp)) {
+        Text(
+            text = stringResource(R.string.home_featured),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+        )
+        
+        HorizontalMultiBrowseCarousel(
+            state = heroCarouselState,
+            preferredItemWidth = configuration.screenWidthDp.dp - 48.dp,
+            itemSpacing = 16.dp,
+            contentPadding = PaddingValues(horizontal = 24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(heroHeight)
+        ) { index ->
+            val item = items[index]
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(ExpressiveShapes.ExtraLarge)
+                    .clickable { onItemClick(item) }
+            ) {
+                // Background Image
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrlProvider(item))
+                        .crossfade(500)
+                        .build(),
+                    imageLoader = ImageConfig.getImageLoader(LocalContext.current),
+                    contentDescription = titleProvider(item),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Gradient Overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            androidx.compose.ui.graphics.Brush.verticalGradient(
+                                colors = listOf(
+                                    androidx.compose.ui.graphics.Color.Transparent,
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                                ),
+                                startY = 0f,
+                                endY = Float.POSITIVE_INFINITY
+                            )
+                        )
+                )
+                
+                // Content
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = titleProvider(item) ?: "",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    
+                    val subtitle = subtitleProvider(item)
+                    if (!subtitle.isNullOrEmpty()) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    
+                    Row(
+                        modifier = Modifier.padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        androidx.compose.material3.Button(
+                            onClick = { onItemClick(item) },
+                            shape = ExpressiveShapes.Large,
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Rounded.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.detail_play))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContentRow(
     title: String,
     items: List<VodItem>,
     onSeeAllClick: () -> Unit,
+    key: ((VodItem) -> Any)? = { it.streamId ?: 0 }, // Key before action
     onItemClick: (VodItem) -> Unit
 ) {
     val context = LocalContext.current
@@ -1181,7 +1357,8 @@ fun ContentRow(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                minLines = 2
                             )
                         }
                     }
@@ -1196,6 +1373,7 @@ fun SeriesContentRow(
     title: String,
     items: List<SeriesItem>,
     onSeeAllClick: () -> Unit,
+    key: ((SeriesItem) -> Any)? = { it.seriesId ?: 0 },
     onItemClick: (SeriesItem) -> Unit
 ) {
     val context = LocalContext.current
@@ -1326,7 +1504,8 @@ fun SeriesContentRow(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                minLines = 2
                             )
                         }
                     }
@@ -1341,6 +1520,7 @@ fun LiveStreamContentRow(
     title: String,
     items: List<LiveStream>,
     onSeeAllClick: () -> Unit,
+    key: ((LiveStream) -> Any)? = { it.streamId ?: 0 },
     onItemClick: (LiveStream) -> Unit
 ) {
     val context = LocalContext.current
@@ -1465,7 +1645,8 @@ fun LiveStreamContentRow(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                minLines = 2
                             )
                         }
                     }

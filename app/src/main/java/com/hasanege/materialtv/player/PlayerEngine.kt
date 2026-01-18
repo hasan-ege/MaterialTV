@@ -17,6 +17,7 @@ interface PlayerEngine {
     fun seekBack()
     fun seekForward()
     fun isPlaying(): Boolean
+    fun isBuffering(): Boolean
     fun getDuration(): Long
     fun getCurrentPosition(): Long
     fun setVolume(volume: Float)

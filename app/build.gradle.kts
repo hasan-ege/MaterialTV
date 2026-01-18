@@ -33,7 +33,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86"))
+            abiFilters.clear()
+            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
         }
     }
 
@@ -81,7 +82,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation("androidx.compose.material3:material3:1.5.0-alpha11")
-    implementation("androidx.compose.material3:material3-window-size-class:1.4.0")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha11")
     implementation("androidx.compose.material:material:1.6.7")
     implementation("com.google.android.material:material:1.11.0") // Re-adding this dependency
@@ -112,8 +112,6 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     // DataStore for settings
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    // Material3 You theming (already using Material3, but add You library)
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
@@ -128,14 +126,15 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("io.coil-kt:coil-gif:2.5.0")
     implementation("io.coil-kt:coil-svg:2.5.0")
+    implementation(libs.android.youtube.player)
     implementation("com.google.android.gms:play-services-base:18.4.0")
+    implementation("org.jsoup:jsoup:1.17.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

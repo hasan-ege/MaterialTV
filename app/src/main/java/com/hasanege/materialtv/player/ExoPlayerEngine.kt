@@ -310,6 +310,10 @@ class ExoPlayerEngine : PlayerEngine {
         return player?.isPlaying == true
     }
 
+    override fun isBuffering(): Boolean {
+        return player?.playbackState == Player.STATE_BUFFERING
+    }
+
     override fun pause() {
         player?.pause()
     }

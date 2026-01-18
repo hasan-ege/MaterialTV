@@ -1,4 +1,11 @@
 <resources>
+    <string name="reviews_filter_all">Tümü</string>
+    <string name="reviews_filter_stars">%1$d Yıldız</string>
+    <string name="reviews_sort_helpful">En Yararlı</string>
+    <string name="reviews_sort_newest">En Yeni</string>
+    <string name="reviews_sort_highest">En Yüksek Puan</string>
+    <string name="reviews_sort_lowest">En Düşük Puan</string>
+    <string name="reviews_no_results">Seçilen filtreye uygun yorum bulunamadı.</string>
     <!-- Developer Strings -->
     <string name="settings_developer_title">Developer</string>
     <string name="settings_github_label">GitHub</string>
@@ -296,7 +303,6 @@
     <string name="detail_play_resume">%1$s</string>
     <string name="detail_play_resume_episode">S%1$sE%2$s %3$s</string>
     <string name="detail_play_episode">Play S%1$s E%2$s</string>
-    <string name="detail_download_season">Download Season</string>
     <string name="detail_season_placeholder">Season</string>
     <string name="detail_downloading">Downloading %1$d%%</string>
     <string name="detail_preparing">Preparing…</string>
@@ -448,6 +454,7 @@
     <string name="home_categories">Categories</string>
     <string name="home_recently_added">Recently Added</string>
     <string name="home_popular">Popular</string>
+    <string name="home_featured">Featured</string>
 
     <!-- Search -->
     <string name="search_no_results">No results found</string>
@@ -539,7 +546,6 @@
     <string name="unit_format_speed_mbps">%1$.1f MB/s</string>
     
     <!-- New Strings for Externalization -->
-    <string name="detail_unknown_title">Unknown Title</string>
     <string name="detail_no_description">No description available.</string>
     <string name="profile_default_user">User</string>
     <string name="shared_no_results_desc">Try a different search query</string>
@@ -548,4 +554,22 @@
     <string name="detail_suffix_den">from</string>
     <string name="detail_suffix_tan">from</string>
     <string name="detail_suffix_ten">from</string>
+    <string name="detail_cast_header">Cast</string>
+    <string name="detail_trailer_header">Trailer</string>
+    <string name="detail_download_season">Download Entire Season</string>
+    
+    <!-- Content Rating (Akıllı İşaretler) -->
+    <string name="content_rating_general">General</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Violence</string>
+    <string name="content_warning_horror">Horror</string>
+    <string name="content_warning_sexuality">Sexuality</string>
+    <string name="content_warning_negative">Negative Behavior</string>
+    <string name="detail_reviews_header">User Reviews</string>
+    <string name="detail_view_all_reviews">View All</string>
+    <string name="reviews_screen_title">IMDb Reviews</string>
+    <string name="detail_unknown_title">Unknown Title</string>
+    <string name="history_category_empty">No history found for this category.</string>
 </resources>

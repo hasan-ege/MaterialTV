@@ -3,7 +3,9 @@
 - [x] Consolidated `README.md`: Unified English/Turkish content into a single file with anchor-based navigation and prominent liability disclaimers.
 - [x] Removed subtitle size selection from Settings (simplified UI).
 - [x] Added "Current Features" section to Settings for better user onboarding and info.
-- [x] Optimized Settings UI with Material 3 Expressive components and smoother animations.
+- [x] Integrate standard `android-youtube-player` library
+- [x] Fix YouTube playback Error 152-4 definitively
+- [x] Repair corrupted resource references in `DetailScreen.kt`
 - [x] Refactored hardcoded strings in Favorites sorting menu and badges for better localization.
 - [x] Redesigned Favorites sorting menu with a premium, expressive UI and removed "Custom Order" as requested.
 - [x] Unified Filter and Sort dialogs with a shared expressive design, including icons, haptics, and sort direction control.

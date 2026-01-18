@@ -5,6 +5,12 @@ import java.util.UUID
 /**
  * İndirme durumu
  */
+import kotlinx.serialization.Serializable
+
+/**
+ * İndirme durumu
+ */
+@Serializable
 enum class DownloadStatus {
     PENDING,      // Kuyrukta bekliyor
     DOWNLOADING,  // İndiriliyor
@@ -17,6 +23,7 @@ enum class DownloadStatus {
 /**
  * İçerik türü
  */
+@Serializable
 enum class ContentType {
     MOVIE,
     EPISODE
@@ -25,6 +32,7 @@ enum class ContentType {
 /**
  * İndirme öğesi veri modeli
  */
+@Serializable
 data class DownloadItem(
     val id: String = UUID.randomUUID().toString(),
     val title: String,

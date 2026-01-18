@@ -3,6 +3,9 @@ package com.hasanege.materialtv.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 @Serializable
 data class VodItem(
     @SerialName("stream_id") val streamId: Int? = null,
@@ -15,6 +18,7 @@ data class VodItem(
     @SerialName("series_id") val seriesId: Int? = null
 )
 
+@Immutable
 @Serializable
 data class SeriesItem(
     @SerialName("series_id") val seriesId: Int? = null,
@@ -34,6 +38,7 @@ data class SeriesItem(
     val year: String? = null
 )
 
+@Immutable
 @Serializable
 data class LiveStream(
     @SerialName("stream_id") val streamId: Int? = null,

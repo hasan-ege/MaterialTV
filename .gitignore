@@ -53,3 +53,13 @@ Thumbs.db
 # MaterialTV specific
 build_output.txt
 image_cache/
+build_*.txt
+build_*.log
+build_report
+build_result.txt
+imdb_pg.html
+next_data.json
+build_diag.txt
+build_error.log
+build_error_log.txt
+*.py

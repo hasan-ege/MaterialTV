@@ -17,7 +17,7 @@ object RetrofitClient {
         isLenient = true
     }
 
-    private val unsafeOkHttpClient: OkHttpClient by lazy {
+    val unsafeOkHttpClient: OkHttpClient by lazy {
         try {
             // Create a trust manager that does not validate certificate chains
             val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
@@ -42,7 +42,7 @@ object RetrofitClient {
             val headersInterceptor = Interceptor { chain ->
                 val originalRequest = chain.request()
                 val requestWithHeaders = originalRequest.newBuilder()
-                    .header("User-Agent", "VLC/3.0.0")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
                     .header("x-requested-with", "com.hasanege.materialtv")
                     .build()
                 chain.proceed(requestWithHeaders)
@@ -78,7 +78,7 @@ object RetrofitClient {
 
     fun getOmdbClient(): OmdbApiService {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://www.omdbapi.com/")
+            .baseUrl("https://www.omdbapi.com/")
             .client(unsafeOkHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()

@@ -287,12 +287,8 @@
     <string name="detail_download">Download</string>
     <string name="detail_info">Info</string>
     <string name="detail_episodes">Episódios</string>
-    <string name="detail_season">Temporada %1$s</string>
     <string name="detail_episode">Episódio %1$s</string>
     <string name="detail_play_resume">Retomar de %1$s</string>
-    <string name="detail_play_resume_episode">Retomar S%1$s E%2$s de %3$s</string>
-    <string name="detail_play_episode">Reproduzir S%1$s E%2$s</string>
-    <string name="detail_download_season">Download da Temporada</string>
     <string name="detail_season_placeholder">Temporada</string>
     <string name="detail_downloading">Baixando %1$d%%</string>
     <string name="detail_preparing">Preparando…</string>
@@ -544,4 +540,20 @@
     <string name="detail_suffix_den">de</string>
     <string name="detail_suffix_tan">de</string>
     <string name="detail_suffix_ten">de</string>
+    <string name="detail_download_season">Baixar temporada completa</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">Geral</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Violência</string>
+    <string name="content_warning_horror">Horror</string>
+    <string name="content_warning_sexuality">Sexualidade</string>
+    <string name="content_warning_negative">Comportamiento negativo</string>
+    <string name="detail_cast_header">Elenco</string>
+    <string name="detail_reviews_header">Avaliações de usuários</string>
+    <string name="detail_view_all_reviews">Ver tudo</string>
+    <string name="reviews_screen_title">Críticas do IMDb</string>
+    <string name="detail_trailer_header">Trailer</string>
 </resources>

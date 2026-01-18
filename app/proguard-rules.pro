@@ -20,16 +20,6 @@
 -dontwarn retrofit2.KotlinExtensions
 -dontwarn retrofit2.KotlinExtensions$*
 
-# Gson
--keepattributes Signature
--keepattributes *Annotation*
--dontwarn sun.misc.**
--keep class com.google.gson.** { *; }
--keep class * implements com.google.gson.TypeAdapter
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
-
 # Model sınıflarınızı koruyun
 -keep class com.hasanege.materialtv.model.** { *; }
 -keep class com.hasanege.materialtv.network.** { *; }
@@ -41,9 +31,13 @@
 -keep class org.videolan.libvlc.interfaces.** { *; }
 -dontwarn org.videolan.libvlc.**
 
-# Data classes
--keepclassmembers class * {
-    @com.google.gson.annotations.SerializedName <fields>;
+# Kotlinx Serialization
+-keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature, Exceptions
+-keepclassmembers class com.hasanege.materialtv.model.** {
+    *** Companion;
+}
+-keepclasseswithmembers class com.hasanege.materialtv.model.** {
+    kotlinx.serialization.KSerializer serializer(...);
 }
 
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation

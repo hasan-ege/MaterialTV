@@ -275,9 +275,6 @@
     <string name="detail_season">سیزن %1$s</string>
     <string name="detail_episode">قسط %1$s</string>
     <string name="detail_play_resume">%1$s سے جاری رکھیں</string>
-    <string name="detail_play_resume_episode">S%1$s E%2$s کو %3$s سے جاری رکھیں</string>
-    <string name="detail_play_episode">S%1$s E%2$s چلائیں</string>
-    <string name="detail_download_season">پورا سیزن ڈاؤن لوڈ کریں</string>
     <string name="detail_season_placeholder">سیزن</string>
     <string name="detail_downloading">ڈاؤن لوڈ ہو رہا ہے %1$d%%</string>
     <string name="detail_preparing">تیاری ہو رہی ہے…</string>
@@ -529,4 +526,20 @@
     <string name="detail_suffix_den">سے</string>
     <string name="detail_suffix_tan">سے</string>
     <string name="detail_suffix_ten">سے</string>
+    <string name="detail_download_season">پورا سیزن ڈاؤن لوڈ کریں</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">عام</string>
+    <string name="content_rating_7">٧+</string>
+    <string name="content_rating_13">١٣+</string>
+    <string name="content_rating_18">١٨+</string>
+    <string name="content_warning_violence">تشدد</string>
+    <string name="content_warning_horror">خوفناک</string>
+    <string name="content_warning_sexuality">جنسی</string>
+    <string name="content_warning_negative">منفی رویہ</string>
+    <string name="detail_cast_header">اداکار</string>
+    <string name="detail_reviews_header">صارفین کے جائزے</string>
+    <string name="detail_view_all_reviews">تمام دیکھیں</string>
+    <string name="reviews_screen_title">IMDb جائزے</string>
+    <string name="detail_trailer_header">ٹریلر</string>
 </resources>

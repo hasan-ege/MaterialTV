@@ -19,6 +19,7 @@ class LibVlcEngine : PlayerEngine {
     private var surfaceView: SurfaceView? = null
     private var currentContainer: ViewGroup? = null
     private var isAttached: Boolean = false
+    private var isBuffering: Boolean = false
     private var subtitleSizeScale: Int = 100
 
     override fun initialize(context: Context) {
@@ -79,6 +80,7 @@ class LibVlcEngine : PlayerEngine {
                         }
                         MediaPlayer.Event.Buffering -> {
                             android.util.Log.d("LibVlcEngine", "Buffering: ${event.buffering}%")
+                            isBuffering = event.buffering < 100f
                         }
                         else -> {
                             // Ignore other events
@@ -324,6 +326,10 @@ class LibVlcEngine : PlayerEngine {
         } catch (e: Exception) {
             false
         }
+    }
+
+    override fun isBuffering(): Boolean {
+        return isBuffering
     }
 
     override fun getDuration(): Long {

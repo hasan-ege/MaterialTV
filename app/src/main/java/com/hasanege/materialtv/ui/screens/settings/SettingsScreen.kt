@@ -122,6 +122,8 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val autoRestartOnSpeedDrop by viewModel.autoRestartOnSpeedDrop.collectAsState()
     val downloadNotificationsEnabled by viewModel.downloadNotificationsEnabled.collectAsState()
     val autoPlayNextEpisode by viewModel.autoPlayNextEpisode.collectAsState()
+    val enableImdbScraping by viewModel.enableImdbScraping.collectAsState()
+    val enableDownloadCovers by viewModel.enableDownloadCovers.collectAsState()
     
     var showDefaultPlayerDialog by remember { mutableStateOf(false) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
@@ -783,6 +785,32 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                         title = stringResource(R.string.settings_auto_retry),
                         checked = autoRetryFailedDownloads,
                         onCheckedChange = { viewModel.setAutoRetryFailedDownloads(it) }
+                    )
+
+                    ExpressiveSettingSwitchItem(
+                        icon = Icons.Default.Image,
+                        title = "Find Download Covers Automatically",
+                        checked = enableDownloadCovers,
+                        onCheckedChange = { viewModel.setEnableDownloadCovers(it) }
+                    )
+                }
+            }
+
+            // Content & Scraping Section
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(animationSpec = tween(delayMillis = 75)) +
+                        slideInVertically(initialOffsetY = { it / 4 })
+            ) {
+                SettingsSection(
+                    title = "Content & Metadata",
+                    icon = Icons.Default.Public
+                ) {
+                    ExpressiveSettingSwitchItem(
+                        icon = Icons.Default.Star,
+                        title = "Enable IMDb Metadata Scraping",
+                        checked = enableImdbScraping,
+                        onCheckedChange = { viewModel.setEnableImdbScraping(it) }
                     )
                 }
             }

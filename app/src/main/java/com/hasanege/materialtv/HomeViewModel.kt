@@ -342,35 +342,64 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
     }
 
     private suspend fun loadAllMovies(username: String, password: String) {
-        try {
-            _allMovies = repository.getVodStreams(username, password, null)
-            applyFilters()
-        } catch (e: Exception) {
-            android.util.Log.e("HomeViewModel", "Error loading movies", e)
-            moviesState = UiState.Error("Failed to load movies: ${e.message}")
-            moviesByCategoriesState = UiState.Error("Failed to load movies: ${e.message}")
+        repository.getVodStreams(username, password, null).collect { resource ->
+            when (resource) {
+                is com.hasanege.materialtv.network.Resource.Loading -> {
+                    if (_allMovies.isEmpty()) moviesState = UiState.Loading
+                }
+                is com.hasanege.materialtv.network.Resource.Success -> {
+                    _allMovies = resource.data
+                    applyFilters()
+                }
+                is com.hasanege.materialtv.network.Resource.Error -> {
+                    if (_allMovies.isEmpty()) {
+                        moviesState = UiState.Error(resource.message)
+                        moviesByCategoriesState = UiState.Error(resource.message)
+                    }
+                }
+            }
         }
     }
 
     private suspend fun loadAllSeries(username: String, password: String) {
-        try {
-            _allSeries = repository.getSeries(username, password, null)
-            applyFilters()
-        } catch (e: Exception) {
-            android.util.Log.e("HomeViewModel", "Error loading series", e)
-            seriesState = UiState.Error("Failed to load series: ${e.message}")
-            seriesByCategoriesState = UiState.Error("Failed to load series: ${e.message}")
+        repository.getSeries(username, password, null).collect { resource ->
+            when (resource) {
+                is com.hasanege.materialtv.network.Resource.Loading -> {
+                    if (_allSeries.isEmpty()) seriesState = UiState.Loading
+                }
+                is com.hasanege.materialtv.network.Resource.Success -> {
+                    _allSeries = resource.data
+                    applyFilters()
+                }
+                is com.hasanege.materialtv.network.Resource.Error -> {
+                    android.util.Log.e("HomeViewModel", "Error loading series: ${resource.message}")
+                    if (_allSeries.isEmpty()) {
+                        seriesState = UiState.Error(resource.message)
+                        seriesByCategoriesState = UiState.Error(resource.message)
+                    }
+                }
+            }
         }
     }
 
     private suspend fun loadAllLiveStreams(username: String, password: String) {
-        try {
-            _allLiveStreams = repository.getLiveStreams(username, password, null)
-            applyFilters()
-        } catch (e: Exception) {
-            android.util.Log.e("HomeViewModel", "Error loading live streams", e)
-            liveState = UiState.Error("Failed to load live streams: ${e.message}")
-            liveByCategoriesState = UiState.Error("Failed to load live streams: ${e.message}")
+        repository.getLiveStreams(username, password, null).collect { resource ->
+            when (resource) {
+                is com.hasanege.materialtv.network.Resource.Loading -> {
+                    if (_allLiveStreams.isEmpty()) liveState = UiState.Loading
+                }
+                is com.hasanege.materialtv.network.Resource.Success -> {
+                    _allLiveStreams = resource.data
+                    applyFilters()
+                }
+                is com.hasanege.materialtv.network.Resource.Error -> {
+                    android.util.Log.e("HomeViewModel", "Error loading live streams: ${resource.message}")
+                    if (_allLiveStreams.isEmpty()) {
+                        liveState = UiState.Error(resource.message)
+                        liveByCategoriesState = UiState.Error(resource.message)
+                    }
+                }
+            }
         }
     }
 
@@ -430,7 +459,7 @@ class HomeViewModelFactory(private val application: Application) : androidx.life
     }
 
     private val repository by lazy {
-        XtreamRepository(apiService)
+        XtreamRepository(apiService, application.cacheDir)
     }
 
     @Suppress("UNCHECKED_CAST")

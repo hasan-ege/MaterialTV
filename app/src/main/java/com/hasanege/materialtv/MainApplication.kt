@@ -63,15 +63,17 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
         return ImageLoader.Builder(this)
             .memoryCache {
                 MemoryCache.Builder(this)
-                    .maxSizePercent(0.25)
+                    .maxSizePercent(0.30) // Increased to 30% for smoother scrolling
                     .build()
             }
             .diskCache {
                 DiskCache.Builder()
                     .directory(this.cacheDir.resolve("image_cache"))
-                    .maxSizePercent(0.02)
+                    .maxSizePercent(0.10) // Increase disk cache to 10% or at least 250MB
                     .build()
             }
+            .crossfade(true) // Enable crossfade globally
+            .respectCacheHeaders(false) // Ignore cache headers to force caching
             .build()
     }
     

@@ -291,9 +291,6 @@
     <string name="detail_season">الموسم %1$s</string>
     <string name="detail_episode">الحلقة %1$s</string>
     <string name="detail_play_resume">استمرار من %1$s</string>
-    <string name="detail_play_resume_episode">استمرار S%1$s E%2$s من %3$s</string>
-    <string name="detail_play_episode">تشغيل S%1$s E%2$s</string>
-    <string name="detail_download_season">تنزيل الموسم</string>
     <string name="detail_season_placeholder">موسم</string>
     <string name="detail_downloading">جاري التنزيل %1$d%%</string>
     <string name="detail_preparing">جاري التحضير…</string>
@@ -544,5 +541,21 @@
     <string name="detail_suffix_dan">من</string>
     <string name="detail_suffix_den">من</string>
     <string name="detail_suffix_tan">من</string>
-    <string name="detail_suffix_ten">من</string>
+    <string name="detail_suffix_ten">على</string>
+    <string name="detail_download_season">تحميل الموسم بالكامل</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">عام</string>
+    <string name="content_rating_7">٧+</string>
+    <string name="content_rating_13">١٣+</string>
+    <string name="content_rating_18">١٨+</string>
+    <string name="content_warning_violence">عنف</string>
+    <string name="content_warning_horror">رعب</string>
+    <string name="content_warning_sexuality">جنس</string>
+    <string name="content_warning_negative">سلوك سلبي</string>
+    <string name="detail_reviews_header">آراء المستخدمين</string>
+    <string name="detail_view_all_reviews">عرض الكل</string>
+    <string name="reviews_screen_title">مراجعات IMDb</string>
+    <string name="detail_cast_header">طاقم العمل</string>
+    <string name="detail_trailer_header">إعلان</string>
 </resources>

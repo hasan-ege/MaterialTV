@@ -54,11 +54,11 @@
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".DetailActivity"
-            android:exported="false"
+            android:name=".ui.activities.OnboardingActivity"
+            android:exported="true"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".SearchActivity"
+            android:name=".DetailActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
@@ -66,11 +66,16 @@
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
+            android:name=".HistoryActivity"
+            android:label="@string/history_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MaterialTV" />
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".ui.activities.WatchHistoryActivity"
+            android:name=".ReviewsActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <service

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +53,7 @@ import com.hasanege.materialtv.model.ContinueWatchingItem
 import com.hasanege.materialtv.ui.utils.ImageConfig
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ContinueWatchingRow(
     items: List<ContinueWatchingItem>,
@@ -65,110 +68,107 @@ fun ContinueWatchingRow(
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(stringResource(R.string.continue_watching_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp))
-        LazyRow(
+        val carouselState = androidx.compose.material3.carousel.rememberCarouselState { items.size }
+        
+        androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel(
+            state = carouselState,
+            preferredItemWidth = 180.dp,
+            itemSpacing = 16.dp,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(items, key = { it.streamId }) { item ->
-                // Premium spring physics for Google-like alive feel
-                var isPressed by remember { mutableStateOf(false) }
-                val scale by animateFloatAsState(
-                    targetValue = if (isPressed) 0.92f else 1f,
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                    ),
-                    label = "card_scale"
-                )
-                val elevation by androidx.compose.animation.core.animateDpAsState(
-                    targetValue = if (isPressed) 12.dp else 4.dp,
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
-                    ),
-                    label = "card_elevation"
-                )
+            modifier = Modifier.fillMaxWidth()
+        ) { index ->
+            val item = items[index]
+            // Premium spring physics for Google-like alive feel
+            var isPressed by remember { mutableStateOf(false) }
+            val scale by animateFloatAsState(
+                targetValue = if (isPressed) 0.92f else 1f,
+                animationSpec = androidx.compose.animation.core.spring(
+                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                ),
+                label = "card_scale"
+            )
 
-                androidx.compose.material3.ElevatedCard(
-                    modifier = Modifier
-                        .width(180.dp)
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                        }
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    isPressed = event.type == PointerEventType.Press
-                                }
+            androidx.compose.material3.ElevatedCard(
+                modifier = Modifier
+                    .maskClip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                isPressed = event.type == PointerEventType.Press
                             }
                         }
-                        .combinedClickable(
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                            indication = androidx.compose.material3.ripple(),
-                            onClick = { onItemClick(item) },
-                            onLongClick = {
-                                selectedItem = item
-                                showMenu = true
-                            }
-                        ),
-                    shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-                    colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    }
+                    .combinedClickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = androidx.compose.material3.ripple(),
+                        onClick = { onItemClick(item) },
+                        onLongClick = {
+                            selectedItem = item
+                            showMenu = true
+                        }
                     ),
-                    elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
-                        defaultElevation = elevation,
-                        pressedElevation = 12.dp
-                    )
-                ) {
-                    Column {
-                        Box {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(item.streamIcon)
-                                    .crossfade(300)
-                                    .build(),
-                                imageLoader = ImageConfig.getImageLoader(LocalContext.current),
-                                contentDescription = item.name,
-                                contentScale = if (item.type == "live") ContentScale.Fit else ContentScale.Crop,
+                shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
+                colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 12.dp
+                )
+            ) {
+                Column {
+                    Box {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(item.streamIcon)
+                                .crossfade(300)
+                                .build(),
+                            imageLoader = ImageConfig.getImageLoader(LocalContext.current),
+                            contentDescription = item.name,
+                            contentScale = if (item.type == "live") ContentScale.Fit else ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 9f)
+                        )
+                        if (item.isPinned) {
+                            Icon(
+                                Icons.Default.PushPin,
+                                contentDescription = "Pinned",
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(16f / 9f)
-                                    .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium)
-                            )
-                            if (item.isPinned) {
-                                Icon(
-                                    Icons.Default.PushPin,
-                                    contentDescription = "Pinned",
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(8.dp)
-                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f), com.hasanege.materialtv.ui.theme.ExpressiveShapes.Small)
-                                        .padding(4.dp)
-                                        .size(16.dp)
-                                )
-                            }
-                            LinearProgressIndicator(
-                                progress = { item.position.toFloat() / item.duration.toFloat().coerceAtLeast(1f) },
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .fillMaxWidth(),
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                                color = MaterialTheme.colorScheme.primary
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f), com.hasanege.materialtv.ui.theme.ExpressiveShapes.Small)
+                                    .padding(4.dp)
+                                    .size(16.dp)
                             )
                         }
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = item.name,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                        androidx.compose.material3.LinearWavyProgressIndicator(
+                            progress = { item.position.toFloat() / item.duration.toFloat().coerceAtLeast(1f) },
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .height(4.dp),
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            color = MaterialTheme.colorScheme.primary,
+                            amplitude = { 0.5f }
+                        )
+                    }
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = item.name,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            minLines = 2
+                        )
                     }
                 }
             }

@@ -35,27 +35,53 @@ class SearchViewModel(private val repository: XtreamRepository) : ViewModel() {
     }
 
     private fun loadAllContent() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            val username = SessionManager.username ?: ""
+            val password = SessionManager.password ?: ""
+            
             _isLoading.value = true
-            try {
-                val username = SessionManager.username ?: ""
-                val password = SessionManager.password ?: ""
-                allMovies = repository.getVodStreams(username, password, null)
-                allSeries = repository.getSeries(username, password, null)
-                allLiveStreams = repository.getLiveStreams(username, password, null)
 
-                // Baslangicta tum icerigi goster
-                _movies.value = UiState.Success(allMovies)
-                _series.value = UiState.Success(allSeries)
-                _liveStreams.value = UiState.Success(allLiveStreams)
-            } catch (e: Exception) {
-                val error = UiState.Error(e.message ?: "An unknown error occurred")
-                _movies.value = error
-                _series.value = error
-                _liveStreams.value = error
-            } finally {
-                _isLoading.value = false
+            // Sequential for simplicity, but each flow will emit cache then network
+            repository.getVodStreams(username, password, null).collect { resource ->
+                when (resource) {
+                    is com.hasanege.materialtv.network.Resource.Loading -> { } // Tracked by _isLoading if needed
+                    is com.hasanege.materialtv.network.Resource.Success -> {
+                        allMovies = resource.data
+                        _movies.value = UiState.Success(allMovies)
+                    }
+                    is com.hasanege.materialtv.network.Resource.Error -> {
+                        _movies.value = UiState.Error(resource.message)
+                    }
+                }
             }
+
+            repository.getSeries(username, password, null).collect { resource ->
+                 when (resource) {
+                    is com.hasanege.materialtv.network.Resource.Loading -> { }
+                    is com.hasanege.materialtv.network.Resource.Success -> {
+                        allSeries = resource.data
+                        _series.value = UiState.Success(allSeries)
+                    }
+                    is com.hasanege.materialtv.network.Resource.Error -> {
+                        _series.value = UiState.Error(resource.message)
+                    }
+                }
+            }
+
+            repository.getLiveStreams(username, password, null).collect { resource ->
+                when (resource) {
+                    is com.hasanege.materialtv.network.Resource.Loading -> { }
+                    is com.hasanege.materialtv.network.Resource.Success -> {
+                        allLiveStreams = resource.data
+                        _liveStreams.value = UiState.Success(allLiveStreams)
+                    }
+                    is com.hasanege.materialtv.network.Resource.Error -> {
+                        _liveStreams.value = UiState.Error(resource.message)
+                    }
+                }
+            }
+            
+            _isLoading.value = false
         }
     }
 

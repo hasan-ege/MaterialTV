@@ -13,9 +13,20 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.serializer
 
-class XtreamRepository(private val apiService: XtreamApiService?) {
-    private val json = Json { ignoreUnknownKeys = true }
+import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
+
+class XtreamRepository(
+    private val apiService: XtreamApiService?, 
+    private val cacheDir: File? = null
+) {
+    private val json = Json { 
+        ignoreUnknownKeys = true 
+        encodeDefaults = true
+    }
 
     suspend fun getVodCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
         if (apiService == null) return@withContext emptyList()
@@ -50,48 +61,99 @@ class XtreamRepository(private val apiService: XtreamApiService?) {
         }
     }
 
-    suspend fun getVodStreams(
+    fun getVodStreams(
         username: String,
         password: String,
         categoryId: String?
-    ): List<VodItem> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
-        try {
-            val response = apiService.getVodStreams(username, password, categoryId = categoryId)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(VodItem.serializer()), response)
-        } catch (e: Exception) {
-            emptyList()
+    ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<VodItem>>> = kotlinx.coroutines.flow.flow {
+        val cacheFile = "vod_streams_${categoryId ?: "all"}.json"
+        
+        emit(com.hasanege.materialtv.network.Resource.Loading)
+        
+        // 1. Load from cache
+        val cached = loadFromCache<VodItem>(cacheFile)
+        if (cached.isNotEmpty()) {
+            emit(com.hasanege.materialtv.network.Resource.Success(cached))
+        }
+
+        // 2. Fetch from network
+        if (apiService != null) {
+            try {
+                val response = apiService.getVodStreams(username, password, categoryId = categoryId)
+                if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
+                    val data = json.decodeFromJsonElement(ListSerializer(VodItem.serializer()), response)
+                    saveToCache(cacheFile, data)
+                    emit(com.hasanege.materialtv.network.Resource.Success(data))
+                }
+            } catch (e: Exception) {
+                if (cached.isEmpty()) {
+                    emit(com.hasanege.materialtv.network.Resource.Error(e.message ?: "Network error", e))
+                }
+            }
         }
     }
 
-    suspend fun getSeries(
+    fun getSeries(
         username: String,
         password: String,
         categoryId: String?
-    ): List<SeriesItem> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
-        try {
-            val response = apiService.getSeries(username, password, categoryId = categoryId)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(SeriesItem.serializer()), response)
-        } catch (e: Exception) {
-            emptyList()
+    ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<SeriesItem>>> = kotlinx.coroutines.flow.flow {
+        val cacheFile = "series_${categoryId ?: "all"}.json"
+
+        emit(com.hasanege.materialtv.network.Resource.Loading)
+
+        // 1. Load from cache
+        val cached = loadFromCache<SeriesItem>(cacheFile)
+        if (cached.isNotEmpty()) {
+            emit(com.hasanege.materialtv.network.Resource.Success(cached))
+        }
+
+        // 2. Fetch from network
+        if (apiService != null) {
+            try {
+                val response = apiService.getSeries(username, password, categoryId = categoryId)
+                if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
+                    val data = json.decodeFromJsonElement(ListSerializer(SeriesItem.serializer()), response)
+                    saveToCache(cacheFile, data)
+                    emit(com.hasanege.materialtv.network.Resource.Success(data))
+                }
+            } catch (e: Exception) {
+                if (cached.isEmpty()) {
+                    emit(com.hasanege.materialtv.network.Resource.Error(e.message ?: "Network error", e))
+                }
+            }
         }
     }
 
-    suspend fun getLiveStreams(
+    fun getLiveStreams(
         username: String,
         password: String,
         categoryId: String?
-    ): List<LiveStream> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
-        try {
-            val response = apiService.getLiveStreams(username, password, categoryId = categoryId)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(LiveStream.serializer()), response)
-        } catch (e: Exception) {
-            emptyList()
+    ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<LiveStream>>> = kotlinx.coroutines.flow.flow {
+        val cacheFile = "live_streams_${categoryId ?: "all"}.json"
+
+        emit(com.hasanege.materialtv.network.Resource.Loading)
+
+        // 1. Load from cache
+        val cached = loadFromCache<LiveStream>(cacheFile)
+        if (cached.isNotEmpty()) {
+            emit(com.hasanege.materialtv.network.Resource.Success(cached))
+        }
+
+        // 2. Fetch from network
+        if (apiService != null) {
+            try {
+                val response = apiService.getLiveStreams(username, password, categoryId = categoryId)
+                if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
+                    val data = json.decodeFromJsonElement(ListSerializer(LiveStream.serializer()), response)
+                    saveToCache(cacheFile, data)
+                    emit(com.hasanege.materialtv.network.Resource.Success(data))
+                }
+            } catch (e: Exception) {
+                if (cached.isEmpty()) {
+                    emit(com.hasanege.materialtv.network.Resource.Error(e.message ?: "Network error", e))
+                }
+            }
         }
     }
 
@@ -142,6 +204,28 @@ class XtreamRepository(private val apiService: XtreamApiService?) {
             apiService.getVodInfo(username, password, vodId = vodId)
         } catch (e: Exception) {
             null
+        }
+    }
+    private inline fun <reified T> saveToCache(fileName: String, data: List<T>) {
+        if (cacheDir == null) return
+        try {
+            val file = File(cacheDir, fileName)
+            val jsonString = json.encodeToString(ListSerializer(json.serializersModule.serializer<T>()), data)
+            FileWriter(file).use { it.write(jsonString) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private inline fun <reified T> loadFromCache(fileName: String): List<T> {
+        if (cacheDir == null) return emptyList()
+        val file = File(cacheDir, fileName)
+        if (!file.exists()) return emptyList()
+        return try {
+            val jsonString = FileReader(file).use { it.readText() }
+            json.decodeFromString(ListSerializer(json.serializersModule.serializer<T>()), jsonString)
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }

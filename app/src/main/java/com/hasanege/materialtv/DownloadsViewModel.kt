@@ -45,16 +45,12 @@ class DownloadsViewModel : ViewModel() {
     fun initialize(context: Context) {
         downloadManager = DownloadManagerImpl.getInstance(context)
         
-        // Initial scan on launch (silent)
-        viewModelScope.launch {
-            downloadManager?.scanExistingDownloads()
-        }
-        
-        viewModelScope.launch {
-            downloadManager?.downloads?.collect { items ->
-                _rawDownloads.value = items
-                _downloads.value = filterDownloads(items, _selectedFilter.value)
-            }
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
+             downloadManager?.downloads?.collect { items ->
+                 _rawDownloads.value = items
+                 val filtered = filterDownloads(items, _selectedFilter.value)
+                 _downloads.value = filtered
+             }
         }
         
         // Listen to scan status updates
@@ -72,7 +68,10 @@ class DownloadsViewModel : ViewModel() {
     fun setFilter(filter: DownloadFilter) {
         _selectedFilter.value = filter
         // Always filter from raw data, not from already filtered data
-        _downloads.value = filterDownloads(_rawDownloads.value, filter)
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
+            val filtered = filterDownloads(_rawDownloads.value, filter)
+            _downloads.value = filtered
+        }
     }
     
     private fun filterDownloads(items: List<DownloadItem>, filter: DownloadFilter): List<DownloadItem> {
@@ -117,8 +116,9 @@ class DownloadsViewModel : ViewModel() {
     fun rescanDownloads() {
         viewModelScope.launch {
             _isLoading.value = true
+            // Artificial delay for aesthetic checking (as requested by user)
+            kotlinx.coroutines.delay(1500)
             val count = downloadManager?.scanExistingDownloads() ?: 0
-            kotlinx.coroutines.delay(1000)
             _isLoading.value = false
             _scanMessage.value = "Bulunan dosya: $count"
         }
@@ -128,31 +128,38 @@ class DownloadsViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             downloadManager?.setCustomDownloadFolder(uri)
+            // Artificial delay for aesthetic checking
+            kotlinx.coroutines.delay(1500)
             val count = downloadManager?.scanExistingDownloads() ?: 0
-            kotlinx.coroutines.delay(1000)
             _isLoading.value = false
             _scanMessage.value = "Klasör seçildi. Bulunan dosya: $count"
         }
     }
     
     fun playDownload(context: Context, download: DownloadItem) {
-        val file = File(download.filePath)
-        if (file.exists()) {
-            // Find existing watch history for this download
-            val downloadId = WatchHistoryManager.getDownloadId(download.filePath)
-            val historyItem = WatchHistoryManager.getHistory().find { it.streamId == downloadId }
-            val resumePosition = historyItem?.position ?: 0L
-
-            val intent = Intent(context, PlayerActivity::class.java).apply {
-                // Use URI for local file playback (PlayerActivity expects this)
-                putExtra("URI", download.filePath)
-                putExtra("TITLE", download.title)
-                putExtra("IS_DOWNLOADED_FILE", true)
-                putExtra("position", resumePosition)
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val file = File(download.filePath)
+            val exists = file.exists()
+            
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                if (exists) {
+                    // Find existing watch history for this download
+                    val downloadId = WatchHistoryManager.getDownloadId(download.filePath)
+                    val historyItem = WatchHistoryManager.getHistory().find { it.streamId == downloadId }
+                    val resumePosition = historyItem?.position ?: 0L
+    
+                    val intent = Intent(context, PlayerActivity::class.java).apply {
+                        // Use URI for local file playback (PlayerActivity expects this)
+                        putExtra("URI", download.filePath)
+                        putExtra("TITLE", download.title)
+                        putExtra("IS_DOWNLOADED_FILE", true)
+                        putExtra("position", resumePosition)
+                    }
+                    context.startActivity(intent)
+                } else {
+                    android.widget.Toast.makeText(context, "Dosya bulunamadı", android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
-            context.startActivity(intent)
-        } else {
-            android.widget.Toast.makeText(context, "Dosya bulunamadı", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 }

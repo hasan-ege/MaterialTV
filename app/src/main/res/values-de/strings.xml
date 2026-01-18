@@ -292,7 +292,7 @@
     <string name="detail_play_resume">Fortsetzen von %1$s</string>
     <string name="detail_play_resume_episode">Fortsetzen S%1$s E%2$s von %3$s</string>
     <string name="detail_play_episode">S%1$s E%2$s abspielen</string>
-    <string name="detail_download_season">Staffel herunterladen</string>
+    <string name="detail_download_season">Ganze Staffel herunterladen</string>
     <string name="detail_season_placeholder">Staffel</string>
     <string name="detail_downloading">Wird heruntergeladen %1$d%%</string>
     <string name="detail_preparing">Wird vorbereitet…</string>
@@ -458,90 +458,22 @@
     <string name="detail_director">Regisseur: %1$s</string>
     <string name="detail_cast">Besetzung: %1$s</string>
     <string name="detail_description">Beschreibung</string>
-
-    <!-- Allgemeine Meldungen -->
-    <string name="loading">Laden…</string>
-    <string name="retry">Wiederholen</string>
-    <string name="no_internet">Keine Internetverbindung</string>
-    <string name="something_went_wrong">Etwas ist schiefgelaufen</string>
-
-    <!-- Zusätzliche Startseiten-Strings -->
-    <string name="category_all">Alle</string>
-    <string name="error_loading_categories">Fehler beim Laden der Kategorien</string>
-
-    <!-- Benachrichtigungs-Strings -->
-    <string name="notification_channel_name">Downloads</string>
-    <string name="notification_channel_desc">Zeigt Download-Fortschritt und -Status an</string>
-    <string name="notification_time_left_sec">Noch %1$ds</string>
-    <string name="notification_time_left_min_sec">Noch %1$dm %2$ds</string>
-    <string name="notification_time_left_hour_min">Noch %1$dh %2$dm</string>
-    <string name="notification_paused_count">%1$d pausiert</string>
-    <string name="notification_active_count">%1$d aktiv</string>
-    <string name="notification_downloading">Wird heruntergeladen…</string>
-    <string name="notification_tap_to_resume">Zum Fortsetzen tippen</string>
-    <string name="notification_preparing">Wird vorbereitet…</string>
-    <string name="notification_progress_label">Fortschritt: %1$d%%</string>
-    <string name="notification_size_label">Größe: %1$s</string>
-    <string name="notification_speed_label">Geschwindigkeit: %1$s</string>
-    <string name="notification_remaining_label">Verbleibend: %1$s</string>
-    <string name="notification_paused_downloads_label">Pausierte Downloads</string>
-    <string name="notification_action_pause">Pause</string>
-    <string name="notification_action_start">Start</string>
-    <string name="notification_completed_title">Download abgeschlossen: %1$s</string>
-    <string name="notification_completed_desc">%1$s wurde heruntergeladen</string>
-    <string name="notification_failed_title">Download fehlgeschlagen: %1$s</string>
-    <string name="notification_failed_desc">%1$s konnte nicht heruntergeladen werden</string>
-    <string name="notification_failed_big_text">Download fehlgeschlagen: %1$s\nZum Wiederholen tippen.</string>
-    <string name="notification_action_resume">Fortsetzen</string>
-    <string name="notification_action_cancel">Abbrechen</string>
-    <string name="notification_paused_title">Download pausiert</string>
-    <string name="settings_concurrent_limit">Gleichzeitige Downloads</string>
-    <string name="settings_concurrent_desc_single">1 Download gleichzeitig, andere in Warteschlange</string>
-    <string name="settings_concurrent_desc_multiple">Bis zu %1$d aktive Downloads erlaubt</string>
-    <string name="settings_threshold_label">Schwellenwert nächste Folge</string>
-    <string name="settings_threshold_desc">Vorschlag erscheint %1$d Minuten vor Ende der Folge</string>
-    <string name="settings_notifications">Download-Benachrichtigungen</string>
-    <string name="settings_autoplay">Nächste Folge automatisch abspielen</string>
-    <string name="settings_auto_retry">Fehlgeschlagene Downloads automatisch wiederholen</string>
-    <string name="settings_use_ffmpeg">FFmpeg-Downloader nutzen</string>
-    <string name="settings_clear_search_history">Suchverlauf löschen</string>
-    <string name="settings_clear_search_history_confirm">Suchverlauf löschen</string>
-    <string name="settings_search_history_cleared">Suchverlauf gelöscht</string>
-    
-    <string name="settings_copied_to_clipboard">In Zwischenablage kopiert</string>
-    
-    <!-- Kontoinformationen -->
-    <string name="settings_account_info">Kontoinformationen</string>
-    <string name="settings_account_status">Status</string>
-    <string name="settings_account_expiry">Ablaufdatum</string>
-    <string name="settings_account_connections">Aktive Verbindungen</string>
-    <string name="settings_account_server">Server</string>
-    <string name="settings_account_status_active">Aktiv</string>
-    <string name="settings_account_status_expired">Abgelaufen</string>
-    
-    <!-- Einheiten -->
-    <string name="unit_kbps">KB/s</string>
-    <string name="unit_mbps">MB/s</string>
-    <string name="unit_min">min</string>
-    <string name="unit_sec">sek</string>
-    
-    <!-- Einheiten-Formatierung -->
-    <string name="unit_format_b">%1$d B</string>
-    <string name="unit_format_kb">%1$.1f KB</string>
-    <string name="unit_format_mb">%1$.1f MB</string>
-    <string name="unit_format_gb">%1$.2f GB</string>
-    <string name="unit_format_speed_bps">%1$d B/s</string>
-    <string name="unit_format_speed_kbps">%1$.1f KB/s</string>
-    <string name="unit_format_speed_mbps">%1$.1f MB/s</string>
-    
-    <!-- Neue Strings für Externalisierung -->
-    <string name="detail_unknown_title">Unbekannter Titel</string>
+    <string name="detail_trailer_header">Trailer</string>
     <string name="detail_no_description">Keine Beschreibung verfügbar.</string>
-    <string name="profile_default_user">Benutzer</string>
-    <string name="shared_no_results_desc">Versuchen Sie eine andere Suchanfrage</string>
-    <string name="shared_no_connection_desc">Bitte überprüfen Sie Ihre Internetverbindung.</string>
-    <string name="detail_suffix_dan">von</string>
-    <string name="detail_suffix_den">von</string>
-    <string name="detail_suffix_tan">von</string>
-    <string name="detail_suffix_ten">von</string>
+    <!-- Content Ratings -->
+    <string name="content_rating_general">G</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+
+    <!-- Content Warnings -->
+    <string name="content_warning_violence">Gewalt</string>
+    <string name="content_warning_horror">Horror</string>
+    <string name="content_warning_sexuality">Sexualität</string>
+    <string name="content_warning_negative">Negatives Verhalten</string>
+    <string name="detail_reviews_header">Nutzerbewertungen</string>
+    <string name="detail_view_all_reviews">Alle anzeigen</string>
+    <string name="reviews_screen_title">IMDb Bewertungen</string>
+    <string name="detail_cast_header">Besetzung</string>
+    <string name="detail_unknown_title">Unbekannter Titel</string>
 </resources>

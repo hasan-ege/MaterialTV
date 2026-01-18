@@ -22,20 +22,40 @@ class CategoryViewModel(private val repository: XtreamRepository) : ViewModel() 
 
     fun loadCategoryItems(categoryId: String, categoryType: String) {
         viewModelScope.launch {
-            uiState.value = UiState.Loading
-            try {
-                val username = SessionManager.username ?: ""
-                val password = SessionManager.password ?: ""
+            val username = SessionManager.username ?: ""
+            val password = SessionManager.password ?: ""
 
-                val result = when (categoryType) {
-                    "movie" -> CategoryData.Movies(repository.getVodStreams(username, password, categoryId))
-                    "series" -> CategoryData.Series(repository.getSeries(username, password, categoryId))
-                    "live" -> CategoryData.LiveStreams(repository.getLiveStreams(username, password, categoryId))
-                    else -> throw IllegalArgumentException("Invalid category type")
+            when (categoryType) {
+                "movie" -> {
+                    repository.getVodStreams(username, password, categoryId).collect { resource ->
+                        uiState.value = when (resource) {
+                            is com.hasanege.materialtv.network.Resource.Loading -> UiState.Loading
+                            is com.hasanege.materialtv.network.Resource.Success -> UiState.Success(CategoryData.Movies(resource.data))
+                            is com.hasanege.materialtv.network.Resource.Error -> UiState.Error(resource.message)
+                        }
+                    }
                 }
-                uiState.value = UiState.Success(result)
-            } catch (e: Exception) {
-                uiState.value = UiState.Error(e.message ?: "An unknown error occurred")
+                "series" -> {
+                    repository.getSeries(username, password, categoryId).collect { resource ->
+                        uiState.value = when (resource) {
+                            is com.hasanege.materialtv.network.Resource.Loading -> UiState.Loading
+                            is com.hasanege.materialtv.network.Resource.Success -> UiState.Success(CategoryData.Series(resource.data))
+                            is com.hasanege.materialtv.network.Resource.Error -> UiState.Error(resource.message)
+                        }
+                    }
+                }
+                "live" -> {
+                    repository.getLiveStreams(username, password, categoryId).collect { resource ->
+                        uiState.value = when (resource) {
+                            is com.hasanege.materialtv.network.Resource.Loading -> UiState.Loading
+                            is com.hasanege.materialtv.network.Resource.Success -> UiState.Success(CategoryData.LiveStreams(resource.data))
+                            is com.hasanege.materialtv.network.Resource.Error -> UiState.Error(resource.message)
+                        }
+                    }
+                }
+                else -> {
+                    uiState.value = UiState.Error("Invalid category type")
+                }
             }
         }
     }

@@ -2,8 +2,6 @@
 > **Disclaimer:** This is a hobby project. The application does not provide any content. I am not responsible for your playlist or the content you watch. Features are added based on my personal needs.
 
 
-
-
 >This project is licensed under the **CC BY-NC-SA 4.0** License. 
 >**Commercial use is strictly prohibited** without explicit permission from the author. 
 >See the [LICENSE](LICENSE) file for more details.
@@ -33,21 +31,30 @@
 
 ### 🎨 Material 3 Expressive UI
 The core of MaterialTV. We don't just use standard components; we embrace the **Expressive Guidelines**:
+- **Alive Components:** Wavy Progress Indicators that breathe with your content and Carousels that create depth.
 - **35+ Organic Shapes:** From Squircles to CookieFlowers, every UI element feels custom and organic.
 - **Physics-Based Motion:** Damped spring physics (`DampingRatioMediumBouncy`) for interactions that feel tactile and alive.
-- **Haptic Tuning:** Integrated haptic feedback (`LongPress` type) for critical user actions.
 - **Dynamic Theming:** Deep integration with Material3 tonal palettes for a harmonious look.
 
-### 🎥 Dual-Core Playback Engine
+### 🎥 Dual-Core Cinematic Player
 MaterialTV offers 100% compatibility by allowing you to choose your engine:
 - **ExoPlayer (Media3):** Modern, Google-backed performance for mainstream formats.
 - **LibVLC:** Robust support for legacy and specialized encoders.
-- **PiP Mastery:** Flawless Picture-in-Picture mode with zero reconnection lag or black screens.
+- **Zero-Compromise PiP:** Flawless Picture-in-Picture mode with seamless transitions and no black screens.
+- **Pro Controls:** Intuitive gesture controls for volume/brightness, advanced subtitle & audio track management.
+- **Background Playback:** Listen to your content even while multitasking.
+
+### 📥 Advanced Download Manager
+- **Sequential Season Downloads:** Download entire series with a single click, processed in smart sequential order.
+- **Wavy Progress Visualization:** Track your downloads with our signature expressive progress bars.
+- **Smart File Management:** Automatic physical file renaming and local cover art scraping/syncing.
+- **Offline First:** Local metadata management ensures your library looks great even without internet.
+- **Rich Metadata:** Powered by **TMDB** and **OMDb** for comprehensive movie and series details.
 
 ### 🔄 Continuity & Intelligence
 - **Intelligent Resume:** "Continue Watching" row that automatically suggests the next episode for your favorite series.
-- **Ordered Downloads:** Download entire series with a single click, processed in sequential order to save bandwidth.
-- **Smart Search:** Debounced, category-aware global search with automatic tab switching.
+- **Smart Filtering:** Unified filtering by Movies, Series, and Live TV.
+- **Live TV Enhancements:** Channel information overlays and m3u playlist support.
 
 ### ️ Premium Management
 - **List Folders:** Create custom folders for your favorites with personalized naming and icons.
@@ -61,9 +68,9 @@ MaterialTV offers 100% compatibility by allowing you to choose your engine:
 | | |
 | :---: | :---: |
 | ![Home](https://github.com/hasan-ege/MaterialTV/blob/master/Images/home.jpeg?raw=true) | ![Downloads](https://github.com/hasan-ege/MaterialTV/blob/master/Images/downloads.jpeg?raw=true) |
-| *Modern Home Screen with Dynamic Tabs* | *Advanced Download Manager* |
-| ![Favorites](https://github.com/hasan-ege/MaterialTV/blob/master/Images/favorites.jpeg?raw=true) | ![Profile](https://github.com/hasan-ege/MaterialTV/blob/master/Images/profile.jpeg?raw=true) |
-| *Personalized Favorites & Folders* | *User Experience & Customization* |
+| *Modern Home Screen with Dynamic Tabs* | *Advanced Download Manager with Wavy Progress* |
+| ![Player](https://github.com/hasan-ege/MaterialTV/blob/master/Images/player.jpeg?raw=true) | ![Profile](https://github.com/hasan-ege/MaterialTV/blob/master/Images/profile.jpeg?raw=true) |
+| *Cinematic Player with PiP & Gestures* | *User Experience & Customization* |
 
 </div>
 
@@ -81,6 +88,7 @@ MaterialTV is built using the latest industry standards:
 | **Persistence** | DataStore (Settings), Room (History & Favorites) |
 | **Media** | ExoPlayer, LibVLC, FFmpeg |
 | **Architecture** | Clean Architecture (MVVM Pattern) |
+| **Data Sources** | TMDB, OMDb |
 
 ---
 

@@ -290,9 +290,6 @@
     <string name="detail_season">%1$s сезон</string>
     <string name="detail_episode">%1$s серия</string>
     <string name="detail_play_resume">Продолжить с %1$s</string>
-    <string name="detail_play_resume_episode">Продолжить S%1$s E%2$s с %3$s</string>
-    <string name="detail_play_episode">Смотреть S%1$s E%2$s</string>
-    <string name="detail_download_season">Загрузить сезон</string>
     <string name="detail_season_placeholder">Сезон</string>
     <string name="detail_downloading">Загрузка %1$d%%</string>
     <string name="detail_preparing">Подготовка…</string>
@@ -543,5 +540,21 @@
     <string name="detail_suffix_dan">из</string>
     <string name="detail_suffix_den">из</string>
     <string name="detail_suffix_tan">из</string>
-    <string name="detail_suffix_ten">из</string>
+    <string name="detail_suffix_ten">от</string>
+    <string name="detail_download_season">Скачать весь сезон</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">Общий</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Насилие</string>
+    <string name="content_warning_horror">Ужасы</string>
+    <string name="content_warning_sexuality">Секс</string>
+    <string name="content_warning_negative">Негативное поведение</string>
+    <string name="detail_cast_header">В ролях</string>
+    <string name="detail_reviews_header">Отзывы пользователей</string>
+    <string name="detail_view_all_reviews">Смотреть все</string>
+    <string name="reviews_screen_title">Обзоры IMDb</string>
+    <string name="detail_trailer_header">Трейлер</string>
 </resources>

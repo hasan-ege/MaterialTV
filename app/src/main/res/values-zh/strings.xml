@@ -286,9 +286,6 @@
     <string name="detail_season">第 %1$s 季</string>
     <string name="detail_episode">第 %1$s 集</string>
     <string name="detail_play_resume">从 %1$s 继续播放</string>
-    <string name="detail_play_resume_episode">从 %3$s 继续播放 S%1$s E%2$s</string>
-    <string name="detail_play_episode">播放 S%1$s E%2$s</string>
-    <string name="detail_download_season">下载整季</string>
     <string name="detail_season_placeholder">季</string>
     <string name="detail_downloading">正在下载 %1$d%%</string>
     <string name="detail_preparing">正在准备…</string>
@@ -539,5 +536,21 @@
     <string name="detail_suffix_dan">自</string>
     <string name="detail_suffix_den">自</string>
     <string name="detail_suffix_tan">自</string>
-    <string name="detail_suffix_ten">自</string>
+    <string name="detail_suffix_ten">来自</string>
+    <string name="detail_download_season">下载整季</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">通用</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">暴力</string>
+    <string name="content_warning_horror">恐怖</string>
+    <string name="content_warning_sexuality">性内容</string>
+    <string name="content_warning_negative">负面行为</string>
+    <string name="detail_cast_header">演员</string>
+    <string name="detail_reviews_header">用户评价</string>
+    <string name="detail_view_all_reviews">查看全部</string>
+    <string name="reviews_screen_title">IMDb 影评</string>
+    <string name="detail_trailer_header">预告片</string>
 </resources>

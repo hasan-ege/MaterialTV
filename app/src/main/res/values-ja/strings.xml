@@ -290,9 +290,6 @@
     <string name="detail_season">シーズン%1$s</string>
     <string name="detail_episode">エピソード%1$s</string>
     <string name="detail_play_resume">%1$sから再開</string>
-    <string name="detail_play_resume_episode">S%1$s E%2$sを%3$sから再開</string>
-    <string name="detail_play_episode">S%1$s E%2$sを再生</string>
-    <string name="detail_download_season">シーズンをダウンロード</string>
     <string name="detail_season_placeholder">シーズン</string>
     <string name="detail_downloading">ダウンロード中%1$d%%</string>
     <string name="detail_preparing">準備中…</string>
@@ -544,4 +541,20 @@
     <string name="detail_suffix_den">から</string>
     <string name="detail_suffix_tan">から</string>
     <string name="detail_suffix_ten">から</string>
+    <string name="detail_download_season">シーズン全体をダウンロード</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">一般</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">暴力</string>
+    <string name="content_warning_horror">ホラー</string>
+    <string name="content_warning_sexuality">性的な内容</string>
+    <string name="content_warning_negative">不適切な行動</string>
+    <string name="detail_cast_header">出演</string>
+    <string name="detail_reviews_header">ユーザーレビュー</string>
+    <string name="detail_view_all_reviews">すべて表示</string>
+    <string name="reviews_screen_title">IMDbレビュー</string>
+    <string name="detail_trailer_header">トレーラー</string>
 </resources>

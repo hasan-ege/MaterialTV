@@ -8,9 +8,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
 import androidx.media3.common.util.UnstableApi
 import com.hasanege.materialtv.download.DownloadManager
 import com.hasanege.materialtv.download.DownloadManagerImpl
@@ -31,14 +34,16 @@ class SeriesDetailActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.hasanege.materialtv.SeriesDetailViewModelFactory.initialize(com.hasanege.materialtv.data.SettingsRepository.getInstance(this))
         downloadManager = DownloadManagerImpl.getInstance(applicationContext)
 
         val seriesId = intent.getIntExtra("SERIES_ID", -1)
+        val initialTitle = intent.getStringExtra("TITLE")
         val username = SessionManager.username ?: ""
         val password = SessionManager.password ?: ""
 
         if (seriesId != -1) {
-            viewModel.loadSeriesInfo(username, password, seriesId)
+            viewModel.loadSeriesInfo(username, password, seriesId, initialTitle)
         }
 
         setContent {
@@ -150,11 +155,16 @@ class SeriesDetailActivity : ComponentActivity() {
                         )
                     }
                     is UiState.Loading -> {
+
+
                         Box(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
+                            @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+                            androidx.compose.material3.CircularWavyProgressIndicator()
                         }
                     }
                     is UiState.Error -> {

@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
 import androidx.media3.common.util.UnstableApi
 import com.hasanege.materialtv.download.DownloadManager
 import com.hasanege.materialtv.download.DownloadManagerImpl
@@ -31,14 +32,16 @@ class DetailActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.hasanege.materialtv.DetailViewModelFactory.initialize(com.hasanege.materialtv.data.SettingsRepository.getInstance(this))
         downloadManager = DownloadManagerImpl.getInstance(applicationContext)
 
         val streamId = intent.getIntExtra("STREAM_ID", -1)
+        val initialTitle = intent.getStringExtra("TITLE")
         val username = SessionManager.username ?: ""
         val password = SessionManager.password ?: ""
 
         if (streamId != -1) {
-            viewModel.loadMovieDetails(username, password, streamId)
+            viewModel.loadMovieDetails(username, password, streamId, initialTitle)
         }
 
         setContent {
@@ -98,8 +101,12 @@ class DetailActivity : ComponentActivity() {
                         )
                     }
                     is UiState.Loading -> {
+
+
                         Box(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(androidx.compose.material3.MaterialTheme.colorScheme.background),
                             contentAlignment = Alignment.Center
                         ) {
                             androidx.compose.material3.CircularWavyProgressIndicator()

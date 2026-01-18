@@ -286,13 +286,8 @@
     <string name="detail_play">Reproducir</string>
     <string name="detail_download">Descargar</string>
     <string name="detail_info">Información</string>
-    <string name="detail_episodes">Episodios</string>
-    <string name="detail_season">Temporada %1$s</string>
     <string name="detail_episode">Episodio %1$s</string>
     <string name="detail_play_resume">Reanudar desde %1$s</string>
-    <string name="detail_play_resume_episode">Reanudar S%1$s E%2$s desde %3$s</string>
-    <string name="detail_play_episode">Reproducir S%1$s E%2$s</string>
-    <string name="detail_download_season">Descargar temporada</string>
     <string name="detail_season_placeholder">Temporada</string>
     <string name="detail_downloading">Descargando %1$d%%</string>
     <string name="detail_preparing">Preparando…</string>
@@ -544,4 +539,20 @@
     <string name="detail_suffix_den">de</string>
     <string name="detail_suffix_tan">de</string>
     <string name="detail_suffix_ten">de</string>
+    <string name="detail_download_season">Descargar temporada completa</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">General</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Violencia</string>
+    <string name="content_warning_horror">Terror</string>
+    <string name="content_warning_sexuality">Sexualidad</string>
+    <string name="content_warning_negative">Comportamiento negativo</string>
+    <string name="detail_cast_header">Reparto</string>
+    <string name="detail_reviews_header">Opiniones de usuarios</string>
+    <string name="detail_view_all_reviews">Ver todo</string>
+    <string name="reviews_screen_title">Reseñas de IMDb</string>
+    <string name="detail_trailer_header">Tráiler</string>
 </resources>

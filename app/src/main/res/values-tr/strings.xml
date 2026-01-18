@@ -294,7 +294,7 @@
     <string name="detail_play_resume">%1$s\'%2$s devam</string>
     <string name="detail_play_resume_episode">S%1$sB%2$s %3$s\'%4$s devam</string>
     <string name="detail_play_episode">S%1$s B%2$s oynat</string>
-    <string name="detail_download_season">Sezonu İndir</string>
+    <string name="detail_download_season">Sezonun Tamamını İndir</string>
     <string name="detail_season_placeholder">Sezon</string>
     <string name="detail_downloading">İndiriliyor %1$d%%</string>
     <string name="detail_preparing">Hazırlanıyor…</string>
@@ -546,4 +546,19 @@
     <string name="detail_suffix_den">den</string>
     <string name="detail_suffix_tan">tan</string>
     <string name="detail_suffix_ten">ten</string>
+    <string name="detail_cast_header">Oyuncular</string>
+    <string name="detail_trailer_header">Fragman</string>
+    
+    <!-- İçerik Derecelendirme (Akıllı İşaretler) -->
+    <string name="content_rating_general">Genel</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Şiddet</string>
+    <string name="content_warning_horror">Korku</string>
+    <string name="content_warning_sexuality">Cinsellik</string>
+    <string name="content_warning_negative">Olumsuz Örnek</string>
+    <string name="detail_reviews_header">Kullanıcı Yorumları</string>
+    <string name="detail_view_all_reviews">Hepsini Gör</string>
+    <string name="reviews_screen_title">IMDb Yorumları</string>
 </resources>

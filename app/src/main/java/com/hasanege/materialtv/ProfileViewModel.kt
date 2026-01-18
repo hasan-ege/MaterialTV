@@ -13,7 +13,23 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(private val playlistManager: PlaylistManager) : ViewModel() {
+class ProfileViewModel(
+    private val playlistManager: PlaylistManager,
+    private val profilePreferences: com.hasanege.materialtv.data.ProfilePreferences
+) : ViewModel() {
+
+    // Profile Customization Flows
+    val profileName = profilePreferences.profileName.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = "User"
+    )
+
+    val profileImageUrl = profilePreferences.profileImageUrl.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
 
     val watchHistory: StateFlow<List<ContinueWatchingItem>> = WatchHistoryManager.historyFlow
         .stateIn(
@@ -21,6 +37,9 @@ class ProfileViewModel(private val playlistManager: PlaylistManager) : ViewModel
             started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+// ... (rest of stats logic same as before, skipping lines for brevity if possible, or just re-pasting the whole needed block)
+// I better use replace_file_content carefully to avoid deleting stats logic.
+// The file is small enough, I will replace the class def and factory. 
 
     val continueWatching: StateFlow<List<ContinueWatchingItem>> = WatchHistoryManager.historyFlow
         .map { history ->
@@ -73,40 +92,94 @@ class ProfileViewModel(private val playlistManager: PlaylistManager) : ViewModel
             started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
             initialValue = 0
         )
-    
-    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
-    val playlists: StateFlow<List<Playlist>> = _playlists
 
-    fun loadWatchHistory() {
-        // No-op, flows are now reactive
-    }
-    
-    fun loadPlaylists() {
-        _playlists.value = playlistManager.getPlaylists()
-    }
-    
-    fun deletePlaylist(id: String) {
-        playlistManager.removePlaylist(id)
-        loadPlaylists()
-    }
+    val completionRate: StateFlow<Int> = WatchHistoryManager.historyFlow
+        .map { history ->
+            if (history.isEmpty()) 0
+            else {
+                val completed = history.count { it.duration > 0 && (it.position.toFloat() / it.duration.toFloat()) > 0.95f }
+                ((completed.toFloat() / history.size.toFloat()) * 100).toInt()
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = 0
+        )
 
-    fun addPlaylist(name: String) {
-        // Note: This creates a placeholder M3U playlist. 
-        // In a full implementation, we would ask for URL/Credentials.
-        playlistManager.addPlaylist(Playlist(
-            id = java.util.UUID.randomUUID().toString(), 
-            name = name, 
-            type = com.hasanege.materialtv.network.SessionManager.LoginType.M3U,
-            url = ""
-        ))
-        loadPlaylists()
+    val userLevel: StateFlow<String> = totalWatchTime
+        .map { timeMs ->
+            val hours = timeMs / (1000 * 60 * 60)
+            when {
+                hours > 100 -> "Binge Master \uD83D\uDC51" // Crown
+                hours > 50 -> "Pro Watcher \uD83C\uDFAC" // Clapper board
+                hours > 20 -> "Regular \uD83D\uDC40" // Eyes
+                hours > 5 -> "Novice \uD83D\uDC23" // Chick
+                else -> "Newbie \uD83C\uDF31" // Seedling
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = "Newbie"
+        )
+        
+    val averageWatchTimePerItem: StateFlow<String> = kotlinx.coroutines.flow.combine(totalWatchTime, totalItemsWatched) { time, count ->
+        if (count == 0) "0m"
+        else {
+            val avgMs = time / count
+            val minutes = avgMs / (1000 * 60)
+            "${minutes}m"
+        }
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), "0m")
+
+    // Percentage of movies vs series vs live
+    // We will compute ratios for all 3.
+    // If we want a simple visual bar, we need weights.
+    // Let's expose raw counts primarily, but since UI used ratio, let's just make sure we have all of them.
+    
+    val totalLiveWatched: StateFlow<Int> = WatchHistoryManager.historyFlow
+        .map { history -> history.count { it.type == "live" } }
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = 0
+        )
+        
+    // Ratios (0-100)
+    val movieRatio: StateFlow<Int> = kotlinx.coroutines.flow.combine(totalMoviesWatched, totalItemsWatched) { movies, total ->
+        if (total == 0) 0 else ((movies.toFloat() / total.toFloat()) * 100).toInt()
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
+
+    val seriesRatio: StateFlow<Int> = kotlinx.coroutines.flow.combine(totalSeriesWatched, totalItemsWatched) { series, total ->
+        if (total == 0) 0 else ((series.toFloat() / total.toFloat()) * 100).toInt()
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
+
+    val liveRatio: StateFlow<Int> = kotlinx.coroutines.flow.combine(totalLiveWatched, totalItemsWatched) { live, total ->
+        if (total == 0) 0 else ((live.toFloat() / total.toFloat()) * 100).toInt()
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
+
+    // Items started but not finished (< 90% and > 5%)
+    val unfinishedItemsCount: StateFlow<Int> = WatchHistoryManager.historyFlow
+        .map { history ->
+            history.count { item ->
+                val progress = if (item.duration > 0) (item.position.toFloat() / item.duration.toFloat()) else 0f
+                progress in 0.05f..0.90f
+            }
+        }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
+
+    fun logout() {
+        com.hasanege.materialtv.network.SessionManager.clear()
+        // Activity/Navigation handling must be done by the UI
     }
 }
 
 class ProfileViewModelFactory(private val application: MainApplication) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
-            return ProfileViewModel(application.playlistManager) as T
+            val profilePreferences = com.hasanege.materialtv.data.ProfilePreferences(application)
+            return ProfileViewModel(application.playlistManager, profilePreferences) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

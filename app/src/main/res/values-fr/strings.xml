@@ -290,9 +290,6 @@
     <string name="detail_season">Saison %1$s</string>
     <string name="detail_episode">Épisode %1$s</string>
     <string name="detail_play_resume">Reprendre à %1$s</string>
-    <string name="detail_play_resume_episode">Reprendre S%1$s E%2$s à %3$s</string>
-    <string name="detail_play_episode">Lire S%1$s E%2$s</string>
-    <string name="detail_download_season">Télécharger la saison</string>
     <string name="detail_season_placeholder">Saison</string>
     <string name="detail_downloading">Téléchargement %1$d%%</string>
     <string name="detail_preparing">Préparation…</string>
@@ -544,4 +541,20 @@
     <string name="detail_suffix_den">de</string>
     <string name="detail_suffix_tan">de</string>
     <string name="detail_suffix_ten">de</string>
+    <string name="detail_download_season">Télécharger toute la saison</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">Général</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Violence</string>
+    <string name="content_warning_horror">Horreur</string>
+    <string name="content_warning_sexuality">Sexualité</string>
+    <string name="content_warning_negative">Comportement négatif</string>
+    <string name="detail_cast_header">Distribution</string>
+    <string name="detail_reviews_header">Avis des utilisateurs</string>
+    <string name="detail_view_all_reviews">Tout voir</string>
+    <string name="reviews_screen_title">Critiques IMDb</string>
+    <string name="detail_trailer_header">Bande-annonce</string>
 </resources>

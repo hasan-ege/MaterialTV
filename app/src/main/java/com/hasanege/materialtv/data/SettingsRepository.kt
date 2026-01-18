@@ -60,6 +60,11 @@ class SettingsRepository private constructor(private val context: Context) {
         val MIN_DOWNLOAD_SPEED_KBPS = intPreferencesKey("min_download_speed_kbps")
         val SPEED_RESTART_DELAY_SECONDS = intPreferencesKey("speed_restart_delay_seconds")
         val NEXT_EPISODE_THRESHOLD = intPreferencesKey("next_episode_threshold")
+        val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
+        val USER_NAME = stringPreferencesKey("user_name")
+        val USER_AVATAR_PATH = stringPreferencesKey("user_avatar_path")
+        val ENABLE_IMDB_SCRAPING = booleanPreferencesKey("enable_imdb_scraping")
+        val ENABLE_DOWNLOAD_COVERS = booleanPreferencesKey("enable_download_covers")
     }
 
     val maxConcurrentDownloads: Flow<Int> = context.settingsDataStore.data.map { prefs ->
@@ -207,6 +212,60 @@ class SettingsRepository private constructor(private val context: Context) {
     suspend fun setNextEpisodeThresholdMinutes(value: Int) {
         context.settingsDataStore.edit { prefs ->
             prefs[NEXT_EPISODE_THRESHOLD] = value
+        }
+    }
+
+    // First Launch
+    val isFirstLaunch: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[IS_FIRST_LAUNCH] ?: true
+    }
+
+    suspend fun setFirstLaunchCompleted(completed: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[IS_FIRST_LAUNCH] = !completed
+        }
+    }
+
+    // User Profile
+    val userName: Flow<String?> = context.settingsDataStore.data.map { prefs ->
+        prefs[USER_NAME]
+    }
+
+    suspend fun setUserName(name: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[USER_NAME] = name
+        }
+    }
+
+    val userAvatarPath: Flow<String?> = context.settingsDataStore.data.map { prefs ->
+        prefs[USER_AVATAR_PATH]
+    }
+
+    suspend fun setUserAvatarPath(path: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[USER_AVATAR_PATH] = path
+        }
+    }
+
+    // IMDb Scraping
+    val enableImdbScraping: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[ENABLE_IMDB_SCRAPING] ?: true
+    }
+
+    suspend fun setEnableImdbScraping(enabled: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[ENABLE_IMDB_SCRAPING] = enabled
+        }
+    }
+
+    // Download Covers
+    val enableDownloadCovers: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[ENABLE_DOWNLOAD_COVERS] ?: true
+    }
+
+    suspend fun setEnableDownloadCovers(enabled: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[ENABLE_DOWNLOAD_COVERS] = enabled
         }
     }
 }
