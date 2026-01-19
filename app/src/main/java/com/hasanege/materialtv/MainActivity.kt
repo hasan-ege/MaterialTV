@@ -60,6 +60,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import com.hasanege.materialtv.data.M3uRepository
@@ -135,10 +136,14 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun showLoginScreen() {
+        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(applicationContext)
         setContent {
+            val customName by settingsRepo.userName.collectAsState(initial = null)
+            val customAvatar by settingsRepo.userAvatarPath.collectAsState(initial = null)
+            
             MaterialTVTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    LoginScreen(viewModel) { navigateToHome() }
+                    LoginScreen(viewModel, customName, customAvatar) { navigateToHome() }
                 }
             }
         }
@@ -152,7 +157,12 @@ class MainActivity : AppCompatActivity() {
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LoginScreen(viewModel: MainViewModel, onLoginSuccess: () -> Unit) {
+fun LoginScreen(
+    viewModel: MainViewModel, 
+    customName: String?, 
+    customAvatar: String?, 
+    onLoginSuccess: () -> Unit
+) {
     LaunchedEffect(viewModel.error) {
         if (viewModel.error == null && SessionManager.isInitialized()) {
             onLoginSuccess()
@@ -215,29 +225,73 @@ fun LoginScreen(viewModel: MainViewModel, onLoginSuccess: () -> Unit) {
                         .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Logo / Title
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!customName.isNullOrBlank()) {
+                        // Profile Avatar
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (!customAvatar.isNullOrBlank()) {
+                                coil.compose.AsyncImage(
+                                    model = customAvatar,
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    text = customName.take(1).uppercase(),
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
                         Text(
-                            text = stringResource(R.string.app_name_material),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
+                            text = stringResource(R.string.profile_welcome, customName),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
                         Text(
-                            text = stringResource(R.string.app_name_tv),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            text = stringResource(R.string.profile_welcome_subtitle),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        // Original Logo / Title
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(R.string.app_name_material),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(R.string.app_name_tv),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Text(
+                            text = stringResource(R.string.login_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.login_title),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                     
                     Spacer(modifier = Modifier.height(24.dp))
 
