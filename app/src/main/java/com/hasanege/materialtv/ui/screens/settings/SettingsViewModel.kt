@@ -3,12 +3,17 @@ package com.hasanege.materialtv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasanege.materialtv.data.SettingsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val repository: SettingsRepository
+) : ViewModel() {
     val maxConcurrentDownloads: StateFlow<Int> = repository.maxConcurrentDownloads
         .stateIn(viewModelScope, SharingStarted.Eagerly, 3)
     val downloadNotificationsEnabled: StateFlow<Boolean> = repository.downloadNotificationsEnabled
@@ -143,12 +148,5 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         viewModelScope.launch {
             repository.setNextEpisodeThresholdMinutes(value)
         }
-    }
-}
-
-class SettingsViewModelFactory(private val repository: SettingsRepository) : androidx.lifecycle.ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        return SettingsViewModel(repository) as T
     }
 }

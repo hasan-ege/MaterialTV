@@ -35,8 +35,10 @@ import com.hasanege.materialtv.WatchHistoryViewModel
 import com.hasanege.materialtv.model.ContinueWatchingItem
 import com.hasanege.materialtv.ui.theme.MaterialTVTheme
 import com.hasanege.materialtv.R
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class WatchHistoryActivity : ComponentActivity() {
     private val viewModel: WatchHistoryViewModel by viewModels()
 
@@ -119,47 +121,9 @@ private fun WatchHistoryScreen(
                         onClick = {
                             // Logic matched with Continue Watching
                             if (item.type == "series") {
-                                val seriesIntent = Intent(context, com.hasanege.materialtv.SeriesDetailActivity::class.java).apply {
-                                    putExtra("SERIES_ID", item.seriesId)
-                                    putExtra("TITLE", item.name)
-                                    putExtra("COVER", item.streamIcon)
-                                }
-                                context.startActivity(seriesIntent)
+                                // TODO: Navigate using NavController after migration
                             } else {
-                                val intent = Intent(context, PlayerActivity::class.java).apply {
-                                    putExtra("TITLE", item.name)
-                                    putExtra("START_POSITION", item.position)
-                                    
-                                    if (item.type == "downloaded") {
-                                        if (item.episodeId != null && item.episodeId!!.isNotEmpty()) {
-                                            putExtra("url", item.episodeId)
-                                            putExtra("STREAM_ID", item.streamId)
-                                        } else {
-                                            putExtra("IS_DOWNLOADED_FILE", true)
-                                            putExtra("URI", item.streamIcon)
-                                        }
-                                    } else if (item.type == "movie") {
-                                        putExtra("STREAM_ID", item.streamId)
-                                    } else if (item.type == "live") {
-                                        if (com.hasanege.materialtv.network.SessionManager.loginType == com.hasanege.materialtv.network.SessionManager.LoginType.M3U) {
-                                            if (item.episodeId.isNullOrEmpty()) {
-                                                android.widget.Toast.makeText(context, context.getString(R.string.error_stream_not_found), android.widget.Toast.LENGTH_SHORT).show()
-                                                return@HistoryItemCard
-                                            }
-                                            putExtra("url", item.episodeId)
-                                        } else {
-                                            putExtra("url", "${com.hasanege.materialtv.network.SessionManager.serverUrl}/live/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${item.streamId}.ts")
-                                        }
-                                        putExtra("TITLE", item.name)
-                                        putExtra("LIVE_STREAM_ID", item.streamId)
-                                        putExtra("STREAM_ICON", item.streamIcon)
-                                    } else {
-                                        putExtra("STREAM_ID", item.streamId)
-                                        putExtra("SERIES_ID", item.seriesId)
-                                        putExtra("EPISODE_ID", item.episodeId)
-                                    }
-                                }
-                                context.startActivity(intent)
+                                // TODO: Navigate using NavController after migration
                             }
                         },
                         onDelete = { viewModel.removeItem(item) }

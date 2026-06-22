@@ -13,10 +13,14 @@ import kotlinx.coroutines.flow.flowOf
 import com.hasanege.materialtv.utils.LanguageManager
 import kotlinx.coroutines.flow.stateIn
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 // Singleton DataStore instance
 val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
-class SettingsRepository private constructor(private val context: Context) {
+@Singleton
+class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.ApplicationContext private val context: Context) {
 
     private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
 

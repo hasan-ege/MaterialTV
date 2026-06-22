@@ -1,7 +1,9 @@
 package com.hasanege.materialtv
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,7 +27,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.firstOrNull
 
-class HomeViewModel(application: Application, private val repository: XtreamRepository) : AndroidViewModel(application) {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val application: Application,
+    private val repository: XtreamRepository
+) : ViewModel() {
 
     private var _allMovies: List<VodItem> = emptyList()
     private var _allSeries: List<SeriesItem> = emptyList()
@@ -63,7 +69,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
     
     private fun loadRemovedItems() {
         try {
-            val prefs = getApplication<Application>().getSharedPreferences("home_preferences", Context.MODE_PRIVATE)
+            val prefs = application.getSharedPreferences("home_preferences", Context.MODE_PRIVATE)
             val removedItemsSet = prefs.getStringSet("removed_continue_watching_items", emptySet())
             removedContinueWatchingItems.addAll(removedItemsSet?.map { it.toInt() } ?: emptyList())
         } catch (e: Exception) {
@@ -73,7 +79,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
     
     private fun saveRemovedItems() {
         try {
-            val prefs = getApplication<Application>().getSharedPreferences("home_preferences", Context.MODE_PRIVATE)
+            val prefs = application.getSharedPreferences("home_preferences", Context.MODE_PRIVATE)
             val removedItemsSet = removedContinueWatchingItems.map { it.toString() }.toSet()
             prefs.edit().putStringSet("removed_continue_watching_items", removedItemsSet).apply()
         } catch (e: Exception) {
@@ -85,6 +91,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
         if (isInitialDataLoaded && !forceRefresh) return
 
         viewModelScope.launch {
+            android.util.Log.e("HomeViewModel", "loadInitialData started: username=$username, forceRefresh=$forceRefresh, loginType=${SessionManager.loginType}, serverUrl=${SessionManager.serverUrl}")
             isRefreshing = true
 
             moviesState = UiState.Loading
@@ -106,7 +113,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
                             android.util.Log.d("HomeViewModel", "Playlist is empty or refresh requested, fetching...")
                             val m3uUrl = SessionManager.m3uUrl
                             if (m3uUrl != null) {
-                                M3uRepository.fetchPlaylist(m3uUrl, getApplication(), forceRefresh)
+                                M3uRepository.fetchPlaylist(m3uUrl, application, forceRefresh)
                                 android.util.Log.d("HomeViewModel", "Playlist fetched, size: ${M3uRepository.getPlaylistSize()}")
                             } else {
                                 android.util.Log.e("HomeViewModel", "M3U URL is null!")
@@ -179,7 +186,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
             try {
                 _continueWatchingState.value = UiState.Loading
                 
-                val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(getApplication())
+                val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(application)
                 val threshold = settingsRepo.nextEpisodeThresholdMinutes.firstOrNull() ?: 5
                 
                 val history = WatchHistoryManager.getContinueWatching(threshold)
@@ -319,7 +326,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
             movieCategories = repository.getVodCategories(username, password)
         } catch (e: Exception) { 
              android.util.Log.e("HomeViewModel", "Error loading movie categories", e)
-             moviesByCategoriesState = UiState.Error(getApplication<Application>().getString(R.string.error_loading_categories))
+             moviesByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
         }
     }
 
@@ -328,7 +335,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
             seriesCategories = repository.getSeriesCategories(username, password)
         } catch (e: Exception) { 
              android.util.Log.e("HomeViewModel", "Error loading series categories", e)
-             seriesByCategoriesState = UiState.Error(getApplication<Application>().getString(R.string.error_loading_categories))
+             seriesByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
         }
     }
 
@@ -337,7 +344,7 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
             liveCategories = repository.getLiveCategories(username, password)
         } catch (e: Exception) { 
              android.util.Log.e("HomeViewModel", "Error loading live categories", e)
-             liveByCategoriesState = UiState.Error(getApplication<Application>().getString(R.string.error_loading_categories))
+             liveByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
         }
     }
 
@@ -451,19 +458,4 @@ class HomeViewModel(application: Application, private val repository: XtreamRepo
     }
 }
 
-class HomeViewModelFactory(private val application: Application) : androidx.lifecycle.ViewModelProvider.Factory {
-    private val apiService by lazy {
-        com.hasanege.materialtv.network.SessionManager.serverUrl?.let { 
-            com.hasanege.materialtv.network.RetrofitClient.getClient(it) 
-        }
-    }
 
-    private val repository by lazy {
-        XtreamRepository(apiService, application.cacheDir)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        return HomeViewModel(application, repository) as T
-    }
-}

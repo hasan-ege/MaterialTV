@@ -78,7 +78,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.platform.LocalUriHandler
 import android.content.Intent
 import android.provider.Settings
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -95,8 +95,7 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
-    val repository = remember { SettingsRepository.getInstance(context) }
-    val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(repository))
+    val viewModel: SettingsViewModel = hiltViewModel()
     val uriHandler = LocalUriHandler.current
     
     // Profile customization

@@ -60,6 +60,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
@@ -70,88 +71,97 @@ import com.hasanege.materialtv.ui.theme.MaterialTVTheme
 import com.hasanege.materialtv.R
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.runtime.staticCompositionLocalOf
+import android.content.res.Configuration
+import android.app.PictureInPictureParams
+import android.util.Rational
 
+val LocalPipMode = staticCompositionLocalOf { false }
+val LocalPipAction = staticCompositionLocalOf<((String) -> Unit)?> { null }
+
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    private var isInPipModeState = mutableStateOf(false)
+    private var activePipReceiver: ((String) -> Unit)? = null
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        isInPipModeState.value = isInPictureInPictureMode
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        // If we want auto-pip on home press, we can check if player is active.
+        // For now, PlayerScreen will handle enterPictureInPictureMode manually or set auto-pip.
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         val credentialsManager = (application as MainApplication).credentialsManager
-
-        // Check for First Launch - Onboarding
         val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(applicationContext)
-        lifecycleScope.launch {
-            val isFirstLaunch = settingsRepo.isFirstLaunch.firstOrNull() ?: true
-            if (isFirstLaunch) {
-                // Navigate to Onboarding
-                startActivity(Intent(this@MainActivity, com.hasanege.materialtv.ui.activities.OnboardingActivity::class.java))
-                finish()
-                return@launch
+
+        setContent {
+            val navController = androidx.navigation.compose.rememberNavController()
+            val customName by settingsRepo.userName.collectAsState(initial = null)
+            val customAvatar by settingsRepo.userAvatarPath.collectAsState(initial = null)
+            var startDestination by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(Unit) {
+                startDestination = checkAutoLoginDest(credentialsManager)
             }
-            
-            checkAutoLogin(credentialsManager)
+
+            MaterialTVTheme {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    LocalPipMode provides isInPipModeState.value,
+                    LocalPipAction provides { action -> activePipReceiver?.invoke(action) }
+                ) {
+                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                        if (startDestination == null) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        com.hasanege.materialtv.navigation.AppNavigation(
+                            navController = navController,
+                            startDestination = startDestination!!,
+                            mainViewModel = viewModel,
+                            customName = customName,
+                            customAvatar = customAvatar
+                        )
+                    }
+                }
+            }
+            }
         }
     }
     
-    private fun checkAutoLogin(credentialsManager: CredentialsManager) {
+    private suspend fun checkAutoLoginDest(credentialsManager: CredentialsManager): String {
         val serverUrl = credentialsManager.getServerUrl()
         val username = credentialsManager.getUsername()
         val password = credentialsManager.getPassword()
         val m3uUrl = credentialsManager.getM3uUrl()
         
-        // ... Log logic moved here or kept in onCreate but wrapped?
-        // Actually, to minimize disruption, I will refactor the existing logic into this function or just paste it here if it's cleaner. 
-        // Given constraints, let's keep it simple.
-        
-        // Check for saved M3U URL first
         if (!m3uUrl.isNullOrBlank()) {
-            android.util.Log.d("MainActivity", "=== M3U Auto-Login Started ===")
-            // ... (rest of logic)
-             SessionManager.initializeM3u(m3uUrl)
-            // Fetch playlist data before navigating
-            lifecycleScope.launch {
-                try {
-                    android.util.Log.d("MainActivity", "Fetching M3U playlist for auto-login...")
-                    M3uRepository.fetchPlaylist(m3uUrl, applicationContext)
-                    android.util.Log.d("MainActivity", "Playlist fetched successfully. Navigating to home...")
-                    navigateToHome()
-                } catch (e: Exception) {
-                     // ...
-                    credentialsManager.clearCredentials()
-                    showLoginScreen()
-                }
+            SessionManager.initializeM3u(m3uUrl)
+            return try {
+                M3uRepository.fetchPlaylist(m3uUrl, applicationContext)
+                com.hasanege.materialtv.navigation.Screen.Main.route
+            } catch (e: Exception) {
+                credentialsManager.clearCredentials()
+                com.hasanege.materialtv.navigation.Screen.Login.route
             }
-            return
         }
         
         if (!serverUrl.isNullOrBlank() && !username.isNullOrBlank() && !password.isNullOrBlank()) {
             SessionManager.initialize(serverUrl, username, password)
-            navigateToHome()
-            return 
+            return com.hasanege.materialtv.navigation.Screen.Main.route
         }
 
-        showLoginScreen()
-    }
-    
-    private fun showLoginScreen() {
-        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(applicationContext)
-        setContent {
-            val customName by settingsRepo.userName.collectAsState(initial = null)
-            val customAvatar by settingsRepo.userAvatarPath.collectAsState(initial = null)
-            
-            MaterialTVTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    LoginScreen(viewModel, customName, customAvatar) { navigateToHome() }
-                }
-            }
-        }
-    }
-
-    private fun navigateToHome() {
-        startActivity(Intent(this, HomeActivity::class.java))
-        finish()
+        return com.hasanege.materialtv.navigation.Screen.Login.route
     }
 }
 

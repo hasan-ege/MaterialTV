@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasanege.materialtv.data.M3uRepository
 import com.hasanege.materialtv.model.AuthUserInfo
@@ -15,7 +14,15 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import androidx.lifecycle.ViewModel
+
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val credentialsManager: CredentialsManager,
+    private val application: Application
+) : ViewModel() {
     // UI State
     var serverUrl by mutableStateOf("")
     var username by mutableStateOf("")
@@ -30,11 +37,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var error by mutableStateOf<String?>(null)
         private set
 
-    private val credentialsManager: CredentialsManager
-
     init {
-        SessionManager.clear()
-        credentialsManager = (application as MainApplication).credentialsManager
         serverUrl = credentialsManager.getServerUrl() ?: ""
         username = credentialsManager.getUsername() ?: ""
         password = credentialsManager.getPassword() ?: ""
@@ -71,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 android.util.Log.d("MainViewModel", "Fetching M3U playlist...")
                 // Fetch and parse the playlist
-                M3uRepository.fetchPlaylist(m3uUrl, getApplication())
+                M3uRepository.fetchPlaylist(m3uUrl, application)
                 
                 android.util.Log.d("MainViewModel", "Playlist fetched, size: ${M3uRepository.getPlaylistSize()}")
                 

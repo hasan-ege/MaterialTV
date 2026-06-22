@@ -8,7 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class WatchHistoryViewModel : ViewModel() {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class WatchHistoryViewModel @Inject constructor() : ViewModel() {
 
     val history: StateFlow<List<ContinueWatchingItem>> = WatchHistoryManager.historyFlow
         .stateIn(

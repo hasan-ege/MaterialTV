@@ -4,18 +4,23 @@ package com.hasanege.materialtv
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import com.hasanege.materialtv.data.Playlist
 import com.hasanege.materialtv.data.PlaylistManager
 import com.hasanege.materialtv.model.ContinueWatchingItem
+import com.hasanege.materialtv.network.CredentialsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
     private val playlistManager: PlaylistManager,
-    private val profilePreferences: com.hasanege.materialtv.data.ProfilePreferences
+    private val profilePreferences: com.hasanege.materialtv.data.ProfilePreferences,
+    private val credentialsManager: CredentialsManager
 ) : ViewModel() {
 
     // Profile Customization Flows
@@ -171,16 +176,8 @@ class ProfileViewModel(
 
     fun logout() {
         com.hasanege.materialtv.network.SessionManager.clear()
-        // Activity/Navigation handling must be done by the UI
+        credentialsManager.clearCredentials()
     }
 }
 
-class ProfileViewModelFactory(private val application: MainApplication) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
-            val profilePreferences = com.hasanege.materialtv.data.ProfilePreferences(application)
-            return ProfileViewModel(application.playlistManager, profilePreferences) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
+

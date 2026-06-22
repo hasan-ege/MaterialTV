@@ -3,7 +3,12 @@ package com.hasanege.materialtv.network
 import android.content.Context
 import android.content.SharedPreferences
 
-class CredentialsManager(context: Context) {
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class CredentialsManager @Inject constructor(@ApplicationContext context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun saveCredentials(serverUrl: String, username: String, password: String) {

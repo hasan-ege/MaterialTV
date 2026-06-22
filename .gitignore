@@ -63,3 +63,14 @@ build_diag.txt
 build_error.log
 build_error_log.txt
 *.py
+
+# Screenshots and assets
+screen*.png
+icon.png
+
+# Local Gradle Home
+.gradle_home/
+
+# Extracted/temporary files
+app/src/main/java/com/hasanege/materialtv/extracted_player.txt
+

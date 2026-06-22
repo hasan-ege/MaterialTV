@@ -14,6 +14,9 @@ import com.hasanege.materialtv.utils.LanguageManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
 class MainApplication : Application(), ImageLoaderFactory, Configuration.Provider {
 
     lateinit var credentialsManager: CredentialsManager
@@ -32,6 +35,10 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
         
         // Restore session early to avoid crashes in Activities
         restoreSession()
+        
+        // Setup Crash Handler
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(this, defaultHandler))
         
         FavoritesManager.initialize(this)
         WatchHistoryManager.initialize(this)

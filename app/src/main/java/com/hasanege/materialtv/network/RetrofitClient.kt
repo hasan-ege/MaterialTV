@@ -2,14 +2,17 @@ package com.hasanege.materialtv.network
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.io.File
 import java.security.cert.CertificateException
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import com.hasanege.materialtv.MainApplication
 
 object RetrofitClient {
     private val json = Json {
@@ -48,8 +51,38 @@ object RetrofitClient {
                 chain.proceed(requestWithHeaders)
             }
 
+            val cacheInterceptor = Interceptor { chain ->
+                var request = chain.request()
+                // Fetch from cache for up to 24 hours if network fails, or always check for updates
+                // For a faster experience, we'll force cache usage for categories/vod if recent
+                request = request.newBuilder()
+                    .header("Cache-Control", "public, max-age=60") // Cache for 60 seconds by default
+                    .build()
+                chain.proceed(request)
+            }
+
+            // Setup cache: 50 MB
+            val cacheSize = (50 * 1024 * 1024).toLong()
+            val cache = Cache(File(MainApplication.instance.cacheDir, "http_cache"), cacheSize)
+
+            val loggingInterceptor = Interceptor { chain ->
+                val request = chain.request()
+                android.util.Log.e("RetrofitClient", "Request: ${request.method} ${request.url}")
+                val response = try {
+                    chain.proceed(request)
+                } catch (e: Exception) {
+                    android.util.Log.e("RetrofitClient", "Request failed: ${request.url}", e)
+                    throw e
+                }
+                android.util.Log.e("RetrofitClient", "Response: ${response.code} for ${request.url}")
+                response
+            }
+
             OkHttpClient.Builder()
+                .cache(cache)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(headersInterceptor)
+                .addNetworkInterceptor(cacheInterceptor)
                 .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
                 .hostnameVerifier { _, _ -> true }
                 .build()
@@ -65,23 +98,5 @@ object RetrofitClient {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
         return retrofit.create(XtreamApiService::class.java)
-    }
-
-    fun getImdbSuggestionClient(): ImdbSuggestionApiService {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://v2.sg.media-imdb.com/")
-            .client(unsafeOkHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-        return retrofit.create(ImdbSuggestionApiService::class.java)
-    }
-
-    fun getOmdbClient(): OmdbApiService {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.omdbapi.com/")
-            .client(unsafeOkHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-        return retrofit.create(OmdbApiService::class.java)
     }
 }

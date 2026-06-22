@@ -8,6 +8,7 @@ import com.hasanege.materialtv.model.VodInfoResponse
 import com.hasanege.materialtv.model.VodItem
 import com.hasanege.materialtv.network.XtreamApiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -18,44 +19,69 @@ import kotlinx.serialization.serializer
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
+import javax.inject.Singleton
 
-class XtreamRepository(
-    private val apiService: XtreamApiService?, 
-    private val cacheDir: File? = null
+@Singleton
+class XtreamRepository @javax.inject.Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) {
+    private val cacheDir: File? = context.cacheDir
+
+    private val apiService: XtreamApiService?
+        get() = com.hasanege.materialtv.network.SessionManager.serverUrl?.let {
+            com.hasanege.materialtv.network.RetrofitClient.getClient(it)
+        }
+
     private val json = Json { 
         ignoreUnknownKeys = true 
         encodeDefaults = true
     }
 
+    private val memoryCache = mutableMapOf<String, Any>()
+
     suspend fun getVodCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
+        val cacheKey = "vod_categories"
+        if (memoryCache.containsKey(cacheKey)) return@withContext memoryCache[cacheKey] as List<Category>
+        
+        val service = apiService ?: return@withContext emptyList()
         try {
-            val response = apiService.getVodCategories(username, password)
+            val response = service.getVodCategories(username, password)
             if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            memoryCache[cacheKey] = result
+            result
         } catch (e: Exception) {
             emptyList()
         }
     }
 
     suspend fun getSeriesCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
+        val cacheKey = "series_categories"
+        if (memoryCache.containsKey(cacheKey)) return@withContext memoryCache[cacheKey] as List<Category>
+
+        val service = apiService ?: return@withContext emptyList()
         try {
-            val response = apiService.getSeriesCategories(username, password)
+            val response = service.getSeriesCategories(username, password)
             if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            memoryCache[cacheKey] = result
+            result
         } catch (e: Exception) {
             emptyList()
         }
     }
 
     suspend fun getLiveCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext emptyList()
+        val cacheKey = "live_categories"
+        if (memoryCache.containsKey(cacheKey)) return@withContext memoryCache[cacheKey] as List<Category>
+
+        val service = apiService ?: return@withContext emptyList()
         try {
-            val response = apiService.getLiveCategories(username, password)
+            val response = service.getLiveCategories(username, password)
             if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
+            memoryCache[cacheKey] = result
+            result
         } catch (e: Exception) {
             emptyList()
         }
@@ -77,9 +103,10 @@ class XtreamRepository(
         }
 
         // 2. Fetch from network
-        if (apiService != null) {
+        val service = apiService
+        if (service != null) {
             try {
-                val response = apiService.getVodStreams(username, password, categoryId = categoryId)
+                val response = service.getVodStreams(username, password, categoryId = categoryId)
                 if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
                     val data = json.decodeFromJsonElement(ListSerializer(VodItem.serializer()), response)
                     saveToCache(cacheFile, data)
@@ -91,7 +118,7 @@ class XtreamRepository(
                 }
             }
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     fun getSeries(
         username: String,
@@ -109,9 +136,10 @@ class XtreamRepository(
         }
 
         // 2. Fetch from network
-        if (apiService != null) {
+        val service = apiService
+        if (service != null) {
             try {
-                val response = apiService.getSeries(username, password, categoryId = categoryId)
+                val response = service.getSeries(username, password, categoryId = categoryId)
                 if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
                     val data = json.decodeFromJsonElement(ListSerializer(SeriesItem.serializer()), response)
                     saveToCache(cacheFile, data)
@@ -123,7 +151,7 @@ class XtreamRepository(
                 }
             }
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     fun getLiveStreams(
         username: String,
@@ -141,9 +169,10 @@ class XtreamRepository(
         }
 
         // 2. Fetch from network
-        if (apiService != null) {
+        val service = apiService
+        if (service != null) {
             try {
-                val response = apiService.getLiveStreams(username, password, categoryId = categoryId)
+                val response = service.getLiveStreams(username, password, categoryId = categoryId)
                 if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
                     val data = json.decodeFromJsonElement(ListSerializer(LiveStream.serializer()), response)
                     saveToCache(cacheFile, data)
@@ -155,7 +184,7 @@ class XtreamRepository(
                 }
             }
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     suspend fun getSeriesInfo(
         username: String,
@@ -175,9 +204,9 @@ class XtreamRepository(
     }
 
     suspend fun getVodInfo(username: String, password: String, vodId: Int): VodItem? = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext null
+        val service = apiService ?: return@withContext null
         try {
-            val response = apiService.getVodInfo(username, password, vodId = vodId)
+            val response = service.getVodInfo(username, password, vodId = vodId)
             val info = response.info
             val movieData = response.movieData
             if (info != null && movieData != null) {
@@ -199,9 +228,9 @@ class XtreamRepository(
     }
 
     suspend fun getVodDetails(username: String, password: String, vodId: Int): VodInfoResponse? = withContext(Dispatchers.IO) {
-        if (apiService == null) return@withContext null
+        val service = apiService ?: return@withContext null
         try {
-            apiService.getVodInfo(username, password, vodId = vodId)
+            service.getVodInfo(username, password, vodId = vodId)
         } catch (e: Exception) {
             null
         }

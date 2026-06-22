@@ -8,6 +8,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.animation.core.animateFloatAsState
+import kotlinx.coroutines.delay
 
 // Material 3 Expressive Motion Specifications
 object MotionTokens {
@@ -99,4 +109,31 @@ object ExpressiveAnimations {
 
     val exitTransition = fadeOut(tween(300, easing = MotionTokens.Easing.Emphasized)) +
             scaleOut(tween(300, easing = MotionTokens.Easing.Emphasized), targetScale = 0.9f)
+}
+
+@Composable
+fun Modifier.animateStaggeredEntry(index: Int, durationMillis: Int = 300): Modifier {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(index) {
+        delay((index * 30L).coerceAtMost(300L))
+        visible = true
+    }
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = durationMillis, easing = MotionTokens.Easing.Emphasized),
+        label = "staggered_alpha"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.95f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "staggered_scale"
+    )
+    return this.graphicsLayer {
+        this.alpha = alpha
+        this.scaleX = scale
+        this.scaleY = scale
+    }
 }

@@ -23,8 +23,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+ 
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import com.hasanege.materialtv.ui.theme.animateStaggeredEntry
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.shadow
@@ -276,7 +279,7 @@ fun ExpressiveTabSlider(
 }
 
 @Composable
-fun StreamifyBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier) {
+fun MaterialTVBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isNarrow = configuration.screenWidthDp < 360
     
@@ -413,28 +416,20 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
-    // Responsive grid: 1 column on phones (<600dp), 2 on small tablets, 3+ on larger screens
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val columns = when {
-        screenWidthDp < 600 -> 1  // Phone
-        screenWidthDp < 840 -> 2  // Small tablet
-        else -> (screenWidthDp / 300).coerceIn(2, 4)  // Larger screens
-    }
-    
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+        columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp),
         flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
-        items(
+        itemsIndexed(
             items = movies,
-            key = { it.streamId ?: it.hashCode() },
-            contentType = { "movie_card" }
-        ) { movie ->
+            key = { index, movie -> movie.streamId ?: movie.hashCode() },
+            contentType = { index, movie -> "movie_card" }
+        ) { index, movie ->
+            val navController = com.hasanege.materialtv.navigation.LocalNavController.current
             val interactionSource = remember(movie.streamId) { androidx.compose.foundation.interaction.MutableInteractionSource() }
             val isPressed by interactionSource.collectIsPressedAsState()
             // Spring physics animation like bottom nav
@@ -450,6 +445,7 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
             androidx.compose.material3.ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .animateStaggeredEntry(index)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
@@ -458,12 +454,7 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
                         interactionSource = interactionSource,
                         indication = ripple(),
                         onClick = {
-                            val intent = Intent(context, com.hasanege.materialtv.DetailActivity::class.java).apply {
-                                putExtra("STREAM_ID", movie.streamId)
-                                putExtra("TITLE", movie.name)
-                            }
-                            context.startActivity(intent)
-
+                            navController.navigate(com.hasanege.materialtv.navigation.Screen.Detail.createRoute(movie.streamId ?: 0, movie.name ?: ""))
                         },
                         onLongClick = {
                             scope.launch {
@@ -570,28 +561,20 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
-    // Responsive grid: 1 column on phones (<600dp), 2 on small tablets, 3+ on larger screens
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val columns = when {
-        screenWidthDp < 600 -> 1  // Phone
-        screenWidthDp < 840 -> 2  // Small tablet
-        else -> (screenWidthDp / 300).coerceIn(2, 4)  // Larger screens
-    }
-    
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+        columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp),
         flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
-        items(
+        itemsIndexed(
             items = series,
-            key = { it.seriesId ?: it.hashCode() },
-            contentType = { "series_card" }
-        ) { seriesItem ->
+            key = { index, seriesItem -> seriesItem.seriesId ?: seriesItem.hashCode() },
+            contentType = { index, seriesItem -> "series_card" }
+        ) { index, seriesItem ->
+            val navController = com.hasanege.materialtv.navigation.LocalNavController.current
             val interactionSource = remember(seriesItem.seriesId) { androidx.compose.foundation.interaction.MutableInteractionSource() }
             val isPressed by interactionSource.collectIsPressedAsState()
             // Spring physics animation like bottom nav
@@ -607,6 +590,7 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
             androidx.compose.material3.ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .animateStaggeredEntry(index)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
@@ -615,12 +599,7 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
                         interactionSource = interactionSource,
                         indication = ripple(),
                         onClick = {
-                            val intent = Intent(context, com.hasanege.materialtv.SeriesDetailActivity::class.java).apply {
-                                putExtra("SERIES_ID", seriesItem.seriesId)
-                                putExtra("TITLE", seriesItem.name)
-                            }
-                            context.startActivity(intent)
-
+                            navController.navigate(com.hasanege.materialtv.navigation.Screen.SeriesDetail.createRoute(seriesItem.seriesId ?: 0, seriesItem.name ?: ""))
                         },
                         onLongClick = {
                             scope.launch {
@@ -719,28 +698,19 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
-    // Responsive grid: 1 column on phones (<600dp), 2 on small tablets, 3+ on larger screens
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val columns = when {
-        screenWidthDp < 600 -> 1  // Phone
-        screenWidthDp < 840 -> 2  // Small tablet
-        else -> (screenWidthDp / 300).coerceIn(2, 4)  // Larger screens
-    }
-    
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
+        columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp),
         flingBehavior = ScrollableDefaults.flingBehavior()
     ) {
-        items(
+        itemsIndexed(
             items = liveStreams,
-            key = { it.streamId ?: it.hashCode() },
-            contentType = { "live_card" }
-        ) { liveStream ->
+            key = { index, liveStream -> liveStream.streamId ?: liveStream.hashCode() },
+            contentType = { index, liveStream -> "live_card" }
+        ) { index, liveStream ->
             val interactionSource = remember(liveStream.streamId) { androidx.compose.foundation.interaction.MutableInteractionSource() }
             val isPressed by interactionSource.collectIsPressedAsState()
             // Spring physics animation like bottom nav
@@ -756,6 +726,7 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
             androidx.compose.material3.ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .animateStaggeredEntry(index)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale

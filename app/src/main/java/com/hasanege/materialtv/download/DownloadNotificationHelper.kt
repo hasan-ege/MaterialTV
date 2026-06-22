@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.hasanege.materialtv.HomeActivity
+import com.hasanege.materialtv.MainActivity
 import com.hasanege.materialtv.R
 
 /**
@@ -98,7 +98,7 @@ class DownloadNotificationHelper(private val context: Context) {
         pausedCount: Int = 0,
         currentId: String? = null
     ): Notification {
-        val contentIntent = Intent(context, HomeActivity::class.java).apply {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("navigate_to", "downloads")
         }
@@ -292,7 +292,7 @@ class DownloadNotificationHelper(private val context: Context) {
      * İndirme tamamlandı bildirimi
      */
     fun showCompletedNotification(id: Int, title: String, fileSize: Long = 0L) {
-        val contentIntent = Intent(context, HomeActivity::class.java).apply {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("navigate_to", "downloads")
         }
@@ -324,7 +324,7 @@ class DownloadNotificationHelper(private val context: Context) {
      * İndirme başarısız bildirimi
      */
     fun showFailedNotification(id: Int, title: String, error: String?) {
-        val contentIntent = Intent(context, HomeActivity::class.java).apply {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("navigate_to", "downloads")
         }
@@ -354,7 +354,7 @@ class DownloadNotificationHelper(private val context: Context) {
      * İndirme duraklatıldı bildirimi
      */
     fun showPausedNotification(id: Int, title: String, progress: Int) {
-        val contentIntent = Intent(context, HomeActivity::class.java).apply {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("navigate_to", "downloads")
         }

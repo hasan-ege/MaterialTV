@@ -12,9 +12,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 val Context.profileDataStore: DataStore<Preferences> by preferencesDataStore(name = "profile_preferences")
 
-class ProfilePreferences(private val context: Context) {
+@Singleton
+class ProfilePreferences @Inject constructor(@ApplicationContext private val context: Context) {
     companion object {
         val PROFILE_NAME = stringPreferencesKey("profile_name")
         val PROFILE_IMAGE_URL = stringPreferencesKey("profile_image_url")

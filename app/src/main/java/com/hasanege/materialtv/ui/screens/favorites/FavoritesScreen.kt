@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+ 
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -47,7 +49,6 @@ import coil.request.ImageRequest
 import com.hasanege.materialtv.FavoritesViewModel
 import com.hasanege.materialtv.PlayerActivity
 import com.hasanege.materialtv.R
-import com.hasanege.materialtv.SeriesDetailActivity
 import com.hasanege.materialtv.UiState
 import com.hasanege.materialtv.model.FavoriteItem
 import com.hasanege.materialtv.network.SessionManager
@@ -57,6 +58,7 @@ import com.hasanege.materialtv.ui.utils.ImageConfig
 import com.hasanege.materialtv.ui.components.ExpressiveDialogOption
 import com.hasanege.materialtv.ui.theme.ExpressiveShapes
 import com.hasanege.materialtv.ui.theme.ExpressiveAnimations
+import com.hasanege.materialtv.ui.theme.animateStaggeredEntry
 import com.hasanege.materialtv.ui.NoConnectionScreen
 import com.hasanege.materialtv.ui.utils.NetworkUtils
 import androidx.compose.foundation.pager.HorizontalPager
@@ -67,6 +69,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoritesScreen(viewModel: FavoritesViewModel) {
     val context = LocalContext.current
+    val navController = com.hasanege.materialtv.navigation.LocalNavController.current
     val favoritesState by viewModel.favoritesState.collectAsState()
     val listsState by viewModel.listsState.collectAsState()
     
@@ -153,36 +156,35 @@ fun FavoritesScreen(viewModel: FavoritesViewModel) {
                             } else {
                                 FavoritesGrid(
                                     favorites = pageData,
-                                onItemClick = { favorite ->
-                                    val intent = when (favorite.contentType) {
-                                        "series" -> Intent(context, SeriesDetailActivity::class.java).apply {
-                                            putExtra("SERIES_ID", favorite.seriesId)
-                                            putExtra("TITLE", favorite.name)
-                                            putExtra("COVER", favorite.thumbnailUrl)
-                                        }
-                                        "movie" -> Intent(context, PlayerActivity::class.java).apply {
-                                            putExtra("STREAM_ID", favorite.contentId)
-                                            putExtra("TITLE", favorite.name)
-                                        }
-                                        "live" -> Intent(context, PlayerActivity::class.java).apply {
-                                            if (SessionManager.loginType == SessionManager.LoginType.M3U) {
-                                                val streamUrl = com.hasanege.materialtv.data.M3uRepository.getStreamUrl(favorite.contentId)
-                                                if (streamUrl.isNullOrEmpty()) {
-                                                    android.widget.Toast.makeText(context, context.getString(R.string.error_stream_not_found), android.widget.Toast.LENGTH_SHORT).show()
-                                                    return@FavoritesGrid
-                                                }
-                                                putExtra("url", streamUrl)
-                                            } else {
-                                                putExtra("url", "${SessionManager.serverUrl}/live/${SessionManager.username}/${SessionManager.password}/${favorite.contentId}.ts")
-                                            }
-                                            putExtra("TITLE", favorite.name)
-                                            putExtra("LIVE_STREAM_ID", favorite.contentId)
-                                            putExtra("STREAM_ICON", favorite.streamIcon)
-                                        }
-                                        else -> return@FavoritesGrid
-                                    }
-                                    context.startActivity(intent)
-                                },
+                                 onItemClick = { favorite ->
+                                     when (favorite.contentType) {
+                                         "series" -> navController.navigate(com.hasanege.materialtv.navigation.Screen.SeriesDetail.createRoute(favorite.seriesId ?: -1, favorite.name))
+                                         "movie" -> {
+                                             val intent = Intent(context, PlayerActivity::class.java).apply {
+                                                 putExtra("STREAM_ID", favorite.contentId)
+                                                 putExtra("TITLE", favorite.name)
+                                                 putExtra("AUTO_PLAY", true)
+                                             }
+                                             context.startActivity(intent)
+                                         }
+                                         "live" -> {
+                                             val streamUrl = if (SessionManager.loginType == SessionManager.LoginType.M3U) {
+                                                 com.hasanege.materialtv.data.M3uRepository.getStreamUrl(favorite.contentId)
+                                             } else {
+                                                 "${SessionManager.serverUrl}/live/${SessionManager.username}/${SessionManager.password}/${favorite.contentId}.ts"
+                                             }
+                                             if (!streamUrl.isNullOrEmpty()) {
+                                                 val intent = Intent(context, PlayerActivity::class.java).apply {
+                                                     putExtra("url", streamUrl)
+                                                     putExtra("TITLE", favorite.name)
+                                                     putExtra("LIVE_STREAM_ID", favorite.contentId)
+                                                 }
+                                                 context.startActivity(intent)
+                                             }
+                                         }
+                                         else -> return@FavoritesGrid
+                                     }
+                                 },
                                 onItemLongClick = { favorite ->
                                     selectedFavorite = favorite
                                     showEditDialog = true
@@ -711,14 +713,15 @@ fun FavoritesGrid(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(
+        itemsIndexed(
             items = favorites,
-            key = { it.id }
-        ) { favorite ->
+            key = { index, favorite -> favorite.id }
+        ) { index, favorite ->
             FavoriteCard(
                 favorite = favorite,
                 onClick = { onItemClick(favorite) },
-                onLongClick = { onItemLongClick(favorite) }
+                onLongClick = { onItemLongClick(favorite) },
+                modifier = Modifier.animateStaggeredEntry(index)
             )
         }
     }
@@ -729,7 +732,8 @@ fun FavoritesGrid(
 fun FavoriteCard(
     favorite: FavoriteItem,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var isPressed by remember { mutableStateOf(false) }
@@ -743,7 +747,7 @@ fun FavoriteCard(
     )
 
     ElevatedCard(
-        modifier = Modifier
+        modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale

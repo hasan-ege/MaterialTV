@@ -3,10 +3,13 @@ package com.hasanege.materialtv.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.hasanege.materialtv.network.SessionManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Serializable
 data class Playlist(
@@ -19,7 +22,8 @@ data class Playlist(
     val password: String? = null // For Xtream
 )
 
-class PlaylistManager(context: Context) {
+@Singleton
+class PlaylistManager @Inject constructor(@ApplicationContext context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val json = Json { ignoreUnknownKeys = true }
 

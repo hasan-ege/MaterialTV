@@ -2,16 +2,21 @@ package com.hasanege.materialtv
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasanege.materialtv.model.FavoriteItem
 import com.hasanege.materialtv.model.FavoriteList
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class FavoritesViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(
+    private val application: Application
+) : ViewModel() {
     
     private val _favoritesState = MutableStateFlow<UiState<List<FavoriteItem>>>(UiState.Loading)
     val favoritesState: StateFlow<UiState<List<FavoriteItem>>> = _favoritesState.asStateFlow()
@@ -220,13 +225,5 @@ class FavoritesViewModel(application: Application) : AndroidViewModel(applicatio
         DATE_ADDED,
         NAME,
         RATING
-    }
-}
-
-object FavoritesViewModelFactory : androidx.lifecycle.ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        val application = MainApplication.instance
-        return FavoritesViewModel(application) as T
     }
 }

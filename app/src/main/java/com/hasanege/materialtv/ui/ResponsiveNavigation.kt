@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.hasanege.materialtv.MainScreen
 
 @Composable
-fun StreamifyNavRail(
+fun MaterialTVNavRail(
     items: List<MainScreen>,
     currentItemRoute: String,
     onItemClick: (MainScreen) -> Unit,

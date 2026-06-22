@@ -2,12 +2,13 @@ package com.hasanege.materialtv
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hasanege.materialtv.model.Category
 import com.hasanege.materialtv.model.VodItem
 import com.hasanege.materialtv.network.SessionManager
 import com.hasanege.materialtv.repository.XtreamRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 sealed class CategoryData {
@@ -16,7 +17,10 @@ sealed class CategoryData {
     data class LiveStreams(val items: List<com.hasanege.materialtv.model.LiveStream>) : CategoryData()
 }
 
-class CategoryViewModel(private val repository: XtreamRepository) : ViewModel() {
+@HiltViewModel
+class CategoryViewModel @Inject constructor(
+    private val repository: XtreamRepository
+) : ViewModel() {
 
     val uiState = mutableStateOf<UiState<CategoryData>>(UiState.Loading as UiState<CategoryData>)
 
@@ -58,24 +62,5 @@ class CategoryViewModel(private val repository: XtreamRepository) : ViewModel() 
                 }
             }
         }
-    }
-}
-
-object CategoryViewModelFactory : ViewModelProvider.Factory {
-    private val apiService by lazy {
-        SessionManager.serverUrl?.let { com.hasanege.materialtv.network.RetrofitClient.getClient(it) }
-            ?: throw IllegalStateException("Server URL not set")
-    }
-
-    private val repository by lazy {
-        XtreamRepository(apiService)
-    }
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return CategoryViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

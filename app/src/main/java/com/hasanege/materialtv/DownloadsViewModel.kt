@@ -18,7 +18,14 @@ import android.net.Uri
 /**
  * DownloadsViewModel - Yeni indirme sistemi
  */
-class DownloadsViewModel : ViewModel() {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+@HiltViewModel
+class DownloadsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
     
     private var downloadManager: DownloadManagerImpl? = null
     
@@ -38,11 +45,15 @@ class DownloadsViewModel : ViewModel() {
     private val _scanMessage = MutableStateFlow<String?>(null)
     val scanMessage: StateFlow<String?> = _scanMessage.asStateFlow()
     
+    init {
+        initialize()
+    }
+
     fun clearScanMessage() {
         _scanMessage.value = null
     }
 
-    fun initialize(context: Context) {
+    fun initialize() {
         downloadManager = DownloadManagerImpl.getInstance(context)
         
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
@@ -166,11 +177,4 @@ class DownloadsViewModel : ViewModel() {
 
 enum class DownloadFilter {
     ALL, DOWNLOADING, COMPLETED, PAUSED
-}
-
-object DownloadsViewModelFactory : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return DownloadsViewModel() as T
-    }
 }

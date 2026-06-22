@@ -46,11 +46,11 @@
             android:supportsPictureInPicture="true"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".SeriesDetailActivity"
+            android:name=".CrashActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <activity
@@ -58,24 +58,7 @@
             android:exported="true"
             android:theme="@style/Theme.MaterialTV" />
         <activity
-            android:name=".DetailActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MaterialTV" />
-        <activity
-            android:name=".CategoryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MaterialTV" />
-        <activity
-            android:name=".HistoryActivity"
-            android:label="@string/history_title"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.MaterialTV" />
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MaterialTV" />
-        <activity
-            android:name=".ReviewsActivity"
+            android:name=".ui.activities.WatchHistoryActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialTV" />
         <service

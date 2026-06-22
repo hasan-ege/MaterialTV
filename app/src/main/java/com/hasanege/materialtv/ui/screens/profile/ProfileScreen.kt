@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.hasanege.materialtv.HistoryActivity
+import com.hasanege.materialtv.ui.activities.WatchHistoryActivity
 import com.hasanege.materialtv.MainActivity
 import com.hasanege.materialtv.ProfileViewModel
 import com.hasanege.materialtv.R
@@ -114,7 +114,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     onClick = {
-                        context.startActivity(Intent(context, HistoryActivity::class.java).apply {
+                        context.startActivity(Intent(context, WatchHistoryActivity::class.java).apply {
                             putExtra("FILTER_TYPE", "MOVIES")
                         })
                     }
@@ -130,7 +130,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     onClick = {
-                        context.startActivity(Intent(context, HistoryActivity::class.java).apply {
+                        context.startActivity(Intent(context, WatchHistoryActivity::class.java).apply {
                             putExtra("FILTER_TYPE", "SERIES")
                         })
                     }
@@ -146,7 +146,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                     onClick = {
-                        context.startActivity(Intent(context, HistoryActivity::class.java).apply {
+                        context.startActivity(Intent(context, WatchHistoryActivity::class.java).apply {
                             putExtra("FILTER_TYPE", "LIVE")
                         })
                     }

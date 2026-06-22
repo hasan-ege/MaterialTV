@@ -9,10 +9,15 @@ import com.hasanege.materialtv.model.SeriesItem
 import com.hasanege.materialtv.model.VodItem
 import com.hasanege.materialtv.network.SessionManager
 import com.hasanege.materialtv.repository.XtreamRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SearchViewModel(private val repository: XtreamRepository) : ViewModel() {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val repository: XtreamRepository
+) : ViewModel() {
 
     private var allMovies: List<VodItem> = emptyList()
     private var allSeries: List<SeriesItem> = emptyList()
@@ -102,22 +107,5 @@ class SearchViewModel(private val repository: XtreamRepository) : ViewModel() {
             _series.value = UiState.Success(filteredSeries)
             _liveStreams.value = UiState.Success(filteredLiveStreams)
         }
-    }
-}
-
-object SearchViewModelFactory : androidx.lifecycle.ViewModelProvider.Factory {
-    private val apiService by lazy {
-        com.hasanege.materialtv.network.SessionManager.serverUrl?.let { 
-            com.hasanege.materialtv.network.RetrofitClient.getClient(it) 
-        }
-    }
-
-    private val repository by lazy {
-        XtreamRepository(apiService)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        return SearchViewModel(repository) as T
     }
 }

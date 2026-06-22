@@ -119,6 +119,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
+import dagger.hilt.android.AndroidEntryPoint
 import com.hasanege.materialtv.ui.player.FullscreenPlayer
 import com.hasanege.materialtv.ui.player.PlayerControlsOverlay
 import com.hasanege.materialtv.ui.player.formatDuration
@@ -134,14 +135,13 @@ private val json = Json {
     ignoreUnknownKeys = true
 }
 
+@AndroidEntryPoint
 @UnstableApi
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class PlayerActivity : ComponentActivity() {
 
     // Lazy detailViewModel - only initialized when needed (not for local files)
-    private val detailViewModel: DetailViewModel by lazy { 
-        androidx.lifecycle.ViewModelProvider(this, DetailViewModelFactory)[DetailViewModel::class.java]
-    }
+    private val detailViewModel: DetailViewModel by viewModels()
     private val snackbarHostState = androidx.compose.material3.SnackbarHostState()
     private var playerEngine by mutableStateOf<PlayerEngine?>(null)
     private var currentMovie: VodItem? = null

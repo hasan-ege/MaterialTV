@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -39,6 +40,7 @@ import com.hasanege.materialtv.download.ContentType
 import com.hasanege.materialtv.download.DownloadItem
 import com.hasanege.materialtv.download.DownloadStatus
 import com.hasanege.materialtv.ui.theme.ExpressiveShapes
+import com.hasanege.materialtv.ui.theme.animateStaggeredEntry
 import com.hasanege.materialtv.utils.TitleUtils
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -133,7 +135,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
     )
     
     LaunchedEffect(Unit) {
-        viewModel.initialize(context)
+        viewModel.initialize()
     }
     
     // Permission Check for Android 11+
@@ -235,7 +237,10 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
             .pullRefresh(pullRefreshState)
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .widthIn(max = 800.dp)
+                .align(Alignment.TopCenter),
             contentPadding = PaddingValues(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -283,7 +288,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                 }
                 
                 // Unified Unified Timeline (Movies and Series intermingled)
-                displayGroups.forEach { group ->
+                displayGroups.forEachIndexed { index, group ->
                     when (group) {
                         is DisplayGroup.Movie -> {
                             val download = group.download
@@ -305,7 +310,8 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                                         onCancel = { viewModel.cancelDownload(download.id) },
                                         onDelete = { viewModel.deleteDownload(download.id) },
                                         onPlay = { viewModel.playDownload(context, download) },
-                                        onRename = { renamingItem = download }
+                                        onRename = { renamingItem = download },
+                                        modifier = Modifier.animateStaggeredEntry(index)
                                     )
                                 }
                             }
@@ -343,23 +349,19 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                                             } else {
                                                 expandedSeries + seriesName
                                             }
-                                        }
+                                        },
+                                        modifier = Modifier.animateStaggeredEntry(index)
                                     )
                                 }
                             }
                             
                             // Episodes (Flattened)
                             if (isExpanded) {
-                                items(
+                                itemsIndexed(
                                     items = episodes,
-                                    key = { "episode_${it.id}" },
-                                    contentType = { "episode" }
-                                ) { download ->
-                                     // Use a simple animation wrapper for individual items if needed
-                                     // Or just let them appear. For "Expressive" feel, we can animate.
-                                     // However, animating insertion in LazyColumn can be tricky without `animateItemPlacement`.
-                                     // We will simply display them for now, as standard LazyColumn doesn't support enter animations for specific items easily without experimental APIs.
-                                     // But since user wants "optimization", removing the nested column is key.
+                                    key = { episodeIndex, it -> "episode_${it.id}" },
+                                    contentType = { episodeIndex, it -> "episode" }
+                                ) { episodeIndex, download ->
                                     DownloadItemCard(
                                         download = download,
                                         onPause = { viewModel.pauseDownload(download.id) },
@@ -368,7 +370,8 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                                         onDelete = { viewModel.deleteDownload(download.id) },
                                         onPlay = { viewModel.playDownload(context, download) },
                                         onRename = { renamingItem = download },
-                                        isEpisode = true
+                                        isEpisode = true,
+                                        modifier = Modifier.animateStaggeredEntry(index + episodeIndex + 1)
                                     )
                                 }
                             }
@@ -413,7 +416,8 @@ fun SeriesGroupHeader(
     thumbnailUrl: String? = null,
     episodeFilePath: String? = null,
     totalSize: Long = 0L,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // Smooth rotation for expand icon
     val rotationAngle by animateFloatAsState(
@@ -446,7 +450,7 @@ fun SeriesGroupHeader(
     
     ElevatedCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = ExpressiveShapes.Large,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -844,7 +848,8 @@ private fun DownloadItemCard(
     onDelete: () -> Unit,
     onPlay: () -> Unit,
     onRename: () -> Unit, // New Callback
-    isEpisode: Boolean = false
+    isEpisode: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
     val interactionScale by animateFloatAsState(
         targetValue = 1f,
@@ -852,7 +857,7 @@ private fun DownloadItemCard(
     )
     
     ElevatedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .graphicsLayer { scaleX = interactionScale; scaleY = interactionScale }
             .combinedClickable(
