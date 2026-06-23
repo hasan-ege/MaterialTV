@@ -31,7 +31,7 @@ class SettingsViewModel @Inject constructor(
     val autoRetryFailedDownloads: StateFlow<Boolean> = repository.autoRetryFailedDownloads
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
-    val enableImdbScraping: StateFlow<Boolean> = repository.enableImdbScraping
+    val enableTmdbOmdbScraping: StateFlow<Boolean> = repository.enableTmdbOmdbScraping
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val enableDownloadCovers: StateFlow<Boolean> = repository.enableDownloadCovers
@@ -92,9 +92,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setEnableImdbScraping(enabled: Boolean) {
+    fun setEnableTmdbOmdbScraping(enabled: Boolean) {
         viewModelScope.launch {
-            repository.setEnableImdbScraping(enabled)
+            repository.setEnableTmdbOmdbScraping(enabled)
         }
     }
 

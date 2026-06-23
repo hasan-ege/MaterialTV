@@ -121,7 +121,7 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val autoRestartOnSpeedDrop by viewModel.autoRestartOnSpeedDrop.collectAsState()
     val downloadNotificationsEnabled by viewModel.downloadNotificationsEnabled.collectAsState()
     val autoPlayNextEpisode by viewModel.autoPlayNextEpisode.collectAsState()
-    val enableImdbScraping by viewModel.enableImdbScraping.collectAsState()
+    val enableTmdbOmdbScraping by viewModel.enableTmdbOmdbScraping.collectAsState()
     val enableDownloadCovers by viewModel.enableDownloadCovers.collectAsState()
     
     var showDefaultPlayerDialog by remember { mutableStateOf(false) }
@@ -807,9 +807,9 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                 ) {
                     ExpressiveSettingSwitchItem(
                         icon = Icons.Default.Star,
-                        title = "Enable IMDb Metadata Scraping",
-                        checked = enableImdbScraping,
-                        onCheckedChange = { viewModel.setEnableImdbScraping(it) }
+                        title = "Enable TMDB/OMDB Metadata Scraping",
+                        checked = enableTmdbOmdbScraping,
+                        onCheckedChange = { viewModel.setEnableTmdbOmdbScraping(it) }
                     )
                 }
             }

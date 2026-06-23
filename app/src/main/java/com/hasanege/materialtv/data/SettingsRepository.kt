@@ -67,7 +67,7 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val USER_NAME = stringPreferencesKey("user_name")
         val USER_AVATAR_PATH = stringPreferencesKey("user_avatar_path")
-        val ENABLE_IMDB_SCRAPING = booleanPreferencesKey("enable_imdb_scraping")
+        val ENABLE_TMDB_OMDB_SCRAPING = booleanPreferencesKey("enable_tmdb_omdb_scraping")
         val ENABLE_DOWNLOAD_COVERS = booleanPreferencesKey("enable_download_covers")
     }
 
@@ -251,14 +251,14 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         }
     }
 
-    // IMDb Scraping
-    val enableImdbScraping: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
-        prefs[ENABLE_IMDB_SCRAPING] ?: true
+    // TMDB/OMDB Scraping
+    val enableTmdbOmdbScraping: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[ENABLE_TMDB_OMDB_SCRAPING] ?: true
     }
 
-    suspend fun setEnableImdbScraping(enabled: Boolean) {
+    suspend fun setEnableTmdbOmdbScraping(enabled: Boolean) {
         context.settingsDataStore.edit { prefs ->
-            prefs[ENABLE_IMDB_SCRAPING] = enabled
+            prefs[ENABLE_TMDB_OMDB_SCRAPING] = enabled
         }
     }
 

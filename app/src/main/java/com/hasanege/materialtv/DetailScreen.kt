@@ -438,7 +438,7 @@ fun DetailScreen(
                                     if (hasImdbRating) {
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "IMDb",
+                                            text = "TMDB/OMDB",
                                             style = MaterialTheme.typography.labelSmall.copy(
                                                 fontWeight = FontWeight.ExtraBold,
                                                 fontSize = 10.sp
@@ -886,7 +886,7 @@ fun DetailScreen(
                                         if (hasImdbRating) {
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "IMDb",
+                                                text = "TMDB/OMDB",
                                                 style = MaterialTheme.typography.labelSmall.copy(
                                                     fontWeight = FontWeight.ExtraBold,
                                                     fontSize = 10.sp
