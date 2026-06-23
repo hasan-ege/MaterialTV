@@ -10,13 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84e76f73-5562-4af7-ab8a-8542a91427ec" name="Changes" comment="feat: Implement IMDb scraping, redesign Profile screen, and enhance UI&#10;&#10;This commit introduces a comprehensive metadata scraping system using IMDb, a complete redesign of the Profile screen with advanced analytics, and significant UI/UX enhancements across the application.&#10;&#10;**IMDb Metadata Scraping &amp; Content Enrichment:**&#10;*   **Deep Scraping Engine:** Implemented a robust, multi-stage scraping system (`ImdbScraper`, `RetrofitClient`) to fetch rich metadata for movies and series.&#10;    *   **Phase 1 (Instant):** Uses the IMDb suggestion API for a &quot;light speed&quot; initial discovery to immediately fetch title, poster, and cast.&#10;    *   **Phase 2 (Background):** Incrementally scrapes and populates detailed information including full plot summaries, user reviews, content ratings (e.g., PG-13, 18+), parental guidance warnings (violence, horror), awards, Metascore, and high-resolution cast member images.&#10;*   **Dynamic UI Updates:** The `DetailScreen` now updates incrementally as new metadata (plot, cast, reviews) is scraped in the background, providing a progressively richer user experience.&#10;*   **New Settings:** Added toggles in the settings to enable/disable IMDb scraping and automatic download cover scraping.&#10;*   **Trailer &amp; Cast Display:**&#10;    *   The `DetailScreen` now displays a &quot;Trailer&quot; button that opens the official trailer on YouTube.&#10;    *   A new horizontal carousel displays cast members with their profile pictures.&#10;&#10;**Profile Screen Redesign &amp; Analytics:**&#10;*   **Complete Overhaul:** Replaced the old profile layout with a modern, data-rich, and responsive `LazyVerticalGrid`.&#10;*   **Advanced Statistics:** The `ProfileViewModel` now calculates and displays a wide range of new user statistics:&#10;    *   **Content Distribution:** A visual bar shows the ratio of movies, series, and live TV watched.&#10;    *   **User Level:** A gamified level (e.g., &quot;Newbie 🌱&quot;, &quot;Binge Master 👑&quot;) is assigned based on total watch time.&#10;    *   **Analytics Cards:** New cards display average session time, content completion rate, and count of unfinished items.&#10;*   **Responsive Layout:** The grid layout automatically adjusts the number of columns based on screen width for optimal viewing on phones and tablets.&#10;*   **Flat &amp; Expressive Design:** Migrated to a flatter, card-based design using `MaterialTheme.colorScheme.surfaceContainer` for a cleaner aesthetic.&#10;&#10;**UI/UX and Player Enhancements:**&#10;*   **Expressive Carousels:**&#10;    *   Replaced `LazyRow` on the `HomeScreen` with `HorizontalMultiBrowseCarousel` for a more modern, expressive feel.&#10;    *   A new &quot;Featured&quot; hero carousel is now displayed at the top of the Home screen.&#10;*   **Player &amp; History:**&#10;    *   Refactored player composables into a dedicated `ui.player` package.&#10;    *   Replaced `LinearProgressIndicator` with `LinearWavyProgressIndicator` in the &quot;Continue Watching&quot; row for a more dynamic look.&#10;    *   Added `minLines = 2` to all content cards to prevent text from jumping during image loading, improving layout stability.&#10;*   **Downloads Screen Optimization:**&#10;    *   Refactored the `LazyColumn` to flatten the item structure, which improves performance and allows for more fluid entry animations.&#10;    *   Optimized Coil image loading requests with explicit sizing and global crossfade.&#10;    *   Removed toast notifications for scan results.&#10;&#10;**Build &amp; Technical Refinements:**&#10;*   **Dependency Updates:** Added `android-youtube-player` and `jsoup` for trailer playback and web scraping.&#10;*   **Repository Caching:** `XtreamRepository` now implements a file-based caching layer for movie, series, and live stream lists to improve performance and reduce network calls.&#10;*   **ProGuard/R8:** Enabled full mode for R8 and added specific rules for `kotlinx.serialization` to ensure proper functionality in release builds.&#10;*   **Localization:** Added new strings for the IMDb features and cleaned up existing localized strings.">
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/M3uRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/M3uRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/repository/XtreamRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/repository/XtreamRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/M3uParser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/M3uParser.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +25,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Razer\.android\avd\Television_1080p.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=00019157L001965]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -50,7 +49,7 @@
     </system>
   </component>
   <component name="GenerateSignedApkSettings">
-    <option name="KEY_STORE_PATH" value="C:\Users\Razer\Documents\do not delete this is the key\key" />
+    <option name="KEY_STORE_PATH" value="$USER_HOME$/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks" />
     <option name="KEY_ALIAS" value="key0" />
     <option name="REMEMBER_PASSWORDS" value="true" />
     <option name="BUILD_TARGET_KEY" value="apk" />
@@ -87,36 +86,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ApkExportedModule&quot;: &quot;MaterialTV.app&quot;,
-    &quot;BundleExportedModule&quot;: &quot;MaterialTV.app&quot;,
-    &quot;ExportApk.ApkPathForMaterialTV.app&quot;: &quot;C:\\Users\\Razer\\AndroidStudioProjects\\MaterialTV\\app&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Razer/AndroidStudioProjects/MaterialTV&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.app.executor": "Run",
+    "ApkExportedModule": "MaterialTV.app",
+    "BundleExportedModule": "MaterialTV.app",
+    "ExportApk.ApkPathForMaterialTV.app": "/home/hasan/AndroidStudioProjects/releases",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/hasan/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "Errors"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ExportApk.BuildVariants&quot;: [
-      &quot;release&quot;
+  "keyToStringList": {
+    "ExportApk.BuildVariants": [
+      "release"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="MaterialTV.app" />
@@ -139,8 +138,6 @@
       <option name="CLEAR_LOGCAT" value="false" />
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
       <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
       <option name="DEBUGGER_TYPE" value="Auto" />
       <Auto>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -149,7 +146,6 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Auto>
       <Hybrid>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -158,11 +154,9 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Hybrid>
       <Java>
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Java>
       <Native>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -171,7 +165,6 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Native>
       <Profilers>
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />

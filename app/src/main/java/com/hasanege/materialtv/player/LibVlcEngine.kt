@@ -58,6 +58,7 @@ class LibVlcEngine : PlayerEngine {
                         }
                         MediaPlayer.Event.EndReached -> {
                             android.util.Log.d("LibVlcEngine", "Playback ended")
+                            playbackEndedCallback?.invoke()
                         }
                         MediaPlayer.Event.Playing -> {
                             android.util.Log.d("LibVlcEngine", "Playback started")
@@ -478,6 +479,7 @@ class LibVlcEngine : PlayerEngine {
 
     private var errorCallback: ((Exception) -> Unit)? = null
     private var playbackStateCallback: ((Boolean) -> Unit)? = null
+    private var playbackEndedCallback: (() -> Unit)? = null
 
     override fun setOnErrorCallback(callback: (Exception) -> Unit) {
         errorCallback = callback
@@ -485,6 +487,10 @@ class LibVlcEngine : PlayerEngine {
 
     override fun setOnPlaybackStateChanged(callback: (Boolean) -> Unit) {
         playbackStateCallback = callback
+    }
+
+    override fun setOnPlaybackEndedCallback(callback: () -> Unit) {
+        playbackEndedCallback = callback
     }
 
     override fun onResume() {

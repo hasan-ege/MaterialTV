@@ -143,7 +143,12 @@ class PlayerActivity : ComponentActivity() {
     // Lazy detailViewModel - only initialized when needed (not for local files)
     private val detailViewModel: DetailViewModel by viewModels()
     private val snackbarHostState = androidx.compose.material3.SnackbarHostState()
+    @javax.inject.Inject
+    lateinit var introDbRepository: com.hasanege.materialtv.repository.IntroDbRepository
+
     private var playerEngine by mutableStateOf<PlayerEngine?>(null)
+    private var introSegment by mutableStateOf<com.hasanege.materialtv.model.IntroDbSegment?>(null)
+    private var outroSegment by mutableStateOf<com.hasanege.materialtv.model.IntroDbSegment?>(null)
     private var currentMovie: VodItem? = null
     private var currentSeriesEpisode: Episode? = null
     private var seriesId: Int = -1
@@ -320,6 +325,25 @@ class PlayerActivity : ComponentActivity() {
                         .nextEpisodeThresholdMinutes.collectAsState(initial = 5)
                     var hasPlayed by remember { mutableStateOf(intent.getBooleanExtra("AUTO_PLAY", false)) }
 
+                // IntroDB Fetch Logic
+                LaunchedEffect(currentSeriesEpisode) {
+                    val episode = currentSeriesEpisode
+                    val seriesData = (detailViewModel.series as? UiState.Success)?.data
+                    val imdbId = seriesData?.info?.imdbID
+                    
+                    if (episode != null && !imdbId.isNullOrEmpty()) {
+                        val seasonNum = episode.season ?: 1
+                        val episodeNum = episode.episodeNum?.toIntOrNull() ?: 1
+                        
+                        val segments = introDbRepository.getSegments(imdbId, seasonNum, episodeNum)
+                        introSegment = segments?.intro
+                        outroSegment = segments?.outro
+                    } else {
+                        introSegment = null
+                        outroSegment = null
+                    }
+                }
+
                 // Auto Play Logic
                 LaunchedEffect(movieState, seriesState) {
                     if (intent.getBooleanExtra("AUTO_PLAY", false) && playerEngine == null) {
@@ -361,6 +385,8 @@ class PlayerActivity : ComponentActivity() {
                             title = this@PlayerActivity.title,
                             showStats = statsForNerds,
                             inPipMode = isInPipMode,
+                            introSegment = introSegment,
+                            outroSegment = outroSegment,
                             onNext = { playNextEpisode() },
                             onPrevious = { playPreviousEpisode() },
                             onSwitchEngine = { switchEngine() }
@@ -636,6 +662,14 @@ class PlayerActivity : ComponentActivity() {
             setOnPlaybackStateChanged { isPlaying ->
                 if (isInPipMode) {
                     updatePipActions()
+                }
+            }
+            
+            setOnPlaybackEndedCallback {
+                lifecycleScope.launch {
+                    if (currentSeriesEpisode != null) {
+                        playNextEpisode()
+                    }
                 }
             }
             

@@ -32,6 +32,7 @@ class ExoPlayerEngine : PlayerEngine {
     // Error callback
     private var errorCallback: ((Exception) -> Unit)? = null
     private var playbackStateCallback: ((Boolean) -> Unit)? = null
+    private var playbackEndedCallback: (() -> Unit)? = null
 
     override fun setOnErrorCallback(callback: (Exception) -> Unit) {
         this.errorCallback = callback
@@ -39,6 +40,10 @@ class ExoPlayerEngine : PlayerEngine {
 
     override fun setOnPlaybackStateChanged(callback: (Boolean) -> Unit) {
         this.playbackStateCallback = callback
+    }
+
+    override fun setOnPlaybackEndedCallback(callback: () -> Unit) {
+        this.playbackEndedCallback = callback
     }
 
     override fun initialize(context: Context) {
@@ -162,6 +167,12 @@ class ExoPlayerEngine : PlayerEngine {
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 playbackStateCallback?.invoke(isPlaying)
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    playbackEndedCallback?.invoke()
+                }
             }
         })
     }

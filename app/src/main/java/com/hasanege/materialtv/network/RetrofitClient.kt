@@ -99,4 +99,12 @@ object RetrofitClient {
             .build()
         return retrofit.create(XtreamApiService::class.java)
     }
+    fun getIntroDbClient(): IntroDbApi {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.introdb.app/")
+            .client(unsafeOkHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+        return retrofit.create(IntroDbApi::class.java)
+    }
 }

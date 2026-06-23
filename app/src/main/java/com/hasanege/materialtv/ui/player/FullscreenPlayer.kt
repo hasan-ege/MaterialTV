@@ -66,6 +66,8 @@ fun FullscreenPlayer(
     title: String?,
     showStats: Boolean,
     inPipMode: Boolean = false,
+    introSegment: com.hasanege.materialtv.model.IntroDbSegment? = null,
+    outroSegment: com.hasanege.materialtv.model.IntroDbSegment? = null,
     onNext: () -> Unit,
     onPrevious: () -> Unit,
     onSwitchEngine: () -> Unit
@@ -549,6 +551,32 @@ fun FullscreenPlayer(
                              )
                         }
                     }
+                }
+            }
+            
+            // Skip Intro Button
+            if (!inPipMode && introSegment != null && currentPosition >= introSegment.startMs && currentPosition <= introSegment.endMs) {
+                Button(
+                    onClick = { engine.seekTo(introSegment.endMs) },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 120.dp, end = 32.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.8f), contentColor = Color.Black)
+                ) {
+                    Text("Skip Intro", fontWeight = FontWeight.Bold)
+                }
+            }
+
+            // Skip Outro / Next Episode Button
+            if (!inPipMode && outroSegment != null && currentPosition >= outroSegment.startMs) {
+                Button(
+                    onClick = { onNext() },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 120.dp, end = 32.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.8f), contentColor = Color.Black)
+                ) {
+                    Text("Play Next Episode", fontWeight = FontWeight.Bold)
                 }
             }
             

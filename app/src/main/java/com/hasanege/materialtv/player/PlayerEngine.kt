@@ -40,6 +40,7 @@ interface PlayerEngine {
     
     // State handling
     fun setOnPlaybackStateChanged(callback: (Boolean) -> Unit)
+    fun setOnPlaybackEndedCallback(callback: () -> Unit)
     
     // Lifecycle
     fun onResume() {}
