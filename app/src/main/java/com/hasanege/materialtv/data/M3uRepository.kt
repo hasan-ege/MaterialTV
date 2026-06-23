@@ -19,42 +19,38 @@ object M3uRepository {
         withContext(Dispatchers.IO) {
             try {
                 val cacheFile = java.io.File(context.filesDir, CACHE_FILE_NAME)
-                var content = ""
                 var loadedFromCache = false
 
                 // Try to load from cache first
-                if (!forceRefresh && cacheFile.exists()) {
-                    try {
-                        android.util.Log.d("M3uRepository", "Loading playlist from cache")
-                        content = cacheFile.readText()
-                        if (content.isNotBlank()) {
-                            loadedFromCache = true
-                        }
-                    } catch (e: Exception) {
-                        android.util.Log.e("M3uRepository", "Error reading cache", e)
-                    }
+                if (!forceRefresh && cacheFile.exists() && cacheFile.length() > 0) {
+                    loadedFromCache = true
                 }
 
-                // If not loaded from cache, fetch from network
+                // If not loaded from cache, fetch from network and stream directly to file
                 if (!loadedFromCache) {
                     android.util.Log.d("M3uRepository", "Fetching playlist from: $url")
-                    content = URL(url).readText()
-                    android.util.Log.d("M3uRepository", "Playlist content length: ${content.length}")
-                    
-                    if (content.isBlank()) {
-                        throw IllegalArgumentException("Playlist content is empty")
+                    val connection = URL(url).openConnection()
+                    connection.connectTimeout = 15000
+                    connection.readTimeout = 20000
+                    connection.getInputStream().use { inputStream ->
+                        java.io.FileOutputStream(cacheFile).use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
                     }
-
-                    // Save to cache
-                    try {
-                        cacheFile.writeText(content)
-                        android.util.Log.d("M3uRepository", "Playlist saved to cache")
-                    } catch (e: Exception) {
-                        android.util.Log.e("M3uRepository", "Error saving to cache", e)
-                    }
+                    android.util.Log.d("M3uRepository", "Playlist saved to cache")
                 }
                 
-                playlist = M3uParser.parse(content)
+                // Parse directly from file using BufferedReader to avoid loading full text in memory
+                if (cacheFile.exists() && cacheFile.length() > 0) {
+                    java.io.FileInputStream(cacheFile).use { fileIn ->
+                        java.io.InputStreamReader(fileIn, kotlin.text.Charsets.UTF_8).buffered().use { reader ->
+                            playlist = M3uParser.parse(reader)
+                        }
+                    }
+                } else {
+                    playlist = emptyList()
+                }
+                
                 android.util.Log.d("M3uRepository", "Parsed ${playlist.size} entries (Source: ${if (loadedFromCache) "Cache" else "Network"})")
             } catch (e: Exception) {
                 android.util.Log.e("M3uRepository", "Error fetching playlist", e)

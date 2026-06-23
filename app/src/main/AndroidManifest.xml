@@ -27,6 +27,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
+        android:largeHeap="true"
         android:theme="@style/Theme.MaterialTV">
         <activity
             android:name=".MainActivity"

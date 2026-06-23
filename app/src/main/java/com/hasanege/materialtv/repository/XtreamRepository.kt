@@ -1,3 +1,4 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 package com.hasanege.materialtv.repository
 
 import com.hasanege.materialtv.model.Category
@@ -14,11 +15,13 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import kotlinx.serialization.serializer
 
 import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import javax.inject.Singleton
 
 @Singleton
@@ -239,8 +242,9 @@ class XtreamRepository @javax.inject.Inject constructor(
         if (cacheDir == null) return
         try {
             val file = File(cacheDir, fileName)
-            val jsonString = json.encodeToString(ListSerializer(json.serializersModule.serializer<T>()), data)
-            FileWriter(file).use { it.write(jsonString) }
+            FileOutputStream(file).use { outputStream ->
+                json.encodeToStream(ListSerializer(json.serializersModule.serializer<T>()), data, outputStream)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -251,8 +255,9 @@ class XtreamRepository @javax.inject.Inject constructor(
         val file = File(cacheDir, fileName)
         if (!file.exists()) return emptyList()
         return try {
-            val jsonString = FileReader(file).use { it.readText() }
-            json.decodeFromString(ListSerializer(json.serializersModule.serializer<T>()), jsonString)
+            FileInputStream(file).use { inputStream ->
+                json.decodeFromStream(ListSerializer(json.serializersModule.serializer<T>()), inputStream)
+            }
         } catch (e: Exception) {
             emptyList()
         }
