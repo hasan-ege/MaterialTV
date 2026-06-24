@@ -63,6 +63,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.ripple
 import androidx.compose.material3.ExperimentalMaterial3Api
+import kotlinx.coroutines.flow.first
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -142,6 +143,8 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBar
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -168,7 +171,18 @@ fun MaterialTVApp(
 
     // Read start page from settings
     val settingsRepository = remember { com.hasanege.materialtv.data.SettingsRepository.getInstance(context) }
-    val startPage by settingsRepository.startPage.collectAsState(initial = "movies")
+    val initialNavBarStyle = remember {
+        kotlinx.coroutines.runBlocking {
+            settingsRepository.navBarStyle.first()
+        }
+    }
+    val initialStartPage = remember {
+        kotlinx.coroutines.runBlocking {
+            settingsRepository.startPage.first()
+        }
+    }
+    val startPage by settingsRepository.startPage.collectAsState(initial = initialStartPage)
+    val navBarStyle by settingsRepository.navBarStyle.collectAsState(initial = initialNavBarStyle)
     
     // Determine initial navigation and tab based on startPage
     val initialNav = remember(startPage) {
@@ -238,7 +252,7 @@ fun MaterialTVApp(
         ) {
             val isWideScreen = maxWidth > 600.dp
             
-            if (isWideScreen) {
+            if (isWideScreen || navBarStyle == "rail") {
                 Row(modifier = Modifier.fillMaxSize()) {
                     MaterialTVNavRail(
                         items = bottomNavItems,
@@ -296,12 +310,21 @@ fun MaterialTVApp(
                             }
                         }
                     }
-                    MaterialTVBottomNavBar(
-                        items = bottomNavItems,
-                        currentItemRoute = currentScreen.value,
-                        onItemClick = { currentScreen.value = it.route },
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                    )
+                    if (navBarStyle == "floating") {
+                        com.hasanege.materialtv.ui.MaterialTVBottomNavBar(
+                            items = bottomNavItems,
+                            currentItemRoute = currentScreen.value,
+                            onItemClick = { currentScreen.value = it.route },
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                        )
+                    } else {
+                        com.hasanege.materialtv.ui.DefaultBottomNavBar(
+                            items = bottomNavItems,
+                            currentItemRoute = currentScreen.value,
+                            onItemClick = { currentScreen.value = it.route },
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                        )
+                    }
                 }
             }
             
@@ -681,7 +704,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
     Box(modifier = Modifier.fillMaxSize()) {
         
         // 1. Content Pager (Bottom Layer)
-        val tabHeightDp = 80.dp + safeTopPadding // Adjusted for status bar
+        val tabHeightDp = 72.dp
         
         HorizontalPager(
             state = pagerState,
@@ -716,7 +739,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
                 .align(Alignment.TopCenter)
                 .zIndex(2f) 
                 .padding(horizontal = 8.dp)
-                .padding(top = 12.dp + safeTopPadding, bottom = 12.dp)
+                .padding(top = 12.dp, bottom = 12.dp)
                 .height(56.dp),
             horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 8.dp),
             verticalAlignment = Alignment.CenterVertically

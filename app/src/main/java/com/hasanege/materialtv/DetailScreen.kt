@@ -266,9 +266,8 @@ fun DetailScreen(
         ?: series?.info?.rating?.takeIf { it != "N/A" && it.isNotBlank() } 
         ?: stringResource(R.string.unknown)
         
-    val hasImdbRating = (movieDetails?.imdbRating?.takeIf { it != "N/A" && it.isNotBlank() } != null || 
-                         series?.info?.imdbRating?.takeIf { it != "N/A" && it.isNotBlank() } != null)
-    val imdbVotes = movieDetails?.imdbVotes ?: series?.info?.imdbVotes ?: "0"
+
+
     val metascore = movieDetails?.metascore ?: series?.info?.metascore ?: "N/A"
     val awards = movieDetails?.awards ?: series?.info?.awards ?: ""
     val backdropUrl = movieDetails?.backdropPath?.firstOrNull() 
@@ -435,20 +434,6 @@ fun DetailScreen(
                                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                         color = Color.White
                                     )
-                                    if (hasImdbRating) {
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(
-                                            text = "TMDB/OMDB",
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.ExtraBold,
-                                                fontSize = 10.sp
-                                            ),
-                                            color = Color(0xFFE6B91E),
-                                            modifier = Modifier
-                                                .background(Color.Black, RoundedCornerShape(2.dp))
-                                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                                        )
-                                    }
                                 }
                             }
                             
@@ -471,6 +456,8 @@ fun DetailScreen(
                                     maxLines = 1
                                 )
                             }
+                            
+
                         }
 
                         if (awards.isNotEmpty() && awards != "N/A") {
@@ -883,20 +870,6 @@ fun DetailScreen(
                                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                        if (hasImdbRating) {
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(
-                                                text = "TMDB/OMDB",
-                                                style = MaterialTheme.typography.labelSmall.copy(
-                                                    fontWeight = FontWeight.ExtraBold,
-                                                    fontSize = 10.sp
-                                                ),
-                                                color = Color(0xFFE6B91E),
-                                                modifier = Modifier
-                                                    .background(Color.Black, RoundedCornerShape(2.dp))
-                                                    .padding(horizontal = 4.dp, vertical = 1.dp)
-                                            )
-                                        }
                                     }
                                 }
                                 

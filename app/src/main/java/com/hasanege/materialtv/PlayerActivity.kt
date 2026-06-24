@@ -112,6 +112,7 @@ import com.hasanege.materialtv.model.Episode
 import com.hasanege.materialtv.model.VodItem
 import com.hasanege.materialtv.network.SessionManager
 import com.hasanege.materialtv.ui.theme.MaterialTVTheme
+import com.hasanege.materialtv.utils.StringUtils
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -129,10 +130,17 @@ import com.hasanege.materialtv.player.ExoPlayerEngine
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.heightIn
 import kotlinx.coroutines.launch
 
 private val json = Json {
     ignoreUnknownKeys = true
+    isLenient = true
 }
 
 @AndroidEntryPoint
@@ -144,13 +152,11 @@ class PlayerActivity : ComponentActivity() {
     private val detailViewModel: DetailViewModel by viewModels()
     private val snackbarHostState = androidx.compose.material3.SnackbarHostState()
     @javax.inject.Inject
-    lateinit var introDbRepository: com.hasanege.materialtv.repository.IntroDbRepository
+    lateinit var xtreamRepository: com.hasanege.materialtv.repository.XtreamRepository
 
     private var playerEngine by mutableStateOf<PlayerEngine?>(null)
-    private var introSegment by mutableStateOf<com.hasanege.materialtv.model.IntroDbSegment?>(null)
-    private var outroSegment by mutableStateOf<com.hasanege.materialtv.model.IntroDbSegment?>(null)
-    private var currentMovie: VodItem? = null
-    private var currentSeriesEpisode: Episode? = null
+    private var currentMovie by mutableStateOf<VodItem?>(null)
+    private var currentSeriesEpisode by mutableStateOf<Episode?>(null)
     private var seriesId: Int = -1
     private var title by mutableStateOf<String?>(null)
     private var currentUrl: String? = null
@@ -269,7 +275,7 @@ class PlayerActivity : ComponentActivity() {
         }
 
         if (liveUrl != null) {
-            android.util.Log.d("PlayerActivity", "Playing live URL: $liveUrl")
+            android.util.Log.d("PlayerActivity", "Playing live URL: [REDACTED]")
             if (liveUrl.isEmpty()) {
                 android.util.Log.e("PlayerActivity", "URL is empty!")
                 android.widget.Toast.makeText(this, "Stream URL not found", android.widget.Toast.LENGTH_LONG).show()
@@ -279,6 +285,8 @@ class PlayerActivity : ComponentActivity() {
             initializePlayer(liveUrl, position)
             setContent {
                 MaterialTVTheme {
+                    var showEpgSheet by remember { mutableStateOf(false) }
+
                     Box(modifier = Modifier.fillMaxSize()) {
                         val engine = playerEngine
                         if (engine != null) {
@@ -289,7 +297,13 @@ class PlayerActivity : ComponentActivity() {
                                 inPipMode = isInPipMode,
                                 onNext = {}, 
                                 onPrevious = {}, 
-                                onSwitchEngine = { switchEngine() }
+                                onSwitchEngine = { switchEngine() },
+                                isLiveStream = true,
+                                onShowEpg = {
+                                    if (liveStreamId != -1) {
+                                        showEpgSheet = true
+                                    }
+                                }
                             )
                         }
                         androidx.compose.material3.SnackbarHost(
@@ -299,6 +313,13 @@ class PlayerActivity : ComponentActivity() {
                         BackHandler {
                             finish()
                         }
+                    }
+
+                    if (showEpgSheet && liveStreamId != -1) {
+                        com.hasanege.materialtv.ui.components.EpgBottomSheet(
+                            streamId = liveStreamId,
+                            onDismissRequest = { showEpgSheet = false }
+                        )
                     }
                 }
             }
@@ -325,24 +346,7 @@ class PlayerActivity : ComponentActivity() {
                         .nextEpisodeThresholdMinutes.collectAsState(initial = 5)
                     var hasPlayed by remember { mutableStateOf(intent.getBooleanExtra("AUTO_PLAY", false)) }
 
-                // IntroDB Fetch Logic
-                LaunchedEffect(currentSeriesEpisode) {
-                    val episode = currentSeriesEpisode
-                    val seriesData = (detailViewModel.series as? UiState.Success)?.data
-                    val imdbId = seriesData?.info?.imdbID
-                    
-                    if (episode != null && !imdbId.isNullOrEmpty()) {
-                        val seasonNum = episode.season ?: 1
-                        val episodeNum = episode.episodeNum?.toIntOrNull() ?: 1
-                        
-                        val segments = introDbRepository.getSegments(imdbId, seasonNum, episodeNum)
-                        introSegment = segments?.intro
-                        outroSegment = segments?.outro
-                    } else {
-                        introSegment = null
-                        outroSegment = null
-                    }
-                }
+
 
                 // Auto Play Logic
                 LaunchedEffect(movieState, seriesState) {
@@ -368,11 +372,33 @@ class PlayerActivity : ComponentActivity() {
                             } else 0L
                             initializePlayer(movieUrl(vodItem), startPosition)
                         } else if (seriesState is UiState.Success) {
-                             // Series AutoPlay logic if needed (Play first episode or resume)
-                             // For now, focusing on Movie as requested
-                             // But we should at least not hang if it's a series Intent
                              val seriesData = seriesState.data
-                             // .. Logic to pick episode ..
+                             val targetEpisodeId = intent.getStringExtra("EPISODE_ID")
+                             if (targetEpisodeId != null) {
+                                 var targetEpisode: com.hasanege.materialtv.model.Episode? = null
+                                 val epElement = seriesData.episodes
+                                 if (epElement is kotlinx.serialization.json.JsonObject) {
+                                     val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; isLenient = true }
+                                     epElement.entries.forEach { (key, element) ->
+                                         val sNum = key.toIntOrNull() ?: 0
+                                         try {
+                                             val eps = json.decodeFromJsonElement<List<com.hasanege.materialtv.model.Episode>>(element)
+                                             val found = eps.find { it.id == targetEpisodeId }
+                                             if (found != null) targetEpisode = found.copy(season = sNum)
+                                         } catch (e: Exception) {}
+                                     }
+                                 }
+                                 if (targetEpisode != null) {
+                                     this@PlayerActivity.currentMovie = null
+                                     this@PlayerActivity.currentSeriesEpisode = targetEpisode
+                                     this@PlayerActivity.title = targetEpisode?.title
+                                     
+                                     val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${targetEpisode?.id}.${targetEpisode?.containerExtension}"
+                                     val startPosition = intent.getLongExtra("position", 0L)
+                                     android.util.Log.e("PlayerActivity", "AutoPlay Series Episode: ${targetEpisode?.title}, ID: ${targetEpisode?.id}")
+                                     initializePlayer(url, startPosition)
+                                 }
+                             }
                         }
                     }
                 }
@@ -385,8 +411,7 @@ class PlayerActivity : ComponentActivity() {
                             title = this@PlayerActivity.title,
                             showStats = statsForNerds,
                             inPipMode = isInPipMode,
-                            introSegment = introSegment,
-                            outroSegment = outroSegment,
+                            nextEpisodeThresholdMinutes = nextEpisodeThreshold,
                             onNext = { playNextEpisode() },
                             onPrevious = { playPreviousEpisode() },
                             onSwitchEngine = { switchEngine() }
@@ -640,11 +665,11 @@ class PlayerActivity : ComponentActivity() {
                              })
                              overridePendingTransition(0, 0)
                          } else {
-                             android.widget.Toast.makeText(this@PlayerActivity, "Playback error: ${error.message}", android.widget.Toast.LENGTH_LONG).show()
-                         }
-                     }
-                } else {
-                    android.widget.Toast.makeText(this@PlayerActivity, "VLC playback error: ${error.message}", android.widget.Toast.LENGTH_LONG).show()
+                              android.widget.Toast.makeText(this@PlayerActivity, "Playback error: ${StringUtils.sanitizeUrl(error.message)}", android.widget.Toast.LENGTH_LONG).show()
+                          }
+                      }
+                 } else {
+                     android.widget.Toast.makeText(this@PlayerActivity, "VLC playback error: ${StringUtils.sanitizeUrl(error.message)}", android.widget.Toast.LENGTH_LONG).show()
                 }
             }
             

@@ -25,6 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -104,11 +106,13 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val profileImageUrl by profilePreferences.profileImageUrl.collectAsState(initial = "")
     var showEditProfileNameDialog by remember { mutableStateOf(false) }
     
+    var selectedImageUriForCrop by remember { mutableStateOf<Uri?>(null) }
+    
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            scope.launch { profilePreferences.setProfileImageFromUri(it.toString()) }
+            selectedImageUriForCrop = it
         }
     }
 
@@ -121,13 +125,20 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val autoRestartOnSpeedDrop by viewModel.autoRestartOnSpeedDrop.collectAsState()
     val downloadNotificationsEnabled by viewModel.downloadNotificationsEnabled.collectAsState()
     val autoPlayNextEpisode by viewModel.autoPlayNextEpisode.collectAsState()
-    val enableTmdbOmdbScraping by viewModel.enableTmdbOmdbScraping.collectAsState()
     val enableDownloadCovers by viewModel.enableDownloadCovers.collectAsState()
     
     var showDefaultPlayerDialog by remember { mutableStateOf(false) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showClearSearchHistoryDialog by remember { mutableStateOf(false) }
+    
+    val themeMode by viewModel.themeMode.collectAsState()
+    val fontFamily by viewModel.fontFamily.collectAsState()
+    val lastUpdatedDate by viewModel.lastUpdatedDate.collectAsState()
+    val customAccentColor by viewModel.customAccentColor.collectAsState()
+    var showThemeDialog by remember { mutableStateOf(false) }
+    var showFontDialog by remember { mutableStateOf(false) }
+    var showColorPickerDialog by remember { mutableStateOf(false) }
     
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isNarrow = configuration.screenWidthDp < 360
@@ -244,6 +255,156 @@ fun SettingsScreen(onBackClick: () -> Unit) {
         )
     }
 
+    if (showThemeDialog) {
+        val systemLabel = "System Default"
+        val lightLabel = "Light"
+        val darkLabel = "Dark"
+        val amoledLabel = "Amoled Black"
+        val customLabel = "Custom"
+        ExpressiveSelectionDialog(
+            title = "Theme Mode",
+            options = listOf(systemLabel, lightLabel, darkLabel, amoledLabel, customLabel),
+            currentValue = when (themeMode) {
+                "light" -> lightLabel
+                "dark" -> darkLabel
+                "amoled" -> amoledLabel
+                "custom" -> customLabel
+                else -> systemLabel
+            },
+            onDismiss = { showThemeDialog = false },
+            onSelect = { selected ->
+                val mode = when (selected) {
+                    lightLabel -> "light"
+                    darkLabel -> "dark"
+                    amoledLabel -> "amoled"
+                    customLabel -> "custom"
+                    else -> "system"
+                }
+                viewModel.setThemeMode(mode)
+                showThemeDialog = false
+            }
+        )
+    }
+
+    if (showColorPickerDialog) {
+        var hexInput by remember { mutableStateOf(customAccentColor) }
+        val presetColors = listOf(
+            "#6750A4", // Default Purple
+            "#E53935", // Red
+            "#43A047", // Green
+            "#1E88E5", // Blue
+            "#FB8C00", // Orange
+            "#8E24AA", // Deep Purple
+            "#00897B", // Teal
+            "#F4511E"  // Deep Orange
+        )
+        AlertDialog(
+            onDismissRequest = { showColorPickerDialog = false },
+            title = { Text("Accent Color") },
+            text = {
+                Column {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            presetColors.take(4).forEach { colorHex ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(android.graphics.Color.parseColor(colorHex)))
+                                        .clickable { hexInput = colorHex }
+                                        .border(if (hexInput == colorHex) 3.dp else 0.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                )
+                            }
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            presetColors.drop(4).take(4).forEach { colorHex ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(android.graphics.Color.parseColor(colorHex)))
+                                        .clickable { hexInput = colorHex }
+                                        .border(if (hexInput == colorHex) 3.dp else 0.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(24.dp))
+                    androidx.compose.material3.OutlinedTextField(
+                        value = hexInput,
+                        onValueChange = { hexInput = it },
+                        label = { Text("Hex Code") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    try {
+                        android.graphics.Color.parseColor(hexInput) // Validate hex format
+                        viewModel.setCustomAccentColor(hexInput)
+                        showColorPickerDialog = false
+                    } catch (e: Exception) {
+                        // Invalid hex, ignore or show toast
+                    }
+                }) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showColorPickerDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    val fontPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            viewModel.handleCustomFontSelection(context, uri)
+        }
+    }
+
+    if (showFontDialog) {
+        val defaultLabel = "Default"
+        val serifLabel = "Serif"
+        val sansSerifLabel = "Sans Serif"
+        val monospaceLabel = "Monospace"
+        val cursiveLabel = "Cursive"
+        val customLabel = "Custom Font..."
+        ExpressiveSelectionDialog(
+            title = "Font Family",
+            options = listOf(defaultLabel, serifLabel, sansSerifLabel, monospaceLabel, cursiveLabel, customLabel),
+            currentValue = when {
+                fontFamily == "serif" -> serifLabel
+                fontFamily == "sans-serif" -> sansSerifLabel
+                fontFamily == "monospace" -> monospaceLabel
+                fontFamily == "cursive" -> cursiveLabel
+                fontFamily.startsWith("/") -> customLabel
+                else -> defaultLabel
+            },
+            onDismiss = { showFontDialog = false },
+            onSelect = { selected ->
+                if (selected == customLabel) {
+                    fontPickerLauncher.launch("*/*")
+                } else {
+                    val font = when (selected) {
+                        serifLabel -> "serif"
+                        sansSerifLabel -> "sans-serif"
+                        monospaceLabel -> "monospace"
+                        cursiveLabel -> "cursive"
+                        else -> "default"
+                    }
+                    viewModel.setFontFamily(font)
+                }
+                showFontDialog = false
+            }
+        )
+    }
+
     if (showClearHistoryDialog) {
         AlertDialog(
             onDismissRequest = { showClearHistoryDialog = false },
@@ -300,21 +461,12 @@ fun SettingsScreen(onBackClick: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { 
-                    Box(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = ExpressiveShapes.ExtraLarge
-                            )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings_title),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -334,9 +486,31 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(animationSpec = tween(delayMillis = 0)) +
+                        slideInVertically(initialOffsetY = { it / 4 })
+            ) {
+                SettingsSection(
+                    title = "Appearance & Customization",
+                    icon = Icons.Default.Palette
+                ) {
+                    ExpressiveSettingValueItem(
+                        icon = Icons.Default.Brush,
+                        title = "Customization",
+                        value = "Theme, Colors, Navigation Bar",
+                        onClick = {
+                            context.startActivity(android.content.Intent(context, com.hasanege.materialtv.CustomizationActivity::class.java))
+                        }
+                    )
+                }
+            }
+
+
             // Account Information Section
             val userInfo = com.hasanege.materialtv.network.SessionManager.userInfo
             val loginType = com.hasanege.materialtv.network.SessionManager.loginType
@@ -402,6 +576,16 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                             icon = Icons.Default.Link,
                             title = stringResource(R.string.login_tab_m3u),
                             value = stringResource(R.string.login_tab_m3u),
+                            onClick = {}
+                        )
+                    }
+
+                    if (lastUpdatedDate > 0) {
+                        val formattedDate = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault()).format(java.util.Date(lastUpdatedDate))
+                        ExpressiveSettingValueItem(
+                            icon = Icons.Default.Update,
+                            title = "Last Updated",
+                            value = formattedDate,
                             onClick = {}
                         )
                     }
@@ -620,22 +804,6 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                         )
                     }
                     
-                    ExpressiveSettingValueItem(
-                        icon = Icons.Default.BatteryChargingFull,
-                        title = stringResource(R.string.settings_battery_optimization),
-                        value = stringResource(R.string.action_settings),
-                        onClick = {
-                            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                                data = Uri.parse("package:${context.packageName}")
-                            }
-                            try {
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-                            }
-                        }
-                    )
-                    
                     // Auto-restart on speed drop toggle
                     ExpressiveSettingSwitchItem(
                         icon = Icons.Default.Refresh,
@@ -786,33 +954,9 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                         onCheckedChange = { viewModel.setAutoRetryFailedDownloads(it) }
                     )
 
-                    ExpressiveSettingSwitchItem(
-                        icon = Icons.Default.Image,
-                        title = "Find Download Covers Automatically",
-                        checked = enableDownloadCovers,
-                        onCheckedChange = { viewModel.setEnableDownloadCovers(it) }
-                    )
                 }
             }
 
-            // Content & Scraping Section
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(animationSpec = tween(delayMillis = 75)) +
-                        slideInVertically(initialOffsetY = { it / 4 })
-            ) {
-                SettingsSection(
-                    title = "Content & Metadata",
-                    icon = Icons.Default.Public
-                ) {
-                    ExpressiveSettingSwitchItem(
-                        icon = Icons.Default.Star,
-                        title = "Enable TMDB/OMDB Metadata Scraping",
-                        checked = enableTmdbOmdbScraping,
-                        onCheckedChange = { viewModel.setEnableTmdbOmdbScraping(it) }
-                    )
-                }
-            }
 
             // Player Settings Section
             AnimatedVisibility(
@@ -1066,6 +1210,18 @@ fun SettingsScreen(onBackClick: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    selectedImageUriForCrop?.let { cropUri ->
+        com.hasanege.materialtv.ui.components.ImageCropDialog(
+            imageUri = cropUri,
+            onDismiss = { selectedImageUriForCrop = null },
+            onCropSuccess = { croppedBitmap ->
+                scope.launch {
+                    profilePreferences.setProfileImageFromBitmap(croppedBitmap)
+                }
+            }
+        )
+    }
 }
 
 // Expressive Feature Card for Carousel
@@ -1264,34 +1420,29 @@ fun ExpressiveSettingValueItem(
                     modifier = Modifier.size(if (isNarrow) 18.dp else 20.dp)
                 )
             }
-            Text(
-                text = title,
-                style = if (isNarrow) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = if (isNarrow) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Text(
+                    text = value,
+                    style = if (isNarrow) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    modifier = Modifier.basicMarquee()
+                )
+            }
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.padding(start = 4.dp)
-        ) {
-            Text(
-                text = value,
-                style = if (isNarrow) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-            Icon(
-                imageVector = trailingIcon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(if (isNarrow) 14.dp else 16.dp)
-            )
-        }
+        Icon(
+            imageVector = trailingIcon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 8.dp).size(if (isNarrow) 14.dp else 16.dp)
+        )
     }
 }
 
@@ -1377,7 +1528,10 @@ fun ExpressiveSelectionDialog(
             ) 
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 options.forEach { option ->
                     Row(
                         modifier = Modifier

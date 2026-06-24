@@ -52,7 +52,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                 return@launch
             }
             
-            val filePath = DownloadManager.getMovieFilePath(movie.name ?: "Unknown")
+            val filePath = DownloadManager.getMovieFilePath(context, movie.name ?: "Unknown")
             
             val downloadItem = DownloadItem(
                 title = movie.name ?: "Unknown Movie",
@@ -82,7 +82,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                 return@launch
             }
             
-            val filePath = DownloadManager.getEpisodeFilePath(seriesName, seasonNumber, episodeNumber, episode.title)
+            val filePath = DownloadManager.getEpisodeFilePath(context, seriesName, seasonNumber, episodeNumber, episode.title)
             
             val downloadItem = DownloadItem(
                 title = episode.title ?: "Episode $episodeNumber",
@@ -310,7 +310,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
             var foundCount = 0
             try {
                 // İndirilenler klasörünü kontrol et
-                val downloadsDir = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "MaterialTV")
+                val downloadsDir = java.io.File(context.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "MaterialTV")
                 
                 // Klasör yoksa oluştur (veya erişilemiyorsa çık)
                 if (!downloadsDir.exists() && !downloadsDir.mkdirs() && customDownloadUri == null) {

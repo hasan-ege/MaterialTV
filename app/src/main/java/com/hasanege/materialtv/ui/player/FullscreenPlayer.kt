@@ -66,11 +66,12 @@ fun FullscreenPlayer(
     title: String?,
     showStats: Boolean,
     inPipMode: Boolean = false,
-    introSegment: com.hasanege.materialtv.model.IntroDbSegment? = null,
-    outroSegment: com.hasanege.materialtv.model.IntroDbSegment? = null,
+    nextEpisodeThresholdMinutes: Int = 5,
     onNext: () -> Unit,
     onPrevious: () -> Unit,
-    onSwitchEngine: () -> Unit
+    onSwitchEngine: () -> Unit,
+    isLiveStream: Boolean = false,
+    onShowEpg: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -397,6 +398,16 @@ fun FullscreenPlayer(
                                  )
                              }
                              
+                             if (isLiveStream) {
+                                 IconButton(onClick = { onShowEpg?.invoke() }) {
+                                     Icon(
+                                         imageVector = Icons.Default.List,
+                                         contentDescription = "EPG / Schedule",
+                                         tint = Color.White
+                                     )
+                                 }
+                             }
+                             
                              // Lock Button
                              IconButton(onClick = { isLocked = !isLocked }) {
                                  Icon(
@@ -554,21 +565,10 @@ fun FullscreenPlayer(
                 }
             }
             
-            // Skip Intro Button
-            if (!inPipMode && introSegment != null && currentPosition >= introSegment.startMs && currentPosition <= introSegment.endMs) {
-                Button(
-                    onClick = { engine.seekTo(introSegment.endMs) },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 120.dp, end = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.8f), contentColor = Color.Black)
-                ) {
-                    Text("Skip Intro", fontWeight = FontWeight.Bold)
-                }
-            }
-
             // Skip Outro / Next Episode Button
-            if (!inPipMode && outroSegment != null && currentPosition >= outroSegment.startMs) {
+            val thresholdMs = nextEpisodeThresholdMinutes * 60 * 1000L
+            val isNearEnd = duration > 0 && currentPosition >= duration - thresholdMs
+            if (!inPipMode && isNearEnd) {
                 Button(
                     onClick = { onNext() },
                     modifier = Modifier

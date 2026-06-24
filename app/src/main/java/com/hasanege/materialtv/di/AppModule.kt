@@ -17,4 +17,16 @@ object AppModule {
     fun provideApplicationContext(@ApplicationContext context: Context): Context {
         return context
     }
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): com.hasanege.materialtv.data.AppDatabase {
+        return com.hasanege.materialtv.data.AppDatabase.getDatabase(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideXtreamDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.XtreamDao {
+        return database.xtreamDao()
+    }
 }

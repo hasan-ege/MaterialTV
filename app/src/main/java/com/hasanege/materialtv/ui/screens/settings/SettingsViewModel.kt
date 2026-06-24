@@ -31,8 +31,6 @@ class SettingsViewModel @Inject constructor(
     val autoRetryFailedDownloads: StateFlow<Boolean> = repository.autoRetryFailedDownloads
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
-    val enableTmdbOmdbScraping: StateFlow<Boolean> = repository.enableTmdbOmdbScraping
-        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val enableDownloadCovers: StateFlow<Boolean> = repository.enableDownloadCovers
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
@@ -92,11 +90,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setEnableTmdbOmdbScraping(enabled: Boolean) {
-        viewModelScope.launch {
-            repository.setEnableTmdbOmdbScraping(enabled)
-        }
-    }
 
     fun setEnableDownloadCovers(enabled: Boolean) {
         viewModelScope.launch {
@@ -147,6 +140,95 @@ class SettingsViewModel @Inject constructor(
     fun setNextEpisodeThresholdMinutes(value: Int) {
         viewModelScope.launch {
             repository.setNextEpisodeThresholdMinutes(value)
+        }
+    }
+
+    // Theme Mode
+    val themeMode: StateFlow<String> = repository.themeMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "system")
+
+    fun setThemeMode(mode: String) {
+        viewModelScope.launch {
+            repository.setThemeMode(mode)
+        }
+    }
+
+    // Font Family
+    val fontFamily: StateFlow<String> = repository.fontFamily
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "default")
+
+    fun setFontFamily(font: String) {
+        viewModelScope.launch {
+            repository.setFontFamily(font)
+        }
+    }
+
+    fun handleCustomFontSelection(context: android.content.Context, uri: android.net.Uri) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val fontsDir = java.io.File(context.filesDir, "fonts")
+                if (!fontsDir.exists()) fontsDir.mkdirs()
+                
+                // Clear old custom fonts to save space
+                fontsDir.listFiles()?.forEach { it.delete() }
+                
+                val fileName = "custom_font_${System.currentTimeMillis()}.ttf"
+                val destFile = java.io.File(fontsDir, fileName)
+                
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    destFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                
+                repository.setFontFamily(destFile.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    // Last Updated Date
+    val lastUpdatedDate: StateFlow<Long> = repository.lastUpdatedDate
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0L)
+
+    // Custom Accent Color
+    val customAccentColor: StateFlow<String> = repository.customAccentColor
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "#6750A4")
+
+    fun setCustomAccentColor(hexColor: String) {
+        viewModelScope.launch {
+            repository.setCustomAccentColor(hexColor)
+        }
+    }
+
+    // Custom Background Color
+    val customBackgroundColor: StateFlow<String> = repository.customBackgroundColor
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "#000000")
+
+    fun setCustomBackgroundColor(hexColor: String) {
+        viewModelScope.launch {
+            repository.setCustomBackgroundColor(hexColor)
+        }
+    }
+
+    // Custom Text Color
+    val customTextColor: StateFlow<String> = repository.customTextColor
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "#FFFFFF")
+
+    fun setCustomTextColor(hexColor: String) {
+        viewModelScope.launch {
+            repository.setCustomTextColor(hexColor)
+        }
+    }
+
+    // Navigation Bar Style
+    val navBarStyle: StateFlow<String> = repository.navBarStyle
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "bottom")
+
+    fun setNavBarStyle(style: String) {
+        viewModelScope.launch {
+            repository.setNavBarStyle(style)
         }
     }
 }

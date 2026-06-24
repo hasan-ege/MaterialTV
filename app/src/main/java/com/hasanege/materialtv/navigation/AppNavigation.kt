@@ -84,7 +84,7 @@ fun AppNavigation(
                 initialTitle = title,
                 onBack = { navController.popBackStack() },
                 onNavigateToPlayer = { url, t, sId, _, pos ->
-                    android.util.Log.d("AppNavigation", "Navigate to Player: $url")
+                    android.util.Log.d("AppNavigation", "Navigate to Player: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
                     val intent = Intent(context, PlayerActivity::class.java).apply {
                         putExtra("url", url)
                         putExtra("TITLE", t)
@@ -104,11 +104,10 @@ fun AppNavigation(
                 initialTitle = title,
                 onBack = { navController.popBackStack() },
                 onNavigateToPlayer = { url, t, eId, sId, pos ->
-                    android.util.Log.d("AppNavigation", "Navigate to Player: $url")
+                    android.util.Log.d("AppNavigation", "Navigate to Player for Series: $t, seriesId: $sId, episodeId: $eId")
                     val intent = Intent(context, PlayerActivity::class.java).apply {
-                        putExtra("url", url)
                         putExtra("TITLE", t)
-                        putExtra("STREAM_ID", eId)
+                        putExtra("EPISODE_ID", eId.toString())
                         putExtra("SERIES_ID", sId)
                         putExtra("AUTO_PLAY", true)
                         putExtra("position", pos)

@@ -42,7 +42,7 @@ object CoverImageDownloader {
         scope.launch {
             try {
                 val safeSeriesName = sanitizeFileName(seriesName)
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                 val seriesDir = File(downloadsDir, "$BASE_FOLDER/$SERIES_FOLDER/$safeSeriesName")
                 
                 if (!seriesDir.exists()) {
@@ -84,7 +84,7 @@ object CoverImageDownloader {
         scope.launch {
             try {
                 val safeSeriesName = sanitizeFileName(seriesName)
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                 val seasonDir = File(
                     downloadsDir, 
                     "$BASE_FOLDER/$SERIES_FOLDER/$safeSeriesName/S${seasonNumber.toString().padStart(2, '0')}"
@@ -127,7 +127,7 @@ object CoverImageDownloader {
         scope.launch {
             try {
                 val safeTitle = sanitizeFileName(movieTitle)
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                 val moviesDir = File(downloadsDir, "$BASE_FOLDER/$MOVIES_FOLDER")
                 
                 if (!moviesDir.exists()) {
@@ -207,7 +207,7 @@ object CoverImageDownloader {
      */
     fun getSeriesCoverPath(seriesName: String): String {
         val safeSeriesName = sanitizeFileName(seriesName)
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         return File(downloadsDir, "$BASE_FOLDER/$SERIES_FOLDER/$safeSeriesName/cover.png").absolutePath
     }
     
@@ -216,7 +216,7 @@ object CoverImageDownloader {
      */
     fun getEpisodeThumbnailPath(seriesName: String, seasonNumber: Int, episodeNumber: Int): String {
         val safeSeriesName = sanitizeFileName(seriesName)
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         val seasonDir = "$BASE_FOLDER/$SERIES_FOLDER/$safeSeriesName/S${seasonNumber.toString().padStart(2, '0')}"
         return File(downloadsDir, "$seasonDir/E${episodeNumber.toString().padStart(2, '0')}_thumbnail.png").absolutePath
     }
@@ -226,7 +226,7 @@ object CoverImageDownloader {
      */
     fun getMovieCoverPath(movieTitle: String): String {
         val safeTitle = sanitizeFileName(movieTitle)
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = com.hasanege.materialtv.MainApplication.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         return File(downloadsDir, "$BASE_FOLDER/$MOVIES_FOLDER/$safeTitle.png").absolutePath
     }
 }

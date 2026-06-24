@@ -117,10 +117,45 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
 )
+
+fun getTypographyForFontFamily(fontName: String): Typography {
+    val family = if (fontName.startsWith("/")) {
+        try {
+            androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(java.io.File(fontName)))
+        } catch (e: Exception) {
+            androidx.compose.ui.text.font.FontFamily.Default
+        }
+    } else {
+        when (fontName.lowercase()) {
+            "serif" -> androidx.compose.ui.text.font.FontFamily.Serif
+            "monospace" -> androidx.compose.ui.text.font.FontFamily.Monospace
+            "sans-serif" -> androidx.compose.ui.text.font.FontFamily.SansSerif
+            "cursive" -> androidx.compose.ui.text.font.FontFamily.Cursive
+            else -> androidx.compose.ui.text.font.FontFamily.Default
+        }
+    }
+    
+    return Typography(
+        displayLarge = Typography.displayLarge.copy(fontFamily = family),
+        displayMedium = Typography.displayMedium.copy(fontFamily = family),
+        displaySmall = Typography.displaySmall.copy(fontFamily = family),
+        headlineLarge = Typography.headlineLarge.copy(fontFamily = family),
+        headlineMedium = Typography.headlineMedium.copy(fontFamily = family),
+        headlineSmall = Typography.headlineSmall.copy(fontFamily = family),
+        titleLarge = Typography.titleLarge.copy(fontFamily = family),
+        titleMedium = Typography.titleMedium.copy(fontFamily = family),
+        titleSmall = Typography.titleSmall.copy(fontFamily = family),
+        bodyLarge = Typography.bodyLarge.copy(fontFamily = family),
+        bodyMedium = Typography.bodyMedium.copy(fontFamily = family),
+        bodySmall = Typography.bodySmall.copy(fontFamily = family),
+        labelLarge = Typography.labelLarge.copy(fontFamily = family),
+        labelMedium = Typography.labelMedium.copy(fontFamily = family),
+        labelSmall = Typography.labelSmall.copy(fontFamily = family)
+    )
+}

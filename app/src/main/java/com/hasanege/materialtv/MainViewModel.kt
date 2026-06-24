@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
 
     private fun loginM3u(onSuccess: () -> Unit) {
         android.util.Log.d("MainViewModel", "=== M3U Login Started ===")
-        android.util.Log.d("MainViewModel", "M3U URL: $m3uUrl")
+        android.util.Log.d("MainViewModel", "M3U URL: [REDACTED]")
         
         if (m3uUrl.isBlank()) {
             error = "Please enter M3U URL"
@@ -64,7 +64,7 @@ class MainViewModel @Inject constructor(
         // Basic URL validation
         if (!m3uUrl.startsWith("http://") && !m3uUrl.startsWith("https://")) {
             error = "URL must start with http:// or https://"
-            android.util.Log.e("MainViewModel", "Invalid URL format: $m3uUrl")
+            android.util.Log.e("MainViewModel", "Invalid URL format: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(m3uUrl)}")
             return
         }
 
@@ -99,24 +99,20 @@ class MainViewModel @Inject constructor(
             } catch (e: java.net.UnknownHostException) {
                 val errorMsg = "Cannot reach server. Check your internet connection."
                 error = errorMsg
-                android.util.Log.e("MainViewModel", errorMsg, e)
-                android.util.Log.e("MainViewModel", "Host: ${e.message}")
+                android.util.Log.e("MainViewModel", errorMsg)
             } catch (e: java.net.MalformedURLException) {
                 val errorMsg = "Invalid URL format"
                 error = errorMsg
-                android.util.Log.e("MainViewModel", errorMsg, e)
-                android.util.Log.e("MainViewModel", "URL that failed: $m3uUrl")
+                android.util.Log.e("MainViewModel", errorMsg)
             } catch (e: java.io.IOException) {
-                val errorMsg = "Network error: ${e.message}"
+                val errorMsg = "Network error: ${e.javaClass.simpleName}"
                 error = errorMsg
-                android.util.Log.e("MainViewModel", errorMsg, e)
+                android.util.Log.e("MainViewModel", errorMsg)
             } catch (e: Exception) {
                 val errorMsg = "Failed to load playlist: ${e.javaClass.simpleName}: ${e.message}"
                 error = errorMsg
-                android.util.Log.e("MainViewModel", "=== M3U Login Failed ===", e)
+                android.util.Log.e("MainViewModel", "=== M3U Login Failed ===")
                 android.util.Log.e("MainViewModel", "Exception type: ${e.javaClass.name}")
-                android.util.Log.e("MainViewModel", "Stack trace:")
-                e.printStackTrace()
             } finally {
                 isLoading = false
                 android.util.Log.d("MainViewModel", "M3U login process completed. isLoading=false")

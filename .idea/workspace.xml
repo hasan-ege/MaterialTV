@@ -10,12 +10,56 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84e76f73-5562-4af7-ab8a-8542a91427ec" name="Changes" comment="feat: Implement IMDb scraping, redesign Profile screen, and enhance UI&#10;&#10;This commit introduces a comprehensive metadata scraping system using IMDb, a complete redesign of the Profile screen with advanced analytics, and significant UI/UX enhancements across the application.&#10;&#10;**IMDb Metadata Scraping &amp; Content Enrichment:**&#10;*   **Deep Scraping Engine:** Implemented a robust, multi-stage scraping system (`ImdbScraper`, `RetrofitClient`) to fetch rich metadata for movies and series.&#10;    *   **Phase 1 (Instant):** Uses the IMDb suggestion API for a &quot;light speed&quot; initial discovery to immediately fetch title, poster, and cast.&#10;    *   **Phase 2 (Background):** Incrementally scrapes and populates detailed information including full plot summaries, user reviews, content ratings (e.g., PG-13, 18+), parental guidance warnings (violence, horror), awards, Metascore, and high-resolution cast member images.&#10;*   **Dynamic UI Updates:** The `DetailScreen` now updates incrementally as new metadata (plot, cast, reviews) is scraped in the background, providing a progressively richer user experience.&#10;*   **New Settings:** Added toggles in the settings to enable/disable IMDb scraping and automatic download cover scraping.&#10;*   **Trailer &amp; Cast Display:**&#10;    *   The `DetailScreen` now displays a &quot;Trailer&quot; button that opens the official trailer on YouTube.&#10;    *   A new horizontal carousel displays cast members with their profile pictures.&#10;&#10;**Profile Screen Redesign &amp; Analytics:**&#10;*   **Complete Overhaul:** Replaced the old profile layout with a modern, data-rich, and responsive `LazyVerticalGrid`.&#10;*   **Advanced Statistics:** The `ProfileViewModel` now calculates and displays a wide range of new user statistics:&#10;    *   **Content Distribution:** A visual bar shows the ratio of movies, series, and live TV watched.&#10;    *   **User Level:** A gamified level (e.g., &quot;Newbie 🌱&quot;, &quot;Binge Master 👑&quot;) is assigned based on total watch time.&#10;    *   **Analytics Cards:** New cards display average session time, content completion rate, and count of unfinished items.&#10;*   **Responsive Layout:** The grid layout automatically adjusts the number of columns based on screen width for optimal viewing on phones and tablets.&#10;*   **Flat &amp; Expressive Design:** Migrated to a flatter, card-based design using `MaterialTheme.colorScheme.surfaceContainer` for a cleaner aesthetic.&#10;&#10;**UI/UX and Player Enhancements:**&#10;*   **Expressive Carousels:**&#10;    *   Replaced `LazyRow` on the `HomeScreen` with `HorizontalMultiBrowseCarousel` for a more modern, expressive feel.&#10;    *   A new &quot;Featured&quot; hero carousel is now displayed at the top of the Home screen.&#10;*   **Player &amp; History:**&#10;    *   Refactored player composables into a dedicated `ui.player` package.&#10;    *   Replaced `LinearProgressIndicator` with `LinearWavyProgressIndicator` in the &quot;Continue Watching&quot; row for a more dynamic look.&#10;    *   Added `minLines = 2` to all content cards to prevent text from jumping during image loading, improving layout stability.&#10;*   **Downloads Screen Optimization:**&#10;    *   Refactored the `LazyColumn` to flatten the item structure, which improves performance and allows for more fluid entry animations.&#10;    *   Optimized Coil image loading requests with explicit sizing and global crossfade.&#10;    *   Removed toast notifications for scan results.&#10;&#10;**Build &amp; Technical Refinements:**&#10;*   **Dependency Updates:** Added `android-youtube-player` and `jsoup` for trailer playback and web scraping.&#10;*   **Repository Caching:** `XtreamRepository` now implements a file-based caching layer for movie, series, and live stream lists to improve performance and reduce network calls.&#10;*   **ProGuard/R8:** Enabled full mode for R8 and added specific rules for `kotlinx.serialization` to ensure proper functionality in release builds.&#10;*   **Localization:** Added new strings for the IMDb features and cleaned up existing localized strings.">
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/icon/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/notlar.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/DetailScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/DetailScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/GlobalExceptionHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/GlobalExceptionHandler.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/HomeViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/HomeViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MainViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MainViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MaterialTVApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/MaterialTVApp.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/PlayerActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/PlayerActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ProfileViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/SearchViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/SearchViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/AppDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/AppDatabase.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/M3uRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/M3uRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/ProfilePreferences.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/ProfilePreferences.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/SettingsRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/data/SettingsRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/CoverImageDownloader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/CoverImageDownloader.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadManagerImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadManagerImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/DownloadService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/OkHttpDownloader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/download/OkHttpDownloader.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/model/IntroDbModels.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/navigation/AppNavigation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/navigation/AppNavigation.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/CredentialsManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/CredentialsManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/ImdbSuggestionApiService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/IntroDbApi.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/OmdbApiService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/OmdbResponse.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/RetrofitClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/RetrofitClient.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/XtreamApiService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/network/XtreamApiService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/player/ExoPlayerEngine.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/player/ExoPlayerEngine.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/player/LibVlcEngine.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/player/LibVlcEngine.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/repository/IntroDbRepository.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/repository/XtreamRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/repository/XtreamRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/M3uParser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/M3uParser.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/Shared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/Shared.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/player/FullscreenPlayer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/player/FullscreenPlayer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/downloads/DownloadsScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/downloads/DownloadsScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/profile/ProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/profile/ProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/settings/SettingsScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/settings/SettingsScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/settings/SettingsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/screens/settings/SettingsViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/theme/Theme.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/theme/Type.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/ui/theme/Type.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/ImdbScraper.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/StringUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/hasanege/materialtv/utils/StringUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-tr/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-tr/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-v31/themes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-v31/themes.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,36 +130,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.app.executor": "Run",
-    "ApkExportedModule": "MaterialTV.app",
-    "BundleExportedModule": "MaterialTV.app",
-    "ExportApk.ApkPathForMaterialTV.app": "/home/hasan/AndroidStudioProjects/releases",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/hasan/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.17",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "Errors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;ApkExportedModule&quot;: &quot;MaterialTV.app&quot;,
+    &quot;BundleExportedModule&quot;: &quot;MaterialTV.app&quot;,
+    &quot;ExportApk.ApkPathForMaterialTV.app&quot;: &quot;/home/hasan/AndroidStudioProjects/releases&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hasan/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
   },
-  "keyToStringList": {
-    "ExportApk.BuildVariants": [
-      "release"
+  &quot;keyToStringList&quot;: {
+    &quot;ExportApk.BuildVariants&quot;: [
+      &quot;release&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="MaterialTV.app" />

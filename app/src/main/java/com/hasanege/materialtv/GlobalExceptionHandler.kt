@@ -12,6 +12,7 @@ class GlobalExceptionHandler(
 ) : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
+        android.util.Log.e("GlobalExceptionHandler", "FATAL UNCAUGHT EXCEPTION in thread ${thread.name}", throwable)
         val stringWriter = StringWriter()
         val printWriter = PrintWriter(stringWriter)
         throwable.printStackTrace(printWriter)

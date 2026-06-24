@@ -5,6 +5,7 @@ import android.net.Uri
 import android.view.SurfaceView
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.hasanege.materialtv.utils.StringUtils
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
@@ -90,7 +91,7 @@ class LibVlcEngine : PlayerEngine {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error initializing VLC: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error initializing VLC: ${StringUtils.sanitizeUrl(e.message)}")
             throw e
         }
     }
@@ -142,7 +143,7 @@ class LibVlcEngine : PlayerEngine {
                     mediaPlayer?.videoScale = MediaPlayer.ScaleType.SURFACE_BEST_FIT
                 }
             } catch (e: Exception) {
-                android.util.Log.e("LibVlcEngine", "Error refreshing video output: ${e.message}")
+                android.util.Log.e("LibVlcEngine", "Error refreshing video output: ${StringUtils.sanitizeUrl(e.message)}")
             }
         }
     }
@@ -163,14 +164,14 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.detachViews()
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error detaching views: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error detaching views: ${StringUtils.sanitizeUrl(e.message)}")
         }
         
         videoLayout?.let { layout ->
             try {
                 (layout.parent as? ViewGroup)?.removeView(layout)
             } catch (e: Exception) {
-                android.util.Log.e("LibVlcEngine", "Error removing layout: ${e.message}")
+                android.util.Log.e("LibVlcEngine", "Error removing layout: ${StringUtils.sanitizeUrl(e.message)}")
             }
         }
         
@@ -234,7 +235,7 @@ class LibVlcEngine : PlayerEngine {
                 mediaPlayer?.media = media
                 media.release()
             } catch (e: Exception) {
-                android.util.Log.e("LibVlcEngine", "Error preparing media: ${e.message}")
+                android.util.Log.e("LibVlcEngine", "Error preparing media: ${StringUtils.sanitizeUrl(e.message)}")
             }
         }
     }
@@ -243,7 +244,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.play()
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error playing: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error playing: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -251,7 +252,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.pause()
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error pausing: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error pausing: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -259,7 +260,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.stop()
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error stopping: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error stopping: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -277,7 +278,7 @@ class LibVlcEngine : PlayerEngine {
             
             libVlc?.release()
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error releasing: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error releasing: ${StringUtils.sanitizeUrl(e.message)}")
         } finally {
             mediaPlayer = null
             libVlc = null
@@ -295,7 +296,7 @@ class LibVlcEngine : PlayerEngine {
             mediaPlayer?.time = position
             android.util.Log.d("LibVlcEngine", "Seeking to $position (pending: $startPosition)")
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error seeking: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error seeking: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -305,7 +306,7 @@ class LibVlcEngine : PlayerEngine {
                 it.time = (it.time - 10000).coerceAtLeast(0)
             }
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error seeking back: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error seeking back: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -317,7 +318,7 @@ class LibVlcEngine : PlayerEngine {
                 it.time = if (maxTime > 0) newTime.coerceAtMost(maxTime) else newTime
             }
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error seeking forward: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error seeking forward: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -353,7 +354,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.volume = (volume * 100).toInt().coerceIn(0, 100)
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error setting volume: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error setting volume: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -409,7 +410,7 @@ class LibVlcEngine : PlayerEngine {
                 else -> mediaPlayer?.videoScale = MediaPlayer.ScaleType.SURFACE_BEST_FIT
             }
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error setting aspect ratio: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error setting aspect ratio: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
     
@@ -425,7 +426,7 @@ class LibVlcEngine : PlayerEngine {
             }
             tracks
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error getting subtitle tracks: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error getting subtitle tracks: ${StringUtils.sanitizeUrl(e.message)}")
             emptyList()
         }
     }
@@ -440,7 +441,7 @@ class LibVlcEngine : PlayerEngine {
             }
             tracks
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error getting audio tracks: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error getting audio tracks: ${StringUtils.sanitizeUrl(e.message)}")
             emptyList()
         }
     }
@@ -449,7 +450,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.spuTrack = trackId
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error setting subtitle track: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error setting subtitle track: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
     
@@ -457,7 +458,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.audioTrack = trackId
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error setting audio track: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error setting audio track: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -514,7 +515,7 @@ class LibVlcEngine : PlayerEngine {
         try {
             mediaPlayer?.rate = speed
         } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error setting playback speed: ${e.message}")
+            android.util.Log.e("LibVlcEngine", "Error setting playback speed: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 

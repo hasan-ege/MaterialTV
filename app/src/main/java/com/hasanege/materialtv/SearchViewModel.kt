@@ -46,46 +46,55 @@ class SearchViewModel @Inject constructor(
             
             _isLoading.value = true
 
-            // Sequential for simplicity, but each flow will emit cache then network
-            repository.getVodStreams(username, password, null).collect { resource ->
-                when (resource) {
-                    is com.hasanege.materialtv.network.Resource.Loading -> { } // Tracked by _isLoading if needed
-                    is com.hasanege.materialtv.network.Resource.Success -> {
-                        allMovies = resource.data
-                        _movies.value = UiState.Success(allMovies)
-                    }
-                    is com.hasanege.materialtv.network.Resource.Error -> {
-                        _movies.value = UiState.Error(resource.message)
-                    }
-                }
-            }
-
-            repository.getSeries(username, password, null).collect { resource ->
-                 when (resource) {
-                    is com.hasanege.materialtv.network.Resource.Loading -> { }
-                    is com.hasanege.materialtv.network.Resource.Success -> {
-                        allSeries = resource.data
-                        _series.value = UiState.Success(allSeries)
-                    }
-                    is com.hasanege.materialtv.network.Resource.Error -> {
-                        _series.value = UiState.Error(resource.message)
+            val moviesJob = launch {
+                repository.getVodStreams(username, password, null).collect { resource ->
+                    when (resource) {
+                        is com.hasanege.materialtv.network.Resource.Loading -> { } 
+                        is com.hasanege.materialtv.network.Resource.Success -> {
+                            allMovies = resource.data
+                            _movies.value = UiState.Success(allMovies)
+                        }
+                        is com.hasanege.materialtv.network.Resource.Error -> {
+                            _movies.value = UiState.Error(resource.message)
+                        }
                     }
                 }
             }
 
-            repository.getLiveStreams(username, password, null).collect { resource ->
-                when (resource) {
-                    is com.hasanege.materialtv.network.Resource.Loading -> { }
-                    is com.hasanege.materialtv.network.Resource.Success -> {
-                        allLiveStreams = resource.data
-                        _liveStreams.value = UiState.Success(allLiveStreams)
+            val seriesJob = launch {
+                repository.getSeries(username, password, null).collect { resource ->
+                     when (resource) {
+                        is com.hasanege.materialtv.network.Resource.Loading -> { }
+                        is com.hasanege.materialtv.network.Resource.Success -> {
+                            allSeries = resource.data
+                            _series.value = UiState.Success(allSeries)
+                        }
+                        is com.hasanege.materialtv.network.Resource.Error -> {
+                            _series.value = UiState.Error(resource.message)
+                        }
                     }
-                    is com.hasanege.materialtv.network.Resource.Error -> {
-                        _liveStreams.value = UiState.Error(resource.message)
+                }
+            }
+
+            val liveStreamsJob = launch {
+                repository.getLiveStreams(username, password, null).collect { resource ->
+                    when (resource) {
+                        is com.hasanege.materialtv.network.Resource.Loading -> { }
+                        is com.hasanege.materialtv.network.Resource.Success -> {
+                            allLiveStreams = resource.data
+                            _liveStreams.value = UiState.Success(allLiveStreams)
+                        }
+                        is com.hasanege.materialtv.network.Resource.Error -> {
+                            _liveStreams.value = UiState.Error(resource.message)
+                        }
                     }
                 }
             }
             
+            // Wait for all to emit at least once, or just set loading to false after a delay
+            // Since collect is infinite (Flow), join() would suspend forever.
+            // A simple delay works well for UI responsiveness.
+            kotlinx.coroutines.delay(1000)
             _isLoading.value = false
         }
     }

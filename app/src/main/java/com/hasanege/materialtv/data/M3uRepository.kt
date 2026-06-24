@@ -28,7 +28,7 @@ object M3uRepository {
 
                 // If not loaded from cache, fetch from network and stream directly to file
                 if (!loadedFromCache) {
-                    android.util.Log.d("M3uRepository", "Fetching playlist from: $url")
+                    android.util.Log.d("M3uRepository", "Fetching playlist from: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
                     val connection = URL(url).openConnection()
                     connection.connectTimeout = 15000
                     connection.readTimeout = 20000
@@ -53,7 +53,7 @@ object M3uRepository {
                 
                 android.util.Log.d("M3uRepository", "Parsed ${playlist.size} entries (Source: ${if (loadedFromCache) "Cache" else "Network"})")
             } catch (e: Exception) {
-                android.util.Log.e("M3uRepository", "Error fetching playlist", e)
+                android.util.Log.e("M3uRepository", "Error fetching playlist: ${e.javaClass.simpleName}")
                 playlist = emptyList() // Reset on error
                 throw e
             }

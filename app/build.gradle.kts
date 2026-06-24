@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.hasanege.materialtv"
-    compileSdk = 36
+    compileSdk = 35
 
     signingConfigs {
         create("release") {
@@ -27,7 +27,7 @@ android {
     defaultConfig {
         applicationId = "com.hasanege.materialtv"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 4
         versionName = "2.1"
 
@@ -104,6 +104,11 @@ dependencies {
 
     // LibVLC for fallback player
     implementation("org.videolan.android:libvlc-all:3.5.1")
+
+    // Security & Encryption
+    implementation("androidx.security:security-crypto:1.0.0")
+    implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+    implementation("androidx.sqlite:sqlite-ktx:2.4.0")
 
     // WorkManager for background downloads
     implementation("androidx.work:work-runtime-ktx:2.9.0")

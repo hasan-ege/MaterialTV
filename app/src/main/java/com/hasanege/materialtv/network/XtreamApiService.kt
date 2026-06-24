@@ -60,6 +60,23 @@ interface XtreamApiService {
     ): JsonElement
 
     @GET("player_api.php")
+    suspend fun getShortEpg(
+        @Query("username") username: String,
+        @Query("password") password: String,
+        @Query("action") action: String = "get_short_epg",
+        @Query("stream_id") streamId: Int,
+        @Query("limit") limit: Int = 10
+    ): JsonElement
+
+    @GET("player_api.php")
+    suspend fun getSimpleDataTable(
+        @Query("username") username: String,
+        @Query("password") password: String,
+        @Query("action") action: String = "get_simple_data_table",
+        @Query("stream_id") streamId: Int
+    ): JsonElement
+
+    @GET("player_api.php")
     suspend fun getSeriesInfo(
         @Query("username") username: String,
         @Query("password") password: String,

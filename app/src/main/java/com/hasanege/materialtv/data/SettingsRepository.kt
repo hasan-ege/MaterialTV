@@ -67,8 +67,15 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val USER_NAME = stringPreferencesKey("user_name")
         val USER_AVATAR_PATH = stringPreferencesKey("user_avatar_path")
-        val ENABLE_TMDB_OMDB_SCRAPING = booleanPreferencesKey("enable_tmdb_omdb_scraping")
         val ENABLE_DOWNLOAD_COVERS = booleanPreferencesKey("enable_download_covers")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
+        val FONT_FAMILY = stringPreferencesKey("font_family")
+        val LAST_UPDATED_DATE = androidx.datastore.preferences.core.longPreferencesKey("last_updated_date")
+        val CUSTOM_ACCENT_COLOR = stringPreferencesKey("custom_accent_color")
+        val CUSTOM_BACKGROUND_COLOR = stringPreferencesKey("custom_background_color")
+        val CUSTOM_TEXT_COLOR = stringPreferencesKey("custom_text_color")
+        val NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
+        val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
     }
 
     val maxConcurrentDownloads: Flow<Int> = context.settingsDataStore.data.map { prefs ->
@@ -230,37 +237,42 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         }
     }
 
+    // Disclaimer Acceptance
+    val isDisclaimerAccepted: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[DISCLAIMER_ACCEPTED] ?: false
+    }
+
+    suspend fun setDisclaimerAccepted(accepted: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[DISCLAIMER_ACCEPTED] = accepted
+        }
+    }
+
     // User Profile
     val userName: Flow<String?> = context.settingsDataStore.data.map { prefs ->
-        prefs[USER_NAME]
+        val encrypted = prefs[USER_NAME]
+        if (!encrypted.isNullOrEmpty()) com.hasanege.materialtv.utils.CryptoManager.decrypt(encrypted) else null
     }
 
     suspend fun setUserName(name: String) {
+        val encrypted = com.hasanege.materialtv.utils.CryptoManager.encrypt(name)
         context.settingsDataStore.edit { prefs ->
-            prefs[USER_NAME] = name
+            prefs[USER_NAME] = encrypted
         }
     }
 
     val userAvatarPath: Flow<String?> = context.settingsDataStore.data.map { prefs ->
-        prefs[USER_AVATAR_PATH]
+        val encrypted = prefs[USER_AVATAR_PATH]
+        if (!encrypted.isNullOrEmpty()) com.hasanege.materialtv.utils.CryptoManager.decrypt(encrypted) else null
     }
 
     suspend fun setUserAvatarPath(path: String) {
+        val encrypted = com.hasanege.materialtv.utils.CryptoManager.encrypt(path)
         context.settingsDataStore.edit { prefs ->
-            prefs[USER_AVATAR_PATH] = path
+            prefs[USER_AVATAR_PATH] = encrypted
         }
     }
 
-    // TMDB/OMDB Scraping
-    val enableTmdbOmdbScraping: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
-        prefs[ENABLE_TMDB_OMDB_SCRAPING] ?: true
-    }
-
-    suspend fun setEnableTmdbOmdbScraping(enabled: Boolean) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[ENABLE_TMDB_OMDB_SCRAPING] = enabled
-        }
-    }
 
     // Download Covers
     val enableDownloadCovers: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
@@ -270,6 +282,83 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
     suspend fun setEnableDownloadCovers(enabled: Boolean) {
         context.settingsDataStore.edit { prefs ->
             prefs[ENABLE_DOWNLOAD_COVERS] = enabled
+        }
+    }
+
+    // Theme Mode
+    val themeMode: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[THEME_MODE] ?: "system"
+    }
+
+    suspend fun setThemeMode(mode: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[THEME_MODE] = mode
+        }
+    }
+
+    // Font Family
+    val fontFamily: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[FONT_FAMILY] ?: "default"
+    }
+
+    suspend fun setFontFamily(font: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[FONT_FAMILY] = font
+        }
+    }
+
+    // Last Updated Date
+    val lastUpdatedDate: Flow<Long> = context.settingsDataStore.data.map { prefs ->
+        prefs[LAST_UPDATED_DATE] ?: 0L
+    }
+
+    suspend fun setLastUpdatedDate(timeInMillis: Long) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[LAST_UPDATED_DATE] = timeInMillis
+        }
+    }
+
+    // Custom Accent Color
+    val customAccentColor: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[CUSTOM_ACCENT_COLOR] ?: "#6750A4"
+    }
+
+    suspend fun setCustomAccentColor(hexColor: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[CUSTOM_ACCENT_COLOR] = hexColor
+        }
+    }
+
+    // Custom Background Color
+    val customBackgroundColor: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[CUSTOM_BACKGROUND_COLOR] ?: "#000000"
+    }
+
+    suspend fun setCustomBackgroundColor(hexColor: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[CUSTOM_BACKGROUND_COLOR] = hexColor
+        }
+    }
+
+    // Custom Text Color
+    val customTextColor: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[CUSTOM_TEXT_COLOR] ?: "#FFFFFF"
+    }
+
+    suspend fun setCustomTextColor(hexColor: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[CUSTOM_TEXT_COLOR] = hexColor
+        }
+    }
+
+    // Navigation Bar Style
+    val navBarStyle: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[NAV_BAR_STYLE] ?: "bottom"
+    }
+
+    suspend fun setNavBarStyle(style: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[NAV_BAR_STYLE] = style
         }
     }
 }

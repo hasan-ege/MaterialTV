@@ -13,6 +13,7 @@ import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.ui.PlayerView
+import com.hasanege.materialtv.utils.StringUtils
 import java.io.File
 
 class ExoPlayerEngine : PlayerEngine {
@@ -232,7 +233,7 @@ class ExoPlayerEngine : PlayerEngine {
                 (it.parent as? ViewGroup)?.removeView(it)
                 it.player = null
             } catch (e: Exception) {
-                android.util.Log.e("ExoPlayerEngine", "Error detaching: ${e.message}")
+                android.util.Log.e("ExoPlayerEngine", "Error detaching: ${StringUtils.sanitizeUrl(e.message)}")
             }
         }
         
@@ -344,7 +345,7 @@ class ExoPlayerEngine : PlayerEngine {
                 it.release()
             }
         } catch (e: Exception) {
-            android.util.Log.e("ExoPlayerEngine", "Error releasing: ${e.message}")
+            android.util.Log.e("ExoPlayerEngine", "Error releasing: ${StringUtils.sanitizeUrl(e.message)}")
         } finally {
             player = null
             playerView = null
@@ -365,7 +366,7 @@ class ExoPlayerEngine : PlayerEngine {
                 android.util.Log.d("ExoPlayerEngine", "Performing buffered seek to: $safePos")
                 player?.seekTo(safePos)
             } catch (e: Exception) {
-                android.util.Log.e("ExoPlayerEngine", "Error performing seek: ${e.message}")
+                android.util.Log.e("ExoPlayerEngine", "Error performing seek: ${StringUtils.sanitizeUrl(e.message)}")
             } finally {
                 pendingSeekPosition = null
             }
@@ -459,7 +460,7 @@ class ExoPlayerEngine : PlayerEngine {
             }
             tracks
         } catch (e: Exception) {
-            android.util.Log.e("ExoPlayerEngine", "Error getting subtitle tracks: ${e.message}")
+            android.util.Log.e("ExoPlayerEngine", "Error getting subtitle tracks: ${StringUtils.sanitizeUrl(e.message)}")
             emptyList()
         }
     }
@@ -481,7 +482,7 @@ class ExoPlayerEngine : PlayerEngine {
             }
             tracks
         } catch (e: Exception) {
-            android.util.Log.e("ExoPlayerEngine", "Error getting audio tracks: ${e.message}")
+            android.util.Log.e("ExoPlayerEngine", "Error getting audio tracks: ${StringUtils.sanitizeUrl(e.message)}")
             emptyList()
         }
     }
@@ -516,7 +517,7 @@ class ExoPlayerEngine : PlayerEngine {
             player?.trackSelectionParameters = params.build()
             android.util.Log.d("ExoPlayerEngine", "Subtitle track set to: $trackId")
         } catch (e: Exception) {
-            android.util.Log.e("ExoPlayerEngine", "Error setting subtitle track: ${e.message}", e)
+            android.util.Log.e("ExoPlayerEngine", "Error setting subtitle track: ${StringUtils.sanitizeUrl(e.message)}", e)
         }
     }
     
@@ -542,7 +543,7 @@ class ExoPlayerEngine : PlayerEngine {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("ExoPlayerEngine", "Error setting audio track: ${e.message}", e)
+            android.util.Log.e("ExoPlayerEngine", "Error setting audio track: ${StringUtils.sanitizeUrl(e.message)}", e)
         }
     }
     

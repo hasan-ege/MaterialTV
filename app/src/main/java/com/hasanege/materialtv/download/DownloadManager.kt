@@ -83,8 +83,8 @@ interface DownloadManager {
          * Film için indirme yolu oluştur
          * Downloads/MaterialTV/Movies/FilmAdi.mp4
          */
-        fun getMovieFilePath(title: String): String {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        fun getMovieFilePath(context: Context, title: String): String {
+            val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             val movieDir = File(downloadsDir, "$BASE_FOLDER/$MOVIES_FOLDER")
             if (!movieDir.exists()) {
                 movieDir.mkdirs()
@@ -93,8 +93,8 @@ interface DownloadManager {
             return File(movieDir, "$safeTitle.mp4").absolutePath
         }
         
-        fun getEpisodeFilePath(seriesName: String, seasonNumber: Int, episodeNumber: Int, episodeTitle: String?): String {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        fun getEpisodeFilePath(context: Context, seriesName: String, seasonNumber: Int, episodeNumber: Int, episodeTitle: String?): String {
+            val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             // Cleanup series name to be safe for file system
             val safeSeriesName = sanitizeFileName(seriesName)
             

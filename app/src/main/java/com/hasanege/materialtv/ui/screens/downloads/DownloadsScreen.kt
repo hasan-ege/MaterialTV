@@ -86,25 +86,6 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
     // Rename Dialog State
     var renamingItem by remember { mutableStateOf<DownloadItem?>(null) }
 
-    // Folder Picker
-    val folderLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-        if (uri != null) {
-            // Take persistable permission
-            val contentResolver = context.contentResolver
-            try {
-                contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            viewModel.setCustomDownloadFolder(uri)
-        }
-    }
-
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
@@ -137,61 +118,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
-    
-    // Permission Check for Android 11+
-    var showPermissionDialog by remember { mutableStateOf(false) }
-    
-    // Check permission on resume/start
-    DisposableEffect(Unit) {
-        val lifecycleObserver = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    if (!android.os.Environment.isExternalStorageManager()) {
-                        showPermissionDialog = true
-                    } else {
-                        showPermissionDialog = false
-                    }
-                }
-            }
-        }
-        val lifecycle = (context as? androidx.activity.ComponentActivity)?.lifecycle
-        lifecycle?.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycle?.removeObserver(lifecycleObserver)
-        }
-    }
 
-    if (showPermissionDialog) {
-        AlertDialog(
-            onDismissRequest = { /* Force user to decide, or maybe allow dismiss if they really want */ showPermissionDialog = false },
-            title = { Text("İzin Gerekli") },
-            text = { Text("Otomatik dosya taraması için 'Tüm Dosyalara Erişim' izni gereklidir. Lütfen ayarlardan bu izni verin.") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        try {
-                            val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                            intent.addCategory("android.intent.category.DEFAULT")
-                            intent.data = Uri.parse(String.format("package:%s", context.packageName))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            val intent = Intent()
-                            intent.action = android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
-                            context.startActivity(intent)
-                        }
-                    }
-                ) {
-                    Text("İzin Ver")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPermissionDialog = false }) {
-                    Text("İptal")
-                }
-            }
-        )
-    }
-    
     // Animation State
     // User wants: Menu appears -> Wait -> Content drops down
     var isContentVisible by remember { mutableStateOf(false) }
@@ -251,8 +178,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                         modifier = Modifier.fillParentMaxSize(),
                         isScanning = isLoading,
                         rotationAngle = rotationAngle,
-                        onScanClick = { viewModel.rescanDownloads() },
-                        onFolderSelect = { folderLauncher.launch(null) }
+                        onScanClick = { viewModel.rescanDownloads() }
                     )
                 }
             } else if (isLoading) {
@@ -281,8 +207,7 @@ fun DownloadsScreen(viewModel: DownloadsViewModel) {
                         DownloadStatsCard(
                             downloads = downloads,
                             isScanning = isLoading,
-                            onScanClick = { viewModel.rescanDownloads() },
-                            onFolderSelect = { folderLauncher.launch(null) }
+                            onScanClick = { viewModel.rescanDownloads() }
                         )
                     }
                 }
@@ -623,8 +548,7 @@ fun SeriesGroupHeader(
 private fun DownloadStatsCard(
     downloads: List<DownloadItem>,
     isScanning: Boolean = false,
-    onScanClick: () -> Unit = {},
-    onFolderSelect: () -> Unit = {}
+    onScanClick: () -> Unit = {}
 ) {
     val downloadingCount = downloads.count { it.status == DownloadStatus.DOWNLOADING }
     val completedCount = downloads.count { it.status == DownloadStatus.COMPLETED }
@@ -902,27 +826,19 @@ private fun DownloadItemCard(
                             else download.thumbnailUrl
                         }
                         ContentType.EPISODE -> {
-                            // Bölüm: Yerel thumbnail dosyasını ara
-                            // Video: E24_Bolumadi.mp4 -> Thumbnail: E24_thumbnail.png
+                            // Bölüm: Yerel video thumbnail dosyasını ara
+                            // VideoThumbnailHelper tarafından oluşturulan: ${name}_thumb.jpg
                             val videoFile = java.io.File(download.filePath)
                             val parentDir = videoFile.parentFile
                             val fileName = videoFile.nameWithoutExtension
                             
-                            // Bölüm numarasını çıkar (E01, E24 vb.)
-                            val episodePrefix = fileName.split("_").firstOrNull() ?: fileName
+                            // 1. VideoThumbnailHelper pattern: filename_thumb.jpg (birincil)
+                            val thumbFile = java.io.File(parentDir, "${fileName}_thumb.jpg")
+                            if (thumbFile.exists()) return@remember thumbFile
                             
-                            // 1. E24_thumbnail.png
-                            val thumbnailFile = java.io.File(parentDir, "${episodePrefix}_thumbnail.png")
-                            if (thumbnailFile.exists()) return@remember thumbnailFile
-                            
-                            // 2. Original Name + _thumb.jpg (Scraper default?)
-                            // Scraper saves as: videoName.jpg (sibling)
-                            val siblingJpg = java.io.File(parentDir, "$fileName.jpg")
-                            if (siblingJpg.exists()) return@remember siblingJpg
-
-                            // 3. Other variants
+                            // 2. Diğer olası yerel thumbnail varyantları
                             val variants = listOf(
-                                "${fileName}_thumb.jpg",
+                                "$fileName.jpg",
                                 "${fileName}_thumbnail.png",
                                 "$fileName.png"
                             )
@@ -932,15 +848,13 @@ private fun DownloadItemCard(
                                 if (f.exists()) return@remember f
                             }
                             
-                            // Fallback to series cover
-                             val seasonDir = parentDir // S01
-                             val seriesDir = seasonDir?.parentFile // Attack on Titan
-                             val seriesCover = seriesDir?.let { java.io.File(it, "cover.png") }
-                             if (seriesCover?.exists() == true) {
-                                 seriesCover
-                             } else {
-                                 download.thumbnailUrl
-                             }
+                            // 3. Bölüm numarası prefix'li thumbnail (E24_thumbnail.png)
+                            val episodePrefix = fileName.split("_").firstOrNull() ?: fileName
+                            val prefixThumb = java.io.File(parentDir, "${episodePrefix}_thumbnail.png")
+                            if (prefixThumb.exists()) return@remember prefixThumb
+                            
+                            // Fallback: Online bölüm resmi (dizi kapağı DEĞİL)
+                            download.thumbnailUrl
                         }
                     }
                 }
@@ -1131,8 +1045,7 @@ private fun EmptyDownloadsView(
     modifier: Modifier = Modifier,
     isScanning: Boolean = false,
     rotationAngle: Float = 0f,
-    onScanClick: () -> Unit = {},
-    onFolderSelect: () -> Unit = {}
+    onScanClick: () -> Unit = {}
 ) {
     // Subtle pulse animation instead of floating
     val infiniteTransition = rememberInfiniteTransition()
@@ -1198,21 +1111,6 @@ private fun EmptyDownloadsView(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Folder Select Button
-                        IconButton(
-                            onClick = onFolderSelect,
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f),
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FolderOpen,
-                                contentDescription = stringResource(R.string.action_select_folder),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
                         // Scan/Sync Button
                         IconButton(
                             onClick = onScanClick,

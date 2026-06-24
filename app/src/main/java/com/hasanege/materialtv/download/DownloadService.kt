@@ -796,7 +796,7 @@ class DownloadService : Service() {
                     return@withContext true
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to download cover: ${e.message}")
+                Log.e(TAG, "Failed to download cover: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(e.message)}")
                 return@withContext false
             }
         }

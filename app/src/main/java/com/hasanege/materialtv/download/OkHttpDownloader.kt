@@ -48,7 +48,7 @@ class OkHttpDownloader {
         activeDownloads[id] = true
         
         Log.i(TAG, "[START] Download initiated: id=$id")
-        Log.d(TAG, "[START] URL: $url")
+        Log.d(TAG, "[START] URL: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
         Log.d(TAG, "[START] FilePath: $filePath")
         
         val file = File(filePath)
@@ -271,20 +271,21 @@ class OkHttpDownloader {
                 retryCount++
                 val delayMs = (baseRetryDelayMs * (1 shl minOf(retryCount - 1, 5))).coerceAtMost(maxRetryDelayMs)
                 useRangeHeader = downloadedBytes > 0
-                Log.w(TAG, "[RETRY] Socket error: ${e.message}, retry $retryCount/$maxRetries")
+                Log.w(TAG, "[RETRY] Socket error: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(e.message)}, retry $retryCount/$maxRetries")
                 kotlinx.coroutines.delay(delayMs)
             } catch (e: IOException) {
                 response?.close()
                 retryCount++
                 val delayMs = (baseRetryDelayMs * (1 shl minOf(retryCount - 1, 5))).coerceAtMost(maxRetryDelayMs)
                 useRangeHeader = downloadedBytes > 0
-                Log.w(TAG, "[RETRY] IO error: ${e.message}, retry $retryCount/$maxRetries")
+                Log.w(TAG, "[RETRY] IO error: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(e.message)}, retry $retryCount/$maxRetries")
                 kotlinx.coroutines.delay(delayMs)
             } catch (e: Exception) {
                 response?.close()
                 if (activeDownloads[id] == true) {
-                    Log.e(TAG, "[ERROR] Unexpected error: ${e.message}")
-                    onError(e.message ?: "Bilinmeyen hata")
+                    val sanitizedError = com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(e.message ?: "Bilinmeyen hata")
+                    Log.e(TAG, "[ERROR] Unexpected error: $sanitizedError")
+                    onError(sanitizedError)
                 }
                 return@withContext
             }

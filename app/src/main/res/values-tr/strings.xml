@@ -561,4 +561,10 @@
     <string name="detail_reviews_header">Kullanıcı Yorumları</string>
     <string name="detail_view_all_reviews">Hepsini Gör</string>
     <string name="reviews_screen_title">IMDb Yorumları</string>
+
+    <!-- Sorumluluk Reddi Strings -->
+    <string name="disclaimer_title">Sorumluluk Reddi Beyanı</string>
+    <string name="disclaimer_text">Bu uygulama herhangi bir medya veya içerik sağlamaz veya barındırmaz. Kullanıcılar kendi giriş bilgilerini veya çalma listesi URL\'lerini (Xtream Kodları veya M3U) sağlamalıdır. Geliştiricilerin herhangi bir üçüncü taraf içerik sağlayıcısıyla hiçbir bağlantısı yoktur. Devam ederek bu şartları kabul etmiş olursunuz.</string>
+    <string name="disclaimer_accept">Kabul Et</string>
+    <string name="disclaimer_decline">Reddet</string>
 </resources>

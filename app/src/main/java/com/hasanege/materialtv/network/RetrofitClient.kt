@@ -67,14 +67,15 @@ object RetrofitClient {
 
             val loggingInterceptor = Interceptor { chain ->
                 val request = chain.request()
-                android.util.Log.e("RetrofitClient", "Request: ${request.method} ${request.url}")
+                val sanitizedUrl = com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(request.url.toString())
+                android.util.Log.d("RetrofitClient", "Request: ${request.method} $sanitizedUrl")
                 val response = try {
                     chain.proceed(request)
                 } catch (e: Exception) {
-                    android.util.Log.e("RetrofitClient", "Request failed: ${request.url}", e)
+                    android.util.Log.e("RetrofitClient", "Request failed: $sanitizedUrl | Error: ${e.javaClass.simpleName}")
                     throw e
                 }
-                android.util.Log.e("RetrofitClient", "Response: ${response.code} for ${request.url}")
+                android.util.Log.d("RetrofitClient", "Response: ${response.code} for $sanitizedUrl")
                 response
             }
 
@@ -99,12 +100,5 @@ object RetrofitClient {
             .build()
         return retrofit.create(XtreamApiService::class.java)
     }
-    fun getIntroDbClient(): IntroDbApi {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.introdb.app/")
-            .client(unsafeOkHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-        return retrofit.create(IntroDbApi::class.java)
-    }
 }
+

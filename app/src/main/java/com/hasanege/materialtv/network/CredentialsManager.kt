@@ -9,7 +9,19 @@ import javax.inject.Singleton
 
 @Singleton
 class CredentialsManager @Inject constructor(@ApplicationContext context: Context) {
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences = try {
+        val masterKeyAlias = androidx.security.crypto.MasterKeys.getOrCreate(androidx.security.crypto.MasterKeys.AES256_GCM_SPEC)
+        androidx.security.crypto.EncryptedSharedPreferences.create(
+            PREFS_NAME,
+            masterKeyAlias,
+            context,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
 
     fun saveCredentials(serverUrl: String, username: String, password: String) {
         with(sharedPreferences.edit()) {

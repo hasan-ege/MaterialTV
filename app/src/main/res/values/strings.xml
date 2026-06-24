@@ -572,4 +572,10 @@
     <string name="reviews_screen_title">IMDb Reviews</string>
     <string name="detail_unknown_title">Unknown Title</string>
     <string name="history_category_empty">No history found for this category.</string>
+
+    <!-- Disclaimer Strings -->
+    <string name="disclaimer_title">Disclaimer</string>
+    <string name="disclaimer_text">This application does not provide or contain any media or content. Users must provide their own credentials or playlist URLs (Xtream Codes or M3U). The developers have no affiliation with any third-party content providers. By continuing, you agree to these terms.</string>
+    <string name="disclaimer_accept">Accept</string>
+    <string name="disclaimer_decline">Decline</string>
 </resources>

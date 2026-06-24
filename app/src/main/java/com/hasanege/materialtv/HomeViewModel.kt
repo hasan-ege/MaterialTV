@@ -91,7 +91,7 @@ class HomeViewModel @Inject constructor(
         if (isInitialDataLoaded && !forceRefresh) return
 
         viewModelScope.launch {
-            android.util.Log.e("HomeViewModel", "loadInitialData started: username=$username, forceRefresh=$forceRefresh, loginType=${SessionManager.loginType}, serverUrl=${SessionManager.serverUrl}")
+            android.util.Log.e("HomeViewModel", "loadInitialData started: forceRefresh=$forceRefresh, loginType=${SessionManager.loginType}")
             isRefreshing = true
 
             moviesState = UiState.Loading
@@ -147,8 +147,9 @@ class HomeViewModel @Inject constructor(
                         android.util.Log.d("HomeViewModel", "M3U data loaded successfully")
                     }
                 } catch (e: Exception) {
-                    android.util.Log.e("HomeViewModel", "Failed to load M3U data", e)
-                    val errorMsg = "Failed to load M3U data: ${e.javaClass.simpleName}: ${e.message}"
+                    android.util.Log.e("HomeViewModel", "Failed to load M3U data: ${e.javaClass.simpleName}")
+                    val rawMsg = "Failed to load M3U data: ${e.javaClass.simpleName}: ${e.message}"
+                    val errorMsg = com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(rawMsg)
                     moviesState = UiState.Error(errorMsg)
                     seriesState = UiState.Error(errorMsg)
                     liveState = UiState.Error(errorMsg)
@@ -157,18 +158,22 @@ class HomeViewModel @Inject constructor(
                     liveByCategoriesState = UiState.Success(emptyMap())
                 }
             } else {
-                coroutineScope {
-                    launch {
-                        loadMovieCategories(username, password)
-                        loadAllMovies(username, password)
-                    }
-                    launch {
-                        loadSeriesCategories(username, password)
-                        loadAllSeries(username, password)
-                    }
-                    launch {
-                        loadLiveCategories(username, password)
-                        loadAllLiveStreams(username, password)
+                if (!isInitialDataLoaded) {
+                    viewModelScope.launch { loadMovieCategories(username, password) }
+                    viewModelScope.launch { loadAllMovies(username, password) }
+                    viewModelScope.launch { loadSeriesCategories(username, password) }
+                    viewModelScope.launch { loadAllSeries(username, password) }
+                    viewModelScope.launch { loadLiveCategories(username, password) }
+                    viewModelScope.launch { loadAllLiveStreams(username, password) }
+                }
+                
+                if (forceRefresh || !isInitialDataLoaded) {
+                    try {
+                        repository.syncData(username, password)
+                        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(application)
+                        settingsRepo.setLastUpdatedDate(System.currentTimeMillis())
+                    } catch (e: Exception) {
+                        android.util.Log.e("HomeViewModel", "Failed to sync data", e)
                     }
                 }
             }

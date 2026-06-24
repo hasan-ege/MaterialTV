@@ -74,6 +74,12 @@ import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.runtime.staticCompositionLocalOf
 import android.content.res.Configuration
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.OutlinedButton
 import android.app.PictureInPictureParams
 import android.util.Rational
 
@@ -108,7 +114,9 @@ class MainActivity : AppCompatActivity() {
             val navController = androidx.navigation.compose.rememberNavController()
             val customName by settingsRepo.userName.collectAsState(initial = null)
             val customAvatar by settingsRepo.userAvatarPath.collectAsState(initial = null)
+            val isDisclaimerAccepted by settingsRepo.isDisclaimerAccepted.collectAsState(initial = null)
             var startDestination by remember { mutableStateOf<String?>(null) }
+            val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
             LaunchedEffect(Unit) {
                 startDestination = checkAutoLoginDest(credentialsManager)
@@ -120,21 +128,32 @@ class MainActivity : AppCompatActivity() {
                     LocalPipAction provides { action -> activePipReceiver?.invoke(action) }
                 ) {
                     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        if (startDestination == null) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+                        if (isDisclaimerAccepted == null || startDestination == null) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                        } else if (!isDisclaimerAccepted!!) {
+                            DisclaimerScreen(
+                                onAccept = {
+                                    coroutineScope.launch {
+                                        settingsRepo.setDisclaimerAccepted(true)
+                                    }
+                                },
+                                onDecline = {
+                                    finish()
+                                }
+                            )
+                        } else {
+                            com.hasanege.materialtv.navigation.AppNavigation(
+                                navController = navController,
+                                startDestination = startDestination!!,
+                                mainViewModel = viewModel,
+                                customName = customName,
+                                customAvatar = customAvatar
+                            )
                         }
-                    } else {
-                        com.hasanege.materialtv.navigation.AppNavigation(
-                            navController = navController,
-                            startDestination = startDestination!!,
-                            mainViewModel = viewModel,
-                            customName = customName,
-                            customAvatar = customAvatar
-                        )
                     }
                 }
-            }
             }
         }
     }
@@ -459,5 +478,111 @@ fun XtreamLoginFields(viewModel: MainViewModel) {
         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
         singleLine = true
     )
+}
+
+@Composable
+fun DisclaimerScreen(
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        ElevatedCard(
+            modifier = Modifier
+                .widthIn(max = 650.dp)
+                .fillMaxWidth(0.85f)
+                .padding(24.dp),
+            shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 8.dp
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.disclaimer_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                val scrollState = rememberScrollState()
+                Box(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(scrollState)
+                        .background(
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium
+                        )
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.disclaimer_text),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
+                ) {
+                    OutlinedButton(
+                        onClick = onDecline,
+                        shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.disclaimer_decline),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                    
+                    FilledTonalButton(
+                        onClick = onAccept,
+                        shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
+                        modifier = Modifier
+                            .height(48.dp)
+                            .focusRequester(focusRequester)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.disclaimer_accept),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 

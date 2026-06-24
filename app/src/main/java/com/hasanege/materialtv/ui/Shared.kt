@@ -69,6 +69,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.foundation.basicMarquee
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hasanege.materialtv.FavoritesManager
@@ -99,7 +101,7 @@ fun ExpressiveTabSlider(
     
     // Detect narrow screen (<360dp)
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val isNarrow = configuration.screenWidthDp < 360
+    val isNarrow = configuration.screenWidthDp < 480
     
     // Track actual tab item positions and sizes (measured from the Box containing the text)
     var tabItemBounds by remember(tabs) { 
@@ -251,7 +253,7 @@ fun ExpressiveTabSlider(
                                         }
                                     } else null
                                 )
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                                .padding(horizontal = if (isNarrow) 4.dp else 8.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -274,6 +276,29 @@ fun ExpressiveTabSlider(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DefaultBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier) {
+    androidx.compose.material3.NavigationBar(
+        modifier = modifier.height(64.dp),
+        windowInsets = androidx.compose.foundation.layout.WindowInsets(0)
+    ) {
+        for (screen in items) {
+            NavigationBarItem(
+                selected = currentItemRoute == screen.route,
+                onClick = { onItemClick(screen) },
+                icon = { androidx.compose.material3.Icon(screen.icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                label = { 
+                    androidx.compose.material3.Text(
+                        text = androidx.compose.ui.res.stringResource(screen.labelRes),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp
+                    ) 
+                }
+            )
         }
     }
 }
@@ -514,10 +539,9 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
                             text = movie.name ?: "",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            minLines = 2
+                            maxLines = 1,
+                            modifier = Modifier.basicMarquee(),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         movie.rating5Based?.let { rating ->
                             if (rating > 0) {
@@ -662,10 +686,9 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
                             text = seriesItem.name ?: "",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            minLines = 2
+                            maxLines = 1,
+                            modifier = Modifier.basicMarquee(),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         if (!seriesItem.releaseDate.isNullOrEmpty()) {
                             Text(
@@ -738,7 +761,7 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
                             // For M3U, get URL from repository; for Xtream, construct it
                             val streamUrl = if (SessionManager.loginType == SessionManager.LoginType.M3U) {
                                 val url = com.hasanege.materialtv.data.M3uRepository.getStreamUrl(liveStream.streamId ?: 0)
-                                Log.d("LiveTVList", "M3U stream URL for ${liveStream.name}: $url")
+                                Log.d("LiveTVList", "M3U stream URL for ${liveStream.name}: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
                                 url
                             } else {
                                 "${SessionManager.serverUrl}/live/${SessionManager.username}/${SessionManager.password}/${liveStream.streamId}.ts"
@@ -812,10 +835,9 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
                             text = liveStream.name ?: "",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            minLines = 2
+                            maxLines = 1,
+                            modifier = Modifier.basicMarquee(),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = stringResource(R.string.home_live_tv),
