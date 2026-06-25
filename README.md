@@ -12,7 +12,7 @@
 [![Material_3_Expressive](https://img.shields.io/badge/M3-Expressive-D5C5FF?style=for-the-badge)](https://m3.material.io/)
 [![Media3](https://img.shields.io/badge/Media3-ExoPlayer-FF5722?style=for-the-badge&logo=android)](https://developer.android.com/guide/topics/media/media3)
 [![VLC](https://img.shields.io/badge/Player-LibVLC-FF8800?style=for-the-badge&logo=vlc)](https://www.videolan.org/developers/vlc-android.html)
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 
 **MaterialTV** is a state-of-the-art IPTV / VOD player built with modern Android principles. Designed to provide a "premium, alive, and dynamic" experience, it focuses on user connection through fluid motion, organic shapes, and a highly responsive interface.
 
