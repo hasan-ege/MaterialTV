@@ -2,11 +2,6 @@
 > **Disclaimer:** This is a hobby project. The application does not provide any content. I am not responsible for your playlist or the content you watch. Features are added based on my personal needs.
 
 
->This project is licensed under the **CC BY-NC-SA 4.0** License. 
->**Commercial use is strictly prohibited** without explicit permission from the author. 
->See the [LICENSE](LICENSE) file for more details.
-
-
 <div align="center">
 
 # MaterialTV 📺
