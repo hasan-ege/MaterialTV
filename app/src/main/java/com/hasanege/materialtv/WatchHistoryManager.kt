@@ -1,32 +1,39 @@
 package com.hasanege.materialtv
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.hasanege.materialtv.model.ContinueWatchingItem
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.hasanege.materialtv.repository.WatchHistoryRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
+/**
+ * Legacy WatchHistoryManager wrapper that uses WatchHistoryRepository.
+ * Gradually migrate classes to inject WatchHistoryRepository instead.
+ */
 object WatchHistoryManager {
-    private const val PREFS_NAME = "watch_history_prefs"
-    private const val KEY_WATCH_HISTORY = "watch_history"
+    private lateinit var repository: WatchHistoryRepository
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private lateinit var sharedPreferences: SharedPreferences
+    private val _historyFlow = MutableStateFlow<List<ContinueWatchingItem>>(emptyList())
+    val historyFlow: StateFlow<List<ContinueWatchingItem>> = _historyFlow
 
-    private val _historyFlow = kotlinx.coroutines.flow.MutableStateFlow<List<ContinueWatchingItem>>(emptyList())
-    val historyFlow: kotlinx.coroutines.flow.StateFlow<List<ContinueWatchingItem>> = _historyFlow
-
-    fun initialize(context: Context) {
-        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        _historyFlow.value = getRawHistory()
-    }
-
-    private fun getRawHistory(): MutableList<ContinueWatchingItem> {
-        val jsonString = sharedPreferences.getString(KEY_WATCH_HISTORY, null) ?: return mutableListOf()
-        return try {
-            Json.decodeFromString<List<ContinueWatchingItem>>(jsonString).toMutableList()
-        } catch (e: Exception) {
-            mutableListOf()
+    fun initialize(repo: WatchHistoryRepository) {
+        repository = repo
+        scope.launch {
+            repository.observeHistory().collect { history ->
+                _historyFlow.value = history
+            }
         }
+    }
+    
+    // For older compatibility in initialize(Context) which was used in MainApplication
+    fun initialize(context: Context) {
+        // Now handled by Hilt injection in MainApplication
     }
 
     fun getHistory(): List<ContinueWatchingItem> {
@@ -71,63 +78,35 @@ object WatchHistoryManager {
     }
 
     fun saveItem(item: ContinueWatchingItem) {
-        val history = getRawHistory()
-
-        if (item.type == "series" && item.seriesId != null) {
-            val existingItem = history.find { it.seriesId == item.seriesId }
-            if (existingItem != null) {
-                item.isPinned = existingItem.isPinned
-                item.dismissedFromContinueWatching = existingItem.dismissedFromContinueWatching
-                history.removeAll { it.seriesId == item.seriesId }
-            }
-        } else { // For movies or other types
-            val existingItem = history.find { it.streamId == item.streamId && it.type == item.type }
-            if (existingItem != null) {
-                item.isPinned = existingItem.isPinned
-                item.dismissedFromContinueWatching = existingItem.dismissedFromContinueWatching
-                history.remove(existingItem)
-            }
+        scope.launch {
+            repository.saveItem(item)
         }
-
-        history.add(0, item)
-        val updatedHistory = history.take(20)
-
-        val jsonString = Json.encodeToString(updatedHistory)
-        sharedPreferences.edit().putString(KEY_WATCH_HISTORY, jsonString).apply()
-        _historyFlow.value = updatedHistory
     }
 
     // Dismiss from Continue Watching (but keep in history)
     fun dismissItem(item: ContinueWatchingItem) {
-        val history = getRawHistory()
-        val itemToUpdate = history.find { it.streamId == item.streamId && it.type == item.type }
-        itemToUpdate?.let { it.dismissedFromContinueWatching = true }
-        val jsonString = Json.encodeToString(history)
-        sharedPreferences.edit().putString(KEY_WATCH_HISTORY, jsonString).apply()
-        _historyFlow.value = history
+        scope.launch {
+            repository.dismissItem(item)
+        }
     }
 
     // Completely remove from history
     fun removeItem(item: ContinueWatchingItem) {
-        val history = getRawHistory()
-        history.removeAll { it.streamId == item.streamId && it.type == item.type }
-        val jsonString = Json.encodeToString(history)
-        sharedPreferences.edit().putString(KEY_WATCH_HISTORY, jsonString).apply()
-        _historyFlow.value = history
+        scope.launch {
+            repository.removeItem(item)
+        }
     }
 
     fun togglePin(item: ContinueWatchingItem) {
-        val history = getRawHistory()
-        val itemToUpdate = history.find { it.streamId == item.streamId && it.type == item.type }
-        itemToUpdate?.let { it.isPinned = !it.isPinned }
-        val jsonString = Json.encodeToString(history)
-        sharedPreferences.edit().putString(KEY_WATCH_HISTORY, jsonString).apply()
-        _historyFlow.value = history
+        scope.launch {
+            repository.togglePin(item)
+        }
     }
 
     fun clearHistory() {
-        sharedPreferences.edit().remove(KEY_WATCH_HISTORY).apply()
-        _historyFlow.value = emptyList()
+        scope.launch {
+            repository.clearHistory()
+        }
     }
 
     // Get total actual watch time (excluding seeking/skipping)
@@ -137,41 +116,9 @@ object WatchHistoryManager {
 
     // Update item with actual watch time tracking
     fun saveItemWithWatchTime(item: ContinueWatchingItem, additionalWatchTime: Long) {
-        val history = getRawHistory()
-        val existingItem = if (item.type == "series" && item.seriesId != null) {
-            history.find { it.seriesId == item.seriesId }
-        } else if (item.type == "downloaded") {
-            history.find { it.streamId == item.streamId && it.type == "downloaded" }
-        } else {
-            history.find { it.streamId == item.streamId && it.type == item.type }
+        scope.launch {
+            repository.saveItemWithWatchTime(item, additionalWatchTime)
         }
-
-        if (existingItem != null) {
-            // Update existing item with accumulated watch time
-            val updatedItem = item.copy(
-                actualWatchTime = existingItem.actualWatchTime + additionalWatchTime,
-                isPinned = existingItem.isPinned,
-                dismissedFromContinueWatching = existingItem.dismissedFromContinueWatching,
-                streamIcon = if (item.type == "downloaded") existingItem.streamIcon else item.streamIcon
-            )
-            
-            if (item.type == "series" && item.seriesId != null) {
-                history.removeAll { it.seriesId == item.seriesId }
-            } else if (item.type == "downloaded") {
-                history.removeAll { it.streamId == item.streamId && it.type == "downloaded" }
-            } else {
-                history.removeAll { it.streamId == item.streamId && it.type == item.type }
-            }
-            history.add(0, updatedItem)
-        } else {
-            // New item
-            history.add(0, item.copy(actualWatchTime = additionalWatchTime))
-        }
-
-        val updatedHistory = history.take(20)
-        val jsonString = Json.encodeToString(updatedHistory)
-        sharedPreferences.edit().putString(KEY_WATCH_HISTORY, jsonString).apply()
-        _historyFlow.value = updatedHistory
     }
 
     // Helper to check if an item is considered "finished" based on threshold

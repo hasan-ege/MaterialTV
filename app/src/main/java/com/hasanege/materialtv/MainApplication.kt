@@ -41,7 +41,7 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
         Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(this, defaultHandler))
         
         FavoritesManager.initialize(this)
-        WatchHistoryManager.initialize(this)
+        WatchHistoryManager.initialize(watchHistoryRepository)
         applySavedLanguage()
     }
 
@@ -87,6 +87,9 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
     
     @javax.inject.Inject
     lateinit var workerFactory: androidx.hilt.work.HiltWorkerFactory
+
+    @javax.inject.Inject
+    lateinit var watchHistoryRepository: com.hasanege.materialtv.repository.WatchHistoryRepository
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()

@@ -794,7 +794,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
             ) {
                 Column(
                     modifier = Modifier
-                        .size(56.dp)
+                        .width(56.dp)
                         .shadow(
                             elevation = 6.dp,
                             shape = androidx.compose.foundation.shape.CircleShape,

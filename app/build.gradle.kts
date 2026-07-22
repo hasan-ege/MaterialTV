@@ -28,8 +28,8 @@ android {
         applicationId = "com.hasanege.materialtv"
         minSdk = 24
         targetSdk = 35
-        versionCode = 4
-        versionName = "2.1"
+        versionCode = 6
+        versionName = "2.3.2b"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

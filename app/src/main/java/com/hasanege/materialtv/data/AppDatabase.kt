@@ -19,7 +19,7 @@ import androidx.room.RoomDatabase
         com.hasanege.materialtv.data.entities.UserRatingEntity::class,
         com.hasanege.materialtv.data.entities.WatchHistoryEntity::class
     ],
-    version = 7, // Incremented for new offline-first schema
+    version = 8, // Incremented for WatchHistory schema changes
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

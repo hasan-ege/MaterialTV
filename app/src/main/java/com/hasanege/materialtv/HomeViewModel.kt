@@ -66,6 +66,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadRemovedItems()
         loadContinueWatching()
+        loadCategoryPreferences()
         viewModelScope.launch { loadFeaturedSeedPreferences() }
     }
     
@@ -565,6 +566,26 @@ class HomeViewModel @Inject constructor(
                 .apply()
         } catch (e: Exception) {
             android.util.Log.e("HomeViewModel", "Error saving category preferences", e)
+        }
+    }
+
+    private fun loadCategoryPreferences() {
+        try {
+            val prefs = application.getSharedPreferences("category_preferences", Context.MODE_PRIVATE)
+            hiddenCategoryIdsMovies = prefs.getStringSet("hidden_movies", emptySet()) ?: emptySet()
+            hiddenCategoryIdsSeries = prefs.getStringSet("hidden_series", emptySet()) ?: emptySet()
+            hiddenCategoryIdsLive = prefs.getStringSet("hidden_live", emptySet()) ?: emptySet()
+
+            val orderMovies = prefs.getString("order_movies", null)
+            orderedCategoryIdsMovies = if (!orderMovies.isNullOrBlank()) orderMovies.split(",") else emptyList()
+
+            val orderSeries = prefs.getString("order_series", null)
+            orderedCategoryIdsSeries = if (!orderSeries.isNullOrBlank()) orderSeries.split(",") else emptyList()
+
+            val orderLive = prefs.getString("order_live", null)
+            orderedCategoryIdsLive = if (!orderLive.isNullOrBlank()) orderLive.split(",") else emptyList()
+        } catch (e: Exception) {
+            android.util.Log.e("HomeViewModel", "Error loading category preferences", e)
         }
     }
 

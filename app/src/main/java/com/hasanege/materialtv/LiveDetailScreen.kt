@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -279,44 +280,21 @@ private fun WideScreenLiveDetail(
             modifier = Modifier
                 .weight(0.45f)
                 .fillMaxHeight()
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
         ) {
-            // Background: blurred channel logo
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(streamIcon)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().blur(20.dp)
-            )
-            // Dark gradient overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.35f),
-                                Color.Black.copy(alpha = 0.70f),
-                                Color.Black.copy(alpha = 0.95f)
-                            )
-                        )
-                    )
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 32.dp, vertical = 24.dp)
                     .padding(top = safeTopPadding),
-                verticalArrangement = Arrangement.Bottom
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Channel logo
+                // Channel logo (1:1)
                 Surface(
-                    shape = ExpressiveShapes.Large,
-                    color = Color.White.copy(alpha = 0.15f),
-                    modifier = Modifier.size(96.dp)
+                    shape = ExpressiveShapes.Medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.size(240.dp)
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
@@ -328,47 +306,30 @@ private fun WideScreenLiveDetail(
                         contentScale = ContentScale.Fit,
                         error = painterResource(R.drawable.ic_placeholder),
                         placeholder = painterResource(R.drawable.ic_placeholder),
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(16.dp).fillMaxSize()
                     )
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(32.dp))
+
+                Spacer(Modifier.height(8.dp))
 
                 // Channel name
                 Text(
                     text = channelName,
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        shadow = androidx.compose.ui.graphics.Shadow(
-                            color = Color.Black, blurRadius = 16f
-                        )
-                    ),
-                    color = Color.White,
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(Modifier.height(8.dp))
-
-                // LIVE badge
-                LiveBadge()
-
-                Spacer(Modifier.height(24.dp))
-
-                // Current programme info (if any)
-                currentProgram?.let { program ->
-                    CurrentProgramCard(
-                        program = program,
-                        progress = progress,
-                        isCompact = false
-                    )
-                    Spacer(Modifier.height(24.dp))
-                }
+                Spacer(Modifier.height(32.dp))
 
                 // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
@@ -386,6 +347,8 @@ private fun WideScreenLiveDetail(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                     }
+
+                    Spacer(Modifier.width(16.dp))
 
                     FilledTonalIconButton(
                         onClick = onFavoriteToggle,
@@ -463,138 +426,106 @@ private fun PhoneScreenLiveDetail(
         derivedStateOf { (scrollState.value / 300f).coerceIn(0f, 1f) }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            // --- Hero Section ---
-            Box(
+            Spacer(Modifier.height(safeTopPadding + 24.dp))
+
+            // --- Hero Section (1:1 Prominent Square) ---
+            Surface(
+                shape = ExpressiveShapes.Medium,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .padding(horizontal = 48.dp)
+                    .aspectRatio(1f)
             ) {
-                // Blurred background
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(streamIcon)
                         .crossfade(true)
                         .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().blur(24.dp)
+                    imageLoader = ImageConfig.getImageLoader(context),
+                    contentDescription = channelName,
+                    contentScale = ContentScale.Fit,
+                    error = painterResource(R.drawable.ic_placeholder),
+                    placeholder = painterResource(R.drawable.ic_placeholder),
+                    modifier = Modifier.padding(16.dp).fillMaxSize()
                 )
+            }
 
-                // Gradient overlay
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.2f),
-                                    Color.Black.copy(alpha = 0.5f),
-                                    MaterialTheme.colorScheme.background
-                                )
-                            )
-                        )
+            Spacer(Modifier.height(32.dp))
+
+            // --- Channel Name ---
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = channelName,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
                 )
+            }
 
-                // Channel logo centred
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+            Spacer(Modifier.height(24.dp))
+
+            // Action buttons row
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = onPlay,
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = ExpressiveShapes.Medium
                 ) {
-                    Surface(
-                        shape = ExpressiveShapes.Large,
-                        color = Color.White.copy(alpha = 0.15f),
-                        modifier = Modifier.size(112.dp)
-                    ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(streamIcon)
-                                .crossfade(true)
-                                .build(),
-                            imageLoader = ImageConfig.getImageLoader(context),
-                            contentDescription = channelName,
-                            contentScale = ContentScale.Fit,
-                            error = painterResource(R.drawable.ic_placeholder),
-                            placeholder = painterResource(R.drawable.ic_placeholder),
-                            modifier = Modifier.padding(10.dp)
-                        )
-                    }
+                    Icon(Icons.Rounded.PlayArrow, null, modifier = Modifier.size(24.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        stringResource(R.string.action_play),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                FilledTonalIconButton(
+                    onClick = onFavoriteToggle,
+                    modifier = Modifier.size(56.dp),
+                    shape = ExpressiveShapes.Medium,
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = if (isFavorite) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = if (isFavorite) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
+
+            Spacer(Modifier.height(40.dp))
 
             // --- Content below hero ---
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 24.dp)
             ) {
-                // Channel name + LIVE badge
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = channelName,
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    LiveBadge()
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                // Action buttons row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = onPlay,
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        shape = ExpressiveShapes.Medium
-                    ) {
-                        Icon(Icons.Rounded.PlayArrow, null, modifier = Modifier.size(24.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            stringResource(R.string.action_play),
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                        )
-                    }
-
-                    FilledTonalIconButton(
-                        onClick = onFavoriteToggle,
-                        modifier = Modifier.size(56.dp),
-                        shape = ExpressiveShapes.Medium,
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = if (isFavorite) MaterialTheme.colorScheme.primaryContainer
-                            else MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = if (isFavorite) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    ) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(24.dp))
-
                 // Current program
                 currentProgram?.let { program ->
                     CurrentProgramCard(program = program, progress = progress, isCompact = false)
@@ -701,16 +632,7 @@ private fun CurrentProgramCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            if (!program.description.isNullOrBlank()) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = program.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = if (isCompact) 1 else 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+
 
             Spacer(Modifier.height(12.dp))
 
@@ -870,7 +792,7 @@ private fun EpgRow(epg: EpgListing, isFirst: Boolean, isLast: Boolean) {
     Surface(
         shape = shape,
         color = if (isCurrentlyOn)
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+            MaterialTheme.colorScheme.primaryContainer
         else
             MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = Modifier.fillMaxWidth()
@@ -938,16 +860,7 @@ private fun EpgRow(epg: EpgListing, isFirst: Boolean, isLast: Boolean) {
                         }
                     }
                 }
-                if (!epg.description.isNullOrBlank()) {
-                    Text(
-                        text = epg.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
+
             }
         }
     }

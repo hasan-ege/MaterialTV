@@ -75,4 +75,26 @@ interface UserDao {
 
     @Query("UPDATE list_folders SET sortOrder = :newIndex WHERE folderId = :folderId AND profileId = :profileId")
     suspend fun updateFolderOrder(folderId: String, profileId: String, newIndex: Int)
+
+    // Watch History
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateHistory(history: WatchHistoryEntity)
+
+    @Delete
+    suspend fun deleteHistory(history: WatchHistoryEntity)
+
+    @Query("DELETE FROM watch_history WHERE streamId = :streamId AND type = :type AND profileId = :profileId")
+    suspend fun deleteHistoryByContent(streamId: String, type: String, profileId: String)
+
+    @Query("DELETE FROM watch_history WHERE profileId = :profileId")
+    suspend fun clearHistory(profileId: String)
+
+    @Query("SELECT * FROM watch_history WHERE profileId = :profileId ORDER BY isPinned DESC, lastWatchedAt DESC")
+    fun observeHistory(profileId: String): Flow<List<WatchHistoryEntity>>
+
+    @Query("SELECT * FROM watch_history WHERE profileId = :profileId ORDER BY isPinned DESC, lastWatchedAt DESC")
+    suspend fun getHistorySync(profileId: String): List<WatchHistoryEntity>
+
+    @Query("SELECT * FROM watch_history WHERE streamId = :streamId AND type = :type AND profileId = :profileId AND episodeId = :episodeId LIMIT 1")
+    suspend fun getHistoryItem(streamId: String, type: String, profileId: String, episodeId: String = ""): WatchHistoryEntity?
 }

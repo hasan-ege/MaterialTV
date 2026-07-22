@@ -153,7 +153,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
         ) {
 
             // ──────────────────────────────────────────────────────
-            // HERO — Avatar + İsim + Rozet
+            // HERO — Avatar + İsim + Rozet (Level Entegreli)
             // ──────────────────────────────────────────────────────
             AnimatedVisibility(
                 visible = isVisible,
@@ -169,100 +169,59 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             }
 
             // ──────────────────────────────────────────────────────
-            // İSTATİSTİKLER — 3 kart yan yana
+            // İSTATİSTİKLER
             // ──────────────────────────────────────────────────────
             AnimatedVisibility(
                 visible = isVisible,
                 enter = fadeIn(tween(400, delayMillis = 80)) + slideInVertically(initialOffsetY = { it / 4 })
             ) {
-                ProfileSection(title = "İzleme İstatistikleri", icon = Icons.Default.BarChart) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "İzleme İstatistikleri",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 12.dp)
+                    )
+                    
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = ExpressiveShapes.Medium,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.Movie,
-                            value = totalMovies.toString(),
-                            label = "Film",
-                            onClick = {
-                                context.startActivity(
-                                    Intent(context, WatchHistoryActivity::class.java)
-                                        .putExtra("FILTER_TYPE", "MOVIES")
-                                )
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.Movie, value = totalMovies.toString(), label = "Film") {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java).putExtra("FILTER_TYPE", "MOVIES"))
+                                }
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.Tv, value = totalSeries.toString(), label = "Dizi") {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java).putExtra("FILTER_TYPE", "SERIES"))
+                                }
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.LiveTv, value = totalLive.toString(), label = "Canlı") {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java).putExtra("FILTER_TYPE", "LIVE"))
+                                }
                             }
-                        )
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.Tv,
-                            value = totalSeries.toString(),
-                            label = "Dizi",
-                            onClick = {
-                                context.startActivity(
-                                    Intent(context, WatchHistoryActivity::class.java)
-                                        .putExtra("FILTER_TYPE", "SERIES")
-                                )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.Schedule, value = watchTimeDisplay, label = "Süre") {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java))
+                                }
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.CheckCircle, value = "%$completionRate", label = "Tamamlama") {}
+                                MinimalStatItem(modifier = Modifier.weight(1f), icon = Icons.Default.PlayCircle, value = totalItems.toString(), label = "Toplam") {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java))
+                                }
                             }
-                        )
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.LiveTv,
-                            value = totalLive.toString(),
-                            label = "Canlı",
-                            onClick = {
-                                context.startActivity(
-                                    Intent(context, WatchHistoryActivity::class.java)
-                                        .putExtra("FILTER_TYPE", "LIVE")
-                                )
-                            }
-                        )
+                        }
                     }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    // Süre + Tamamlama oranı ─ geniş kart
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.Schedule,
-                            value = watchTimeDisplay,
-                            label = "Toplam Süre",
-                            onClick = {
-                                context.startActivity(Intent(context, WatchHistoryActivity::class.java))
-                            }
-                        )
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.CheckCircle,
-                            value = "%$completionRate",
-                            label = "Tamamlama",
-                            onClick = {}
-                        )
-                        ProfileStatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.PlayCircle,
-                            value = totalItems.toString(),
-                            label = "Toplam",
-                            onClick = {
-                                context.startActivity(Intent(context, WatchHistoryActivity::class.java))
-                            }
-                        )
-                    }
-                }
-            }
-
-            // ──────────────────────────────────────────────────────
-            // SEVİYE / XP KARTI
-            // ──────────────────────────────────────────────────────
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(tween(400, delayMillis = 140)) + slideInVertically(initialOffsetY = { it / 4 })
-            ) {
-                ProfileSection(title = "Seviye & Deneyim", icon = Icons.Default.EmojiEvents) {
-                    ProfileLevelCard(userLevel = userLevel, hoursWatched = hoursWatched)
                 }
             }
 
@@ -272,7 +231,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             if (continueWatching.isNotEmpty()) {
                 AnimatedVisibility(
                     visible = isVisible,
-                    enter = fadeIn(tween(400, delayMillis = 200)) + slideInVertically(initialOffsetY = { it / 4 })
+                    enter = fadeIn(tween(400, delayMillis = 140)) + slideInVertically(initialOffsetY = { it / 4 })
                 ) {
                     ProfileSection(
                         title = "İzlemeye Devam Et",
@@ -307,7 +266,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             // ──────────────────────────────────────────────────────
             AnimatedVisibility(
                 visible = isVisible,
-                enter = fadeIn(tween(400, delayMillis = 260)) + slideInVertically(initialOffsetY = { it / 4 })
+                enter = fadeIn(tween(400, delayMillis = 200)) + slideInVertically(initialOffsetY = { it / 4 })
             ) {
                 ProfileSection(
                     title = "Yaklaşan Yayınlar",
@@ -361,7 +320,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             if (activeInterests.isNotEmpty()) {
                 AnimatedVisibility(
                     visible = isVisible,
-                    enter = fadeIn(tween(400, delayMillis = 320)) + slideInVertically(initialOffsetY = { it / 4 })
+                    enter = fadeIn(tween(400, delayMillis = 260)) + slideInVertically(initialOffsetY = { it / 4 })
                 ) {
                     ProfileSection(title = "İlgi Alanları", icon = Icons.Default.Favorite) {
                         FlowRow(
@@ -382,35 +341,43 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             // ──────────────────────────────────────────────────────
             AnimatedVisibility(
                 visible = isVisible,
-                enter = fadeIn(tween(400, delayMillis = 380)) + slideInVertically(initialOffsetY = { it / 4 })
+                enter = fadeIn(tween(400, delayMillis = 320)) + slideInVertically(initialOffsetY = { it / 4 })
             ) {
                 ProfileSection(title = "Hızlı Erişim", icon = Icons.Default.Apps) {
-                    ProfileActionItem(
-                        icon = Icons.Default.History,
-                        title = "İzleme Geçmişi",
-                        subtitle = "Tüm geçmişi görüntüle ve yönet",
-                        onClick = {
-                            context.startActivity(Intent(context, WatchHistoryActivity::class.java))
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column {
+                            ProfileActionItem(
+                                icon = Icons.Default.History,
+                                title = "İzleme Geçmişi",
+                                subtitle = "Tüm geçmişi görüntüle ve yönet",
+                                onClick = {
+                                    context.startActivity(Intent(context, WatchHistoryActivity::class.java))
+                                }
+                            )
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 48.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            ProfileActionItem(
+                                icon = Icons.Default.EmojiEvents,
+                                title = "Seviyeler & Başarımlar",
+                                subtitle = "50 başarımı keşfet ve seviye atla",
+                                onClick = {
+                                    navController.navigate(Screen.Levels.route)
+                                }
+                            )
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 48.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            ProfileActionItem(
+                                icon = Icons.Default.Settings,
+                                title = "Ayarlar",
+                                subtitle = "Uygulama tercihlerini düzenle",
+                                onClick = {
+                                    context.startActivity(Intent(context, SettingsActivity::class.java))
+                                }
+                            )
                         }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
-                    ProfileActionItem(
-                        icon = Icons.Default.EmojiEvents,
-                        title = "Seviyeler & Başarımlar",
-                        subtitle = "50 başarımı keşfet ve seviye atla",
-                        onClick = {
-                            navController.navigate(Screen.Levels.route)
-                        }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
-                    ProfileActionItem(
-                        icon = Icons.Default.Settings,
-                        title = "Ayarlar",
-                        subtitle = "Uygulama tercihlerini düzenle",
-                        onClick = {
-                            context.startActivity(Intent(context, SettingsActivity::class.java))
-                        }
-                    )
+                    }
                 }
             }
 
@@ -435,7 +402,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// HERO SECTION — Avatar + Kullanıcı Adı + Rozet
+// HERO SECTION — Avatar + Kullanıcı Adı + Rozet (Level/XP Entegreli)
 // ════════════════════════════════════════════════════════════════════
 
 @Composable
@@ -446,229 +413,6 @@ private fun ProfileHeroSection(
     hoursWatched: Long,
     onPickImage: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        shape = ExpressiveShapes.Large
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Avatar
-            Box(contentAlignment = Alignment.BottomEnd) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .border(
-                            2.dp,
-                            MaterialTheme.colorScheme.primary,
-                            CircleShape
-                        )
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .clickable { onPickImage() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (customImage.isNotBlank()) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(customImage)
-                                .crossfade(true)
-                                .build(),
-                            imageLoader = com.hasanege.materialtv.ui.utils.ImageConfig.getImageLoader(LocalContext.current),
-                            contentDescription = "Profil Fotoğrafı",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Text(
-                            text = displayUsername.take(1).uppercase(),
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-                // Kamera düzenleme ikonu
-                Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.CameraAlt,
-                            contentDescription = "Fotoğraf Değiştir",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                }
-            }
-
-            // İsim & Rozet
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = displayUsername,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.height(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = ExpressiveShapes.Full
-                    ) {
-                        Text(
-                            text = userLevel,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
-                    Surface(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = ExpressiveShapes.Full
-                    ) {
-                        Text(
-                            text = "${hoursWatched}s izlendi",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ════════════════════════════════════════════════════════════════════
-// BÖLÜM SARMALAYICI — Settings'teki SettingsSection gibi
-// ════════════════════════════════════════════════════════════════════
-
-@Composable
-private fun ProfileSection(
-    title: String,
-    icon: ImageVector,
-    trailingContent: @Composable (() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        shape = ExpressiveShapes.Large
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            // Başlık satırı
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(ExpressiveShapes.Small)
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                trailingContent?.invoke()
-            }
-            content()
-        }
-    }
-}
-
-// ════════════════════════════════════════════════════════════════════
-// İSTATİSTİK KARTI
-// ════════════════════════════════════════════════════════════════════
-
-@Composable
-private fun ProfileStatCard(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    value: String,
-    label: String,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = ExpressiveShapes.Medium,
-        modifier = modifier
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(vertical = 14.dp, horizontal = 6.dp)
-                .fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                softWrap = false
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-
-// ════════════════════════════════════════════════════════════════════
-// SEVİYE / XP KARTI
-// ════════════════════════════════════════════════════════════════════
-
-@Composable
-private fun ProfileLevelCard(userLevel: String, hoursWatched: Long) {
     val maxHours = when {
         hoursWatched < 5   -> 5L
         hoursWatched < 20  -> 20L
@@ -678,67 +422,198 @@ private fun ProfileLevelCard(userLevel: String, hoursWatched: Long) {
     }
     val progress = (hoursWatched.toFloat() / maxHours.toFloat()).coerceIn(0f, 1f)
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "MEVCUT RÜTBE",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-                Text(
-                    text = userLevel,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Avatar with Progress Ring
+        Box(contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.size(116.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                strokeWidth = 3.dp,
+                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+            )
+            
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable { onPickImage() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (customImage.isNotBlank()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(customImage)
+                            .crossfade(true)
+                            .build(),
+                        imageLoader = com.hasanege.materialtv.ui.utils.ImageConfig.getImageLoader(LocalContext.current),
+                        contentDescription = "Profil Fotoğrafı",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text(
+                        text = displayUsername.take(1).uppercase(),
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
+            // Edit icon
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = ExpressiveShapes.Small
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = (-4).dp, y = (-4).dp),
+                border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.background)
             ) {
-                Text(
-                    text = "$hoursWatched / $maxHours saat",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.CameraAlt,
+                        contentDescription = "Fotoğraf Değiştir",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        // İsim & Rozet
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = displayUsername,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
+            Spacer(Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    "Başlangıç",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    "Sonraki: $maxHours saat",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape
+                ) {
+                    Text(
+                        text = userLevel,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+                Surface(
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    contentColor = MaterialTheme.colorScheme.secondary,
+                    shape = CircleShape
+                ) {
+                    Text(
+                        text = "${hoursWatched}s / ${maxHours}s",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
             }
         }
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BÖLÜM SARMALAYICI — Daha şık ve hafif
+// ════════════════════════════════════════════════════════════════════
+
+@Composable
+private fun ProfileSection(
+    title: String,
+    icon: ImageVector,
+    trailingContent: @Composable (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            trailingContent?.invoke()
+        }
+        content()
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// İSTATİSTİK KARTI (Minimalist)
+// ════════════════════════════════════════════════════════════════════
+
+@Composable
+private fun MinimalStatItem(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    value: String,
+    label: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -768,9 +643,9 @@ fun ContinueWatchingCard(item: ContinueWatchingItem) {
             .clickable { context.startActivity(intent) }
     ) {
         Card(
-            shape = ExpressiveShapes.Medium,
+            shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
             modifier = Modifier
                 .width(148.dp)
@@ -846,9 +721,9 @@ fun SelectedChannelEpgCard(
             })
         },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = ExpressiveShapes.Medium,
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -1149,13 +1024,16 @@ private fun UpcomingEmptyState(onSelectChannel: () -> Unit) {
 @Composable
 private fun ProfileInterestChip(text: String, isSelected: Boolean = false) {
     Surface(
-        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                else MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = ExpressiveShapes.Full,
+        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                else MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(20.dp),
         border = if (!isSelected) androidx.compose.foundation.BorderStroke(
             1.dp,
-            MaterialTheme.colorScheme.outlineVariant
-        ) else null
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        ) else androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
@@ -1182,7 +1060,7 @@ private fun ProfileInterestChip(text: String, isSelected: Boolean = false) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// AKSİYON ÖĞESİ — Settings'teki ExpressiveSettingActionItem gibi
+// AKSİYON ÖĞESİ — Modern ve Temiz Liste Elemanı
 // ════════════════════════════════════════════════════════════════════
 
 @Composable
@@ -1195,43 +1073,38 @@ private fun ProfileActionItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(ExpressiveShapes.Medium)
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(12.dp),
+            .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(ExpressiveShapes.Medium)
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(20.dp)
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Icon(
             Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp)
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.size(18.dp)
         )
     }
 }

@@ -60,11 +60,19 @@ data class UserRatingEntity(
 )
 data class WatchHistoryEntity(
     val streamId: String,
-    val type: ContentType,
+    val type: String, // "movie", "series", "live", "downloaded"
     val profileId: String,
     val episodeId: String = "",
-    val positionMs: Long,
+    val name: String,
+    val streamIcon: String?,
     val durationMs: Long,
-    val lastWatchedAt: Long,
-    val completed: Boolean
+    val positionMs: Long,
+    val actualWatchTimeMs: Long,
+    val seriesId: String?,
+    val containerExtension: String?,
+    val isPinned: Boolean,
+    val dismissedFromContinueWatching: Boolean,
+    val isDownloaded: Boolean,
+    val localPath: String?,
+    val lastWatchedAt: Long
 )
