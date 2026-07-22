@@ -162,8 +162,6 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                 ProfileHeroSection(
                     displayUsername = displayUsername,
                     customImage = customImage,
-                    userLevel = userLevel,
-                    hoursWatched = hoursWatched,
                     onPickImage = { imagePickerLauncher.launch("image/*") }
                 )
             }
@@ -314,27 +312,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                 }
             }
 
-            // ──────────────────────────────────────────────────────
-            // İLGİ ALANLARI
-            // ──────────────────────────────────────────────────────
-            if (activeInterests.isNotEmpty()) {
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = fadeIn(tween(400, delayMillis = 260)) + slideInVertically(initialOffsetY = { it / 4 })
-                ) {
-                    ProfileSection(title = "İlgi Alanları", icon = Icons.Default.Favorite) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            activeInterests.forEachIndexed { index, interest ->
-                                ProfileInterestChip(interest, isSelected = index == 0)
-                            }
-                        }
-                    }
-                }
-            }
+
 
             // ──────────────────────────────────────────────────────
             // HIZLI EYLEMLER
@@ -358,15 +336,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                                     context.startActivity(Intent(context, WatchHistoryActivity::class.java))
                                 }
                             )
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 48.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                            ProfileActionItem(
-                                icon = Icons.Default.EmojiEvents,
-                                title = "Seviyeler & Başarımlar",
-                                subtitle = "50 başarımı keşfet ve seviye atla",
-                                onClick = {
-                                    navController.navigate(Screen.Levels.route)
-                                }
-                            )
+
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 48.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                             ProfileActionItem(
                                 icon = Icons.Default.Settings,
@@ -409,73 +379,50 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 private fun ProfileHeroSection(
     displayUsername: String,
     customImage: String,
-    userLevel: String,
-    hoursWatched: Long,
     onPickImage: () -> Unit
 ) {
-    val maxHours = when {
-        hoursWatched < 5   -> 5L
-        hoursWatched < 20  -> 20L
-        hoursWatched < 50  -> 50L
-        hoursWatched < 100 -> 100L
-        else               -> 500L
-    }
-    val progress = (hoursWatched.toFloat() / maxHours.toFloat()).coerceIn(0f, 1f)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp, bottom = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Avatar with Progress Ring
-        Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.size(116.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                strokeWidth = 3.dp,
-                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
-            )
-            
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                    .clickable { onPickImage() },
-                contentAlignment = Alignment.Center
-            ) {
-                if (customImage.isNotBlank()) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(customImage)
-                            .crossfade(true)
-                            .build(),
-                        imageLoader = com.hasanege.materialtv.ui.utils.ImageConfig.getImageLoader(LocalContext.current),
-                        contentDescription = "Profil Fotoğrafı",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Text(
-                        text = displayUsername.take(1).uppercase(),
-                        fontSize = 40.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+        // Avatar
+        Box(
+            modifier = Modifier
+                .size(104.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .clickable { onPickImage() },
+            contentAlignment = Alignment.Center
+        ) {
+            if (customImage.isNotBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(customImage)
+                        .crossfade(true)
+                        .build(),
+                    imageLoader = com.hasanege.materialtv.ui.utils.ImageConfig.getImageLoader(LocalContext.current),
+                    contentDescription = "Profil Fotoğrafı",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Text(
+                    text = displayUsername.take(1).uppercase(),
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
             // Edit icon
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = CircleShape,
                 modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.BottomEnd)
-                    .offset(x = (-4).dp, y = (-4).dp),
+                    .size(30.dp)
+                    .align(Alignment.BottomEnd),
                 border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.background)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -483,51 +430,19 @@ private fun ProfileHeroSection(
                         Icons.Default.CameraAlt,
                         contentDescription = "Fotoğraf Değiştir",
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                 }
             }
         }
 
-        // İsim & Rozet
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = displayUsername,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape
-                ) {
-                    Text(
-                        text = userLevel,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-                Surface(
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                    contentColor = MaterialTheme.colorScheme.secondary,
-                    shape = CircleShape
-                ) {
-                    Text(
-                        text = "${hoursWatched}s / ${maxHours}s",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-            }
-        }
+        // İsim
+        Text(
+            text = displayUsername,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
