@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 data class UpdateInfo(
     val hasUpdate: Boolean,
@@ -25,64 +26,75 @@ data class UpdateInfo(
 )
 
 class UpdateManager(private val context: Context) {
-    private val client = OkHttpClient()
-    private val repoUrl = "https://api.github.com/repos/hasan-ege/MaterialTV/releases/latest"
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
+
+    private val apiRepoUrl = "https://api.github.com/repos/hasan-ege/MaterialTV/releases/latest"
+    private val webLatestUrl = "https://github.com/hasan-ege/MaterialTV/releases/latest"
 
     suspend fun checkForUpdate(): Result<UpdateInfo> = withContext(Dispatchers.IO) {
         try {
-            val request = Request.Builder().url(repoUrl).build()
+            // Method 1: Try GitHub REST API
+            val apiResult = checkViaGitHubApi()
+            if (apiResult.isSuccess) {
+                return@withContext apiResult
+            }
+
+            // Method 2: Fallback to GitHub Web Redirect (bypasses GitHub API Rate Limit 403)
+            val webResult = checkViaWebRedirect()
+            if (webResult.isSuccess) {
+                return@withContext webResult
+            }
+
+            return@withContext Result.failure(
+                apiResult.exceptionOrNull() ?: webResult.exceptionOrNull() ?: Exception("Güncelleme bilgisi alınamadı")
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun checkViaGitHubApi(): Result<UpdateInfo> {
+        return try {
+            val request = Request.Builder()
+                .url(apiRepoUrl)
+                .header("User-Agent", "MaterialTV-App/${BuildConfig.VERSION_NAME}")
+                .header("Accept", "application/vnd.github.v3+json")
+                .build()
+
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("HTTP Error: ${response.code}"))
+                    return Result.failure(Exception("GitHub API HTTP Error: ${response.code}"))
                 }
-                
-                val responseBody = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+
+                val responseBody = response.body?.string() ?: return Result.failure(Exception("Empty API body"))
                 val json = JSONObject(responseBody)
-                
+
                 val tagName = json.getString("tag_name")
-                val releaseNotes = json.optString("body", "No release notes available.")
+                val releaseNotes = json.optString("body", "Yeni güncelleme mevcut.")
                 val assets = json.getJSONArray("assets")
-                
+
                 var downloadUrl = ""
                 for (i in 0 until assets.length()) {
                     val asset = assets.getJSONObject(i)
                     val url = asset.getString("browser_download_url")
-                    if (url.endsWith(".apk")) {
+                    if (url.endsWith(".apk", ignoreCase = true)) {
                         downloadUrl = url
                         break
                     }
                 }
-                
+
                 if (downloadUrl.isEmpty()) {
-                    return@withContext Result.failure(Exception("No APK found in release"))
+                    downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$tagName.apk"
                 }
-                
-                val latestVersionStr = tagName.removePrefix("v").removePrefix("V")
-                val currentVersionStr = BuildConfig.VERSION_NAME.removePrefix("v").removePrefix("V")
-                
-                // Very basic semantic version comparison
-                val hasUpdate = try {
-                    val latestParts = latestVersionStr.split(".").map { it.toIntOrNull() ?: 0 }
-                    val currentParts = currentVersionStr.split(".").map { it.toIntOrNull() ?: 0 }
-                    
-                    var isNewer = false
-                    val length = maxOf(latestParts.size, currentParts.size)
-                    for (i in 0 until length) {
-                        val latest = latestParts.getOrElse(i) { 0 }
-                        val current = currentParts.getOrElse(i) { 0 }
-                        if (latest > current) {
-                            isNewer = true
-                            break
-                        } else if (latest < current) {
-                            break
-                        }
-                    }
-                    isNewer
-                } catch (e: Exception) {
-                    // Fallback to simple string check if parsing fails
-                    latestVersionStr != currentVersionStr
-                }
-                
+
+                val currentVersion = BuildConfig.VERSION_NAME
+                val hasUpdate = isVersionNewer(tagName, currentVersion)
+
                 Result.success(UpdateInfo(hasUpdate, tagName, downloadUrl, releaseNotes))
             }
         } catch (e: Exception) {
@@ -90,11 +102,78 @@ class UpdateManager(private val context: Context) {
         }
     }
 
+    private fun checkViaWebRedirect(): Result<UpdateInfo> {
+        return try {
+            val noRedirectClient = client.newBuilder().followRedirects(false).build()
+            val request = Request.Builder()
+                .url(webLatestUrl)
+                .header("User-Agent", "Mozilla/5.0 (Android; Mobile)")
+                .build()
+
+            noRedirectClient.newCall(request).execute().use { response ->
+                val redirectUrl = response.header("Location")
+                    ?: response.request.url.toString()
+
+                val tagName = redirectUrl.substringAfterLast("/").trim()
+                if (tagName.isBlank() || tagName == "latest") {
+                    return Result.failure(Exception("Son sürüm etiketi alınamadı"))
+                }
+
+                val downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$tagName.apk"
+                val currentVersion = BuildConfig.VERSION_NAME
+                val hasUpdate = isVersionNewer(tagName, currentVersion)
+
+                Result.success(
+                    UpdateInfo(
+                        hasUpdate = hasUpdate,
+                        latestVersion = tagName,
+                        downloadUrl = downloadUrl,
+                        releaseNotes = "Sürüm $tagName"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun isVersionNewer(latestStr: String, currentStr: String): Boolean {
+        val latestClean = latestStr.trim().removePrefix("v").removePrefix("V")
+        val currentClean = currentStr.trim().removePrefix("v").removePrefix("V")
+        if (latestClean.equals(currentClean, ignoreCase = true)) return false
+
+        val regex = Regex("(\\d+)|([a-zA-Z]+)")
+        val latestTokens = regex.findAll(latestClean).map { m -> m.value.toIntOrNull() ?: m.value }.toList()
+        val currentTokens = regex.findAll(currentClean).map { m -> m.value.toIntOrNull() ?: m.value }.toList()
+
+        val maxLen = maxOf(latestTokens.size, currentTokens.size)
+        for (i in 0 until maxLen) {
+            val lTok = latestTokens.getOrNull(i)
+            val cTok = currentTokens.getOrNull(i)
+
+            if (lTok == null) return false
+            if (cTok == null) return true
+
+            if (lTok is Int && cTok is Int) {
+                if (lTok > cTok) return true
+                if (lTok < cTok) return false
+            } else if (lTok is String && cTok is String) {
+                val cmp = lTok.compareTo(cTok, ignoreCase = true)
+                if (cmp > 0) return true
+                if (cmp < 0) return false
+            } else if (lTok is Int && cTok is String) {
+                return true
+            } else if (lTok is String && cTok is Int) {
+                return false
+            }
+        }
+        return false
+    }
+
     fun downloadAndInstall(updateInfo: UpdateInfo, onProgress: (Int) -> Unit) {
         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val uri = Uri.parse(updateInfo.downloadUrl)
         
-        // Remove previous apk if exists
         val apkName = "MaterialTV-Update-${updateInfo.latestVersion}.apk"
         val destinationFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), apkName)
         if (destinationFile.exists()) {
@@ -109,7 +188,6 @@ class UpdateManager(private val context: Context) {
 
         val downloadId = downloadManager.enqueue(request)
 
-        // Listen for completion
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
