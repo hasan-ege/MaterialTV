@@ -7,8 +7,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.hasanege.materialtv.updater.UpdateManager
+import com.hasanege.materialtv.updater.UpdateInfo
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -235,6 +239,42 @@ class SettingsViewModel @Inject constructor(
     fun setNavBarStyle(style: String) {
         viewModelScope.launch {
             repository.setNavBarStyle(style)
+        }
+    }
+
+    // In-App Updater State
+    sealed class UpdateState {
+        object Idle : UpdateState()
+        object Checking : UpdateState()
+        data class UpdateAvailable(val info: UpdateInfo) : UpdateState()
+        object NoUpdate : UpdateState()
+        data class Error(val message: String) : UpdateState()
+    }
+
+    private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Idle)
+    val updateState: StateFlow<UpdateState> = _updateState.asStateFlow()
+
+    fun checkForUpdates(context: android.content.Context) {
+        viewModelScope.launch {
+            _updateState.value = UpdateState.Checking
+            val manager = UpdateManager(context)
+            val result = manager.checkForUpdate()
+            result.onSuccess { info ->
+                if (info.hasUpdate) {
+                    _updateState.value = UpdateState.UpdateAvailable(info)
+                } else {
+                    _updateState.value = UpdateState.NoUpdate
+                }
+            }.onFailure { e ->
+                _updateState.value = UpdateState.Error(e.message ?: "Bilinmeyen bir hata oluştu")
+            }
+        }
+    }
+
+    fun downloadUpdate(context: android.content.Context, info: UpdateInfo) {
+        val manager = UpdateManager(context)
+        manager.downloadAndInstall(info) { progress ->
+            // DownloadManager handles system UI notification for progress
         }
     }
 }

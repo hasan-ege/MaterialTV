@@ -135,6 +135,7 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     val themeMode by viewModel.themeMode.collectAsState()
     val fontFamily by viewModel.fontFamily.collectAsState()
     val lastUpdatedDate by viewModel.lastUpdatedDate.collectAsState()
+    val updateState by viewModel.updateState.collectAsState()
     val customAccentColor by viewModel.customAccentColor.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showFontDialog by remember { mutableStateOf(false) }
@@ -1203,6 +1204,36 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                         title = stringResource(R.string.settings_github_label),
                         value = stringResource(R.string.settings_github_url),
                         onClick = { uriHandler.openUri("https://github.com/hasan-ege") }
+                    )
+                }
+            }
+            
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(animationSpec = tween(delayMillis = 800)) +
+                        slideInVertically(initialOffsetY = { it / 4 })
+            ) {
+                SettingsSection(
+                    title = "Güncellemeler",
+                    icon = Icons.Default.SystemUpdate
+                ) {
+                    ExpressiveSettingValueItem(
+                        icon = Icons.Default.CloudDownload,
+                        title = "Uygulama Güncellemesi",
+                        value = when (updateState) {
+                            is SettingsViewModel.UpdateState.Checking -> "Kontrol ediliyor..."
+                            is SettingsViewModel.UpdateState.UpdateAvailable -> "Yeni Sürüm: ${(updateState as SettingsViewModel.UpdateState.UpdateAvailable).info.latestVersion}"
+                            is SettingsViewModel.UpdateState.NoUpdate -> "Güncel (Sürüm ${BuildConfig.VERSION_NAME})"
+                            is SettingsViewModel.UpdateState.Error -> "Hata: ${(updateState as SettingsViewModel.UpdateState.Error).message}"
+                            else -> "Güncellemeleri denetlemek için tıklayın"
+                        },
+                        onClick = {
+                            if (updateState is SettingsViewModel.UpdateState.UpdateAvailable) {
+                                viewModel.downloadUpdate(context, (updateState as SettingsViewModel.UpdateState.UpdateAvailable).info)
+                            } else {
+                                viewModel.checkForUpdates(context)
+                            }
+                        }
                     )
                 }
             }

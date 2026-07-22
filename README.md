@@ -1,7 +1,10 @@
-﻿> [!CAUTION]
+> [!CAUTION]
 > **Disclaimer:** This is a hobby project. The application does not provide any content. I am not responsible for your playlist or the content you watch. Features are added based on my personal needs.
 
 
+>This project is licensed under a **Custom Personal & Non-Commercial Use** License. 
+>**Commercial use is strictly prohibited**. 
+>See the [LICENSE](LICENSE) file for more details.
 <div align="center">
 
 # MaterialTV 📺
@@ -51,10 +54,11 @@ MaterialTV offers 100% compatibility by allowing you to choose your engine:
 - **Smart Filtering:** Unified filtering by Movies, Series, and Live TV.
 - **Live TV Enhancements:** Channel information overlays and m3u playlist support.
 
-### ️ Premium Management
+### ⚙️ Premium Management
 - **List Folders:** Create custom folders for your favorites with personalized naming and icons.
 - **Interactive Ratings:** Rate content with a fluid toggle system (1-5 stars) that updates across the UI instantly.
 - **Deep Filtering:** Sort and filter by Date, Name, Rating, and Status using unified dialogs.
+- **Update directly in the app:** Automatically fetches and installs the latest release from GitHub.
 
 ## 🖼️ Visual Experience
 
@@ -119,7 +123,7 @@ We welcome contributions that push the boundaries of what a modern media app can
 ---
 
 ## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under a Custom Non-Commercial License. See `LICENSE` for more information.
 
 <div align="center">
 

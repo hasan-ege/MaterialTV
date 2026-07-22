@@ -794,15 +794,14 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
             ) {
                 Column(
                     modifier = Modifier
-                        .width(60.dp)
-                        .padding(horizontal = 4.dp)
+                        .size(56.dp)
                         .shadow(
                             elevation = 6.dp,
-                            shape = RoundedCornerShape(28.dp),
+                            shape = androidx.compose.foundation.shape.CircleShape,
                             ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                             spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         )
-                        .clip(RoundedCornerShape(28.dp))
+                        .clip(androidx.compose.foundation.shape.CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .animateContentSize(alignment = Alignment.TopCenter),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -904,9 +903,7 @@ fun FloatingActionIsland(
     
     Box(
         modifier = modifier
-            .width(60.dp)
-            .height(56.dp)
-            .padding(horizontal = 4.dp)
+            .size(56.dp)
             .shadow(
                 elevation = 6.dp,
                 shape = androidx.compose.foundation.shape.CircleShape,
