@@ -797,14 +797,7 @@ fun FavoriteCard(
                     .fillMaxWidth()
                     .height(50.dp)
                     .align(Alignment.BottomCenter)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.6f)
-                            )
-                        )
-                    )
+                    .background(Color.Black.copy(alpha = 0.5f))
             )
             
             // Content type badge

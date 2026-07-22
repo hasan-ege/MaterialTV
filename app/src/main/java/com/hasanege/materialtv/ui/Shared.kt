@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +34,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import com.hasanege.materialtv.ui.theme.ExpressiveShapes
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Cast
@@ -145,24 +148,25 @@ fun ExpressiveTabSlider(
     // Outer container
     Box(
         modifier = modifier
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(horizontal = 2.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center
     ) {
         // Inner floating pill
         Box(
             modifier = Modifier
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 4.dp,
                     shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
-                    ambientColor = androidx.compose.ui.graphics.Color.Black,
-                    spotColor = androidx.compose.ui.graphics.Color.Black
+                    ambientColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.4f),
+                    spotColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f)
                 )
                 .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge
                 )
-                .padding(6.dp)
+                .height(56.dp)
+                .padding(4.dp)
         ) {
             // Scrollable container for tabs
             val scrollState = androidx.compose.foundation.rememberScrollState()
@@ -206,7 +210,7 @@ fun ExpressiveTabSlider(
                                 height = with(density) { indicatorHeight.toDp() }
                             )
                             .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge)
-                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
                     )
                 }
                 
@@ -253,7 +257,8 @@ fun ExpressiveTabSlider(
                                         }
                                     } else null
                                 )
-                                .padding(horizontal = if (isNarrow) 4.dp else 8.dp, vertical = 8.dp),
+                                .padding(horizontal = if (isNarrow) 8.dp else 16.dp)
+                                .fillMaxHeight(),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -267,7 +272,7 @@ fun ExpressiveTabSlider(
                                     }
                                 } else 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
                                        else MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -281,7 +286,7 @@ fun ExpressiveTabSlider(
 }
 
 @Composable
-fun DefaultBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier) {
+fun DefaultBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier, onlyIcons: Boolean = false) {
     androidx.compose.material3.NavigationBar(
         modifier = modifier.height(64.dp),
         windowInsets = androidx.compose.foundation.layout.WindowInsets(0)
@@ -291,12 +296,14 @@ fun DefaultBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onIte
                 selected = currentItemRoute == screen.route,
                 onClick = { onItemClick(screen) },
                 icon = { androidx.compose.material3.Icon(screen.icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                label = { 
-                    androidx.compose.material3.Text(
-                        text = androidx.compose.ui.res.stringResource(screen.labelRes),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp
-                    ) 
+                label = if (onlyIcons) null else {
+                    {
+                        androidx.compose.material3.Text(
+                            text = androidx.compose.ui.res.stringResource(screen.labelRes),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        ) 
+                    }
                 }
             )
         }
@@ -304,41 +311,34 @@ fun DefaultBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onIte
 }
 
 @Composable
-fun MaterialTVBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier) {
+fun MaterialTVBottomNavBar(items: List<MainScreen>, currentItemRoute: String, onItemClick: (MainScreen) -> Unit, modifier: Modifier = Modifier, onlyIcons: Boolean = false) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isNarrow = configuration.screenWidthDp < 360
     
-    // Rounded pill bottom navigation - subtle background
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = if (isNarrow) 12.dp else 32.dp, vertical = 16.dp)
-            // Consume clicks so they don't pass through to content behind
-            .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-                onClick = { /* Consume click */ }
-            ),
+            .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
             modifier = Modifier
-                .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow, // Subtle, lighter tone
-                    shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge
-                )
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(28.dp),
+                .shadow(6.dp, ExpressiveShapes.Full,
+                    ambientColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f),
+                    spotColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.2f))
+                .clip(ExpressiveShapes.Full)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .height(64.dp)
+                .padding(horizontal = if (onlyIcons) 10.dp else 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (onlyIcons) 8.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEach { screen ->
                 val isSelected = currentItemRoute == screen.route
                 val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
                 
-                // Spring animation for icon scale
                 val iconScale by androidx.compose.animation.core.animateFloatAsState(
-                    targetValue = if (isSelected) 1.15f else 1f,
+                    targetValue = if (isSelected) 1.1f else 1f,
                     animationSpec = androidx.compose.animation.core.spring(
                         dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                         stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
@@ -346,33 +346,82 @@ fun MaterialTVBottomNavBar(items: List<MainScreen>, currentItemRoute: String, on
                     label = "icon_scale"
                 )
                 
-                // Simple circular icon indicator
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                            else androidx.compose.ui.graphics.Color.Transparent
-                        )
-                        .clickable { 
-                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                            onItemClick(screen) 
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        screen.icon,
-                        contentDescription = stringResource(screen.labelRes),
-                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
-                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                if (onlyIcons) {
+                    Box(
                         modifier = Modifier
-                            .size(24.dp)
-                            .graphicsLayer {
-                                scaleX = iconScale
-                                scaleY = iconScale
+                            .size(52.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                                else androidx.compose.ui.graphics.Color.Transparent
+                            )
+                            .clickable {
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                onItemClick(screen)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = screen.icon,
+                            contentDescription = stringResource(screen.labelRes),
+                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                                   else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .size(26.dp)
+                                .graphicsLayer {
+                                    scaleX = iconScale
+                                    scaleY = iconScale
+                                }
+                        )
+                    }
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .clip(ExpressiveShapes.Full)
+                            .clickable { 
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                onItemClick(screen) 
                             }
-                    )
+                            .padding(horizontal = if (isNarrow) 8.dp else 12.dp, vertical = 2.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(24.dp)
+                                .clip(ExpressiveShapes.Full)
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                                    else androidx.compose.ui.graphics.Color.Transparent
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = screen.icon,
+                                contentDescription = stringResource(screen.labelRes),
+                                tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                                       else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .graphicsLayer {
+                                        scaleX = iconScale
+                                        scaleY = iconScale
+                                    }
+                            )
+                        }
+                        androidx.compose.foundation.layout.Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(screen.labelRes),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                                   else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
         }
@@ -538,28 +587,29 @@ fun MoviesList(movies: List<VodItem>, modifier: Modifier = Modifier) {
                         Text(
                             text = movie.name ?: "",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.ExtraBold,
                             maxLines = 1,
                             modifier = Modifier.basicMarquee(),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         movie.rating5Based?.let { rating ->
                             if (rating > 0) {
+                                val displayRating = "%.1f".format(rating)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    modifier = Modifier.padding(top = 6.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.Star,
                                         contentDescription = null,
                                         tint = androidx.compose.ui.graphics.Color(0xFFFFB300),
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(14.dp)
                                     )
                                     Text(
-                                        text = " $rating",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = FontWeight.Medium
+                                        text = " $displayRating",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
@@ -720,7 +770,8 @@ fun SeriesList(series: List<SeriesItem>, modifier: Modifier = Modifier) {
 fun LiveTVList(liveStreams: List<LiveStream>) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+    val navController = com.hasanege.materialtv.navigation.LocalNavController.current
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -758,24 +809,14 @@ fun LiveTVList(liveStreams: List<LiveStream>) {
                         interactionSource = interactionSource,
                         indication = ripple(),
                         onClick = {
-                            // For M3U, get URL from repository; for Xtream, construct it
-                            val streamUrl = if (SessionManager.loginType == SessionManager.LoginType.M3U) {
-                                val url = com.hasanege.materialtv.data.M3uRepository.getStreamUrl(liveStream.streamId ?: 0)
-                                Log.d("LiveTVList", "M3U stream URL for ${liveStream.name}: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
-                                url
-                            } else {
-                                "${SessionManager.serverUrl}/live/${SessionManager.username}/${SessionManager.password}/${liveStream.streamId}.ts"
-                            }
-                            
-                            if (streamUrl.isNullOrEmpty()) {
-                                Toast.makeText(context, context.getString(R.string.error_stream_not_found), Toast.LENGTH_SHORT).show()
-                            } else {
-                                val intent = Intent(context, PlayerActivity::class.java).apply {
-                                    putExtra("url", streamUrl)
-                                    putExtra("TITLE", liveStream.name)
-                                }
-                                context.startActivity(intent)
-                            }
+                            val streamId = liveStream.streamId ?: return@combinedClickable
+                            navController.navigate(
+                                com.hasanege.materialtv.navigation.Screen.LiveDetail.createRoute(
+                                    streamId = streamId,
+                                    channelName = liveStream.name ?: "",
+                                    streamIcon = liveStream.streamIcon
+                                )
+                            )
                         },
                         onLongClick = {
                             scope.launch {
@@ -869,14 +910,116 @@ fun NoConnectionScreen(modifier: Modifier = Modifier) {
             Text(
                 text = stringResource(R.string.error_no_connection),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = stringResource(R.string.shared_no_connection_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        }
+    }
+}
+
+// Persistent Expressive Mini-Player Floating Bar (Matching Reference Screenshots)
+@Composable
+fun PersistentFloatingMiniPlayer(
+    title: String,
+    subtitle: String,
+    imageUrl: String?,
+    isPlaying: Boolean,
+    onPlayPauseClick: () -> Unit,
+    onClick: () -> Unit,
+    onCloseClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Large,
+                ambientColor = androidx.compose.ui.graphics.Color(0xFF5C243E).copy(alpha = 0.6f),
+                spotColor = androidx.compose.ui.graphics.Color(0xFF5C243E).copy(alpha = 0.4f)
             )
+            .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.Large)
+            .background(androidx.compose.ui.graphics.Color(0xFF5C243E))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                // Circular / Rounded Art
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(imageUrl)
+                        .crossfade(300)
+                        .build(),
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    error = painterResource(R.drawable.ic_placeholder),
+                    placeholder = painterResource(R.drawable.ic_placeholder),
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium)
+                )
+                
+                androidx.compose.foundation.layout.Spacer(Modifier.width(12.dp))
+                
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = androidx.compose.ui.graphics.Color.White,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
+                    )
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = androidx.compose.ui.graphics.Color(0xFFE8B8CD),
+                        maxLines = 1
+                    )
+                }
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Soft Pill Play/Pause Action Button
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(androidx.compose.ui.graphics.Color(0xFFF3C6D7))
+                        .clickable { onPlayPauseClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) androidx.compose.material.icons.Icons.Default.Cast
+                                     else androidx.compose.material.icons.Icons.Rounded.PlayArrow,
+                        contentDescription = if (isPlaying) "Pause" else "Play",
+                        tint = androidx.compose.ui.graphics.Color(0xFF4A1E31),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                if (onCloseClick != null) {
+                    androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = onCloseClick) {
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.WifiOff,
+                            contentDescription = "Close",
+                            tint = androidx.compose.ui.graphics.Color(0xFFE8B8CD),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

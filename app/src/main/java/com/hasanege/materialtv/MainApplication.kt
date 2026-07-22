@@ -55,6 +55,7 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
             com.hasanege.materialtv.network.SessionManager.initializeM3u(m3uUrl)
         } else if (!serverUrl.isNullOrBlank() && !username.isNullOrBlank() && !password.isNullOrBlank()) {
             com.hasanege.materialtv.network.SessionManager.initialize(serverUrl, username, password)
+            com.hasanege.materialtv.sync.SyncScheduler.schedulePeriodicSync(this, username, username, password)
         }
     }
 
@@ -84,9 +85,12 @@ class MainApplication : Application(), ImageLoaderFactory, Configuration.Provide
             .build()
     }
     
+    @javax.inject.Inject
+    lateinit var workerFactory: androidx.hilt.work.HiltWorkerFactory
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
             .setMinimumLoggingLevel(android.util.Log.INFO)
-            // Use default executor - queue management is handled by DownloadQueueProcessor
             .build()
 }

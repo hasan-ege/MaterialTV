@@ -153,6 +153,9 @@ class MainViewModel @Inject constructor(
                             SessionManager.username = user
                             SessionManager.password = pass
                             SessionManager.userInfo = authUserInfo
+
+                            com.hasanege.materialtv.sync.SyncScheduler.schedulePeriodicSync(application, user, user, pass)
+
                             onLoginSuccess()
                         } else {
                             error = "Invalid credentials or inactive user."

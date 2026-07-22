@@ -43,14 +43,20 @@ import com.hasanege.materialtv.R
 import com.hasanege.materialtv.SettingsActivity
 import com.hasanege.materialtv.model.ContinueWatchingItem
 import com.hasanege.materialtv.network.SessionManager
+import com.hasanege.materialtv.navigation.LocalNavController
+import com.hasanege.materialtv.navigation.Screen
 import com.hasanege.materialtv.ui.activities.WatchHistoryActivity
 import com.hasanege.materialtv.ui.components.EpgBottomSheet
 import com.hasanege.materialtv.ui.theme.ExpressiveShapes
+import com.hasanege.materialtv.HomeViewModel
+import com.hasanege.materialtv.ManageCategoriesBottomSheet
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel) {
     val context = LocalContext.current
+    val navController = LocalNavController.current
     val totalMovies by viewModel.totalMoviesWatched.collectAsStateWithLifecycle()
     val totalSeries by viewModel.totalSeriesWatched.collectAsStateWithLifecycle()
     val totalLive by viewModel.totalLiveWatched.collectAsStateWithLifecycle()
@@ -69,6 +75,8 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
     val channelsEpgLoading by viewModel.channelsEpgLoading.collectAsStateWithLifecycle()
 
     var showChannelSelectionDialog by remember { mutableStateOf(false) }
+    var showManageCategoriesBottomSheet by remember { mutableStateOf(false) }
+    val homeViewModel: HomeViewModel = hiltViewModel()
 
     val displayUsername = customName.takeIf { it != "User" && it.isNotBlank() }
         ?: SessionManager.username ?: "User"
@@ -383,6 +391,15 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                         subtitle = "Tüm geçmişi görüntüle ve yönet",
                         onClick = {
                             context.startActivity(Intent(context, WatchHistoryActivity::class.java))
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+                    ProfileActionItem(
+                        icon = Icons.Default.EmojiEvents,
+                        title = "Seviyeler & Başarımlar",
+                        subtitle = "50 başarımı keşfet ve seviye atla",
+                        onClick = {
+                            navController.navigate(Screen.Levels.route)
                         }
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
@@ -894,7 +911,7 @@ fun SelectedChannelEpgCard(
                 }
             }
 
-            // 2. EPG content — Şu An & Sonraki (dikey)
+            // 2. EPG content — Zaman Çizelgesi
             Spacer(Modifier.height(12.dp))
             if (isLoading) {
                 Box(
@@ -915,97 +932,23 @@ fun SelectedChannelEpgCard(
                     val e = parseEpgDate(epg.end)
                     s != null && e != null && now.after(s) && now.before(e)
                 }
-                val currentEpg = if (currentIdx != -1) epgList.getOrNull(currentIdx) else null
-                val nextEpg = if (currentIdx != -1) epgList.getOrNull(currentIdx + 1)
-                              else epgList.firstOrNull { epg ->
-                                  val s = parseEpgDate(epg.start)
-                                  s != null && s.after(now)
-                              }
+                val upcomingEpg = epgList.filter { epg ->
+                    val e = parseEpgDate(epg.end)
+                    e != null && e.after(now) || (currentIdx >= 0 && epg == epgList[currentIdx])
+                }.take(6)
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // ŞU AN
-                    if (currentEpg != null) {
-                        val startD = parseEpgDate(currentEpg.start)
-                        val endD   = parseEpgDate(currentEpg.end)
-                        val total  = if (startD != null && endD != null) endD.time - startD.time else 0L
-                        val elapsed = if (startD != null) (now.time - startD.time).coerceAtLeast(0L) else 0L
-                        val progress = if (total > 0) (elapsed.toFloat() / total.toFloat()).coerceIn(0f, 1f) else 0f
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    upcomingEpg.forEachIndexed { index, epg ->
+                        val isCurrent = epg == epgList.getOrNull(currentIdx)
+                        val startD = parseEpgDate(epg.start)
+                        val endD = parseEpgDate(epg.end)
+                        val total = if (startD != null && endD != null) endD.time - startD.time else 0L
+                        val elapsed = if (startD != null && isCurrent) (now.time - startD.time).coerceAtLeast(0L) else 0L
+                        val progress = if (total > 0 && isCurrent) (elapsed.toFloat() / total.toFloat()).coerceIn(0f, 1f) else 0f
 
                         Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f),
-                            shape = ExpressiveShapes.Small,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                   verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.PlayArrow,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(13.dp)
-                                    )
-                                    Text(
-                                        "ŞU AN",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 9.sp,
-                                        letterSpacing = 1.sp
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    if (startD != null && endD != null) {
-                                        Text(
-                                            "${formatEpgTime(startD)} – ${formatEpgTime(endD)}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                                            fontSize = 10.sp
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = currentEpg.title ?: "Bilinmeyen Program",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                if (!currentEpg.description.isNullOrEmpty()) {
-                                    Text(
-                                        text = currentEpg.description,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        fontSize = 11.sp
-                                    )
-                                }
-                                if (total > 0) {
-                                    LinearProgressIndicator(
-                                        progress = { progress },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(4.dp)
-                                            .clip(CircleShape),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // SONRAKİ
-                    if (nextEpg != null) {
-                        val startD = parseEpgDate(nextEpg.start)
-                        val endD   = parseEpgDate(nextEpg.end)
-
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
+                            color = if (isCurrent) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
+                                    else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
                             shape = ExpressiveShapes.Small,
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -1013,67 +956,80 @@ fun SelectedChannelEpgCard(
                                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Icon(
-                                        Icons.Default.SkipNext,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.size(13.dp)
-                                    )
-                                    Text(
-                                        "SONRAKİ",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        fontSize = 9.sp,
-                                        letterSpacing = 1.sp
-                                    )
+                                    if (isCurrent) {
+                                        Icon(
+                                            Icons.Default.PlayArrow,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                        Text(
+                                            "ŞU AN",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 9.sp,
+                                            letterSpacing = 1.sp
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Schedule,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                        if (startD != null) {
+                                            Text(
+                                                formatEpgTime(startD),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontSize = 10.sp
+                                            )
+                                        }
+                                    }
                                     Spacer(Modifier.weight(1f))
                                     if (startD != null && endD != null) {
                                         Text(
                                             "${formatEpgTime(startD)} – ${formatEpgTime(endD)}",
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                                            color = if (isCurrent) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                                    else MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontSize = 10.sp
                                         )
                                     }
                                 }
                                 Text(
-                                    text = nextEpg.title ?: "Bilinmeyen Program",
+                                    text = epg.title ?: "Bilinmeyen Program",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.SemiBold,
+                                    color = if (isCurrent) MaterialTheme.colorScheme.onPrimaryContainer
+                                            else MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                            }
-                        }
-                    }
-
-                    // Her ikisi de yoksa
-                    if (currentEpg == null && nextEpg == null) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.3f),
-                            shape = ExpressiveShapes.Small,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    "Yayın akışı bilgisi bulunamadı.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                if (!epg.description.isNullOrEmpty() && isCurrent) {
+                                    Text(
+                                        text = epg.description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                                if (isCurrent && total > 0) {
+                                    LinearProgressIndicator(
+                                        progress = { progress },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(3.dp)
+                                            .clip(CircleShape),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f)
+                                    )
+                                }
                             }
                         }
                     }

@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.hasanege.materialtv.model.Category
@@ -65,6 +66,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadRemovedItems()
         loadContinueWatching()
+        viewModelScope.launch { loadFeaturedSeedPreferences() }
     }
     
     private fun loadRemovedItems() {
@@ -169,7 +171,7 @@ class HomeViewModel @Inject constructor(
                 
                 if (forceRefresh || !isInitialDataLoaded) {
                     try {
-                        repository.syncData(username, password)
+                        repository.syncData(username, password, forceRefresh)
                         val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(application)
                         settingsRepo.setLastUpdatedDate(System.currentTimeMillis())
                     } catch (e: Exception) {
@@ -327,29 +329,23 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadMovieCategories(username: String, password: String) {
-        try {
-            movieCategories = repository.getVodCategories(username, password)
-        } catch (e: Exception) { 
-             android.util.Log.e("HomeViewModel", "Error loading movie categories", e)
-             moviesByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
+        repository.observeVodCategories(username).collect { cats ->
+            movieCategories = cats
+            applyFilters()
         }
     }
 
     private suspend fun loadSeriesCategories(username: String, password: String) {
-        try {
-            seriesCategories = repository.getSeriesCategories(username, password)
-        } catch (e: Exception) { 
-             android.util.Log.e("HomeViewModel", "Error loading series categories", e)
-             seriesByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
+        repository.observeSeriesCategories(username).collect { cats ->
+            seriesCategories = cats
+            applyFilters()
         }
     }
 
     private suspend fun loadLiveCategories(username: String, password: String) {
-        try {
-            liveCategories = repository.getLiveCategories(username, password)
-        } catch (e: Exception) { 
-             android.util.Log.e("HomeViewModel", "Error loading live categories", e)
-             liveByCategoriesState = UiState.Error(application.getString(R.string.error_loading_categories))
+        repository.observeLiveCategories(username).collect { cats ->
+            liveCategories = cats
+            applyFilters()
         }
     }
 
@@ -459,6 +455,161 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                  android.util.Log.e("HomeViewModel", "Error updating CW items", e)
             }
+        }
+    }
+
+    // Category Reordering & Hiding Preferences
+    var hiddenCategoryIdsMovies by mutableStateOf<Set<String>>(emptySet())
+    var hiddenCategoryIdsSeries by mutableStateOf<Set<String>>(emptySet())
+    var hiddenCategoryIdsLive by mutableStateOf<Set<String>>(emptySet())
+
+    var orderedCategoryIdsMovies by mutableStateOf<List<String>>(emptyList())
+    var orderedCategoryIdsSeries by mutableStateOf<List<String>>(emptyList())
+    var orderedCategoryIdsLive by mutableStateOf<List<String>>(emptyList())
+
+    fun toggleCategoryVisibility(tab: Int, categoryId: String) {
+        when (tab) {
+            0 -> {
+                hiddenCategoryIdsMovies = if (hiddenCategoryIdsMovies.contains(categoryId)) {
+                    hiddenCategoryIdsMovies - categoryId
+                } else {
+                    hiddenCategoryIdsMovies + categoryId
+                }
+            }
+            1 -> {
+                hiddenCategoryIdsSeries = if (hiddenCategoryIdsSeries.contains(categoryId)) {
+                    hiddenCategoryIdsSeries - categoryId
+                } else {
+                    hiddenCategoryIdsSeries + categoryId
+                }
+            }
+            2 -> {
+                hiddenCategoryIdsLive = if (hiddenCategoryIdsLive.contains(categoryId)) {
+                    hiddenCategoryIdsLive - categoryId
+                } else {
+                    hiddenCategoryIdsLive + categoryId
+                }
+            }
+        }
+        saveCategoryPreferences()
+    }
+
+    fun moveCategoryUp(tab: Int, categoryList: List<Category>, index: Int) {
+        if (index <= 0 || index >= categoryList.size) return
+        val currentOrder = when (tab) {
+            0 -> orderedCategoryIdsMovies.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+            1 -> orderedCategoryIdsSeries.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+            else -> orderedCategoryIdsLive.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+        }.toMutableList()
+
+        val temp = currentOrder[index]
+        currentOrder[index] = currentOrder[index - 1]
+        currentOrder[index - 1] = temp
+
+        when (tab) {
+            0 -> orderedCategoryIdsMovies = currentOrder
+            1 -> orderedCategoryIdsSeries = currentOrder
+            2 -> orderedCategoryIdsLive = currentOrder
+        }
+        saveCategoryPreferences()
+    }
+
+    fun moveCategoryDown(tab: Int, categoryList: List<Category>, index: Int) {
+        if (index < 0 || index >= categoryList.size - 1) return
+        val currentOrder = when (tab) {
+            0 -> orderedCategoryIdsMovies.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+            1 -> orderedCategoryIdsSeries.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+            else -> orderedCategoryIdsLive.ifEmpty { categoryList.map { it.categoryId ?: "" } }
+        }.toMutableList()
+
+        val temp = currentOrder[index]
+        currentOrder[index] = currentOrder[index + 1]
+        currentOrder[index + 1] = temp
+
+        when (tab) {
+            0 -> orderedCategoryIdsMovies = currentOrder
+            1 -> orderedCategoryIdsSeries = currentOrder
+            2 -> orderedCategoryIdsLive = currentOrder
+        }
+        saveCategoryPreferences()
+    }
+
+    fun resetCategoryPreferences(tab: Int) {
+        when (tab) {
+            0 -> {
+                hiddenCategoryIdsMovies = emptySet()
+                orderedCategoryIdsMovies = emptyList()
+            }
+            1 -> {
+                hiddenCategoryIdsSeries = emptySet()
+                orderedCategoryIdsSeries = emptyList()
+            }
+            2 -> {
+                hiddenCategoryIdsLive = emptySet()
+                orderedCategoryIdsLive = emptyList()
+            }
+        }
+        saveCategoryPreferences()
+    }
+
+    private fun saveCategoryPreferences() {
+        try {
+            val prefs = application.getSharedPreferences("category_preferences", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putStringSet("hidden_movies", hiddenCategoryIdsMovies)
+                .putStringSet("hidden_series", hiddenCategoryIdsSeries)
+                .putStringSet("hidden_live", hiddenCategoryIdsLive)
+                .putString("order_movies", orderedCategoryIdsMovies.joinToString(","))
+                .putString("order_series", orderedCategoryIdsSeries.joinToString(","))
+                .putString("order_live", orderedCategoryIdsLive.joinToString(","))
+                .apply()
+        } catch (e: Exception) {
+            android.util.Log.e("HomeViewModel", "Error saving category preferences", e)
+        }
+    }
+
+    // Featured Showcase Seed Preferences (Daily Refresh & Persistent Manual Reroll)
+    var featuredSeedMovies by mutableIntStateOf(0)
+    var featuredSeedSeries by mutableIntStateOf(0)
+
+    private suspend fun loadFeaturedSeedPreferences() {
+        try {
+            val prefs = application.getSharedPreferences("featured_preferences", Context.MODE_PRIVATE)
+            val todayStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+            
+            val savedDate = prefs.getString("last_featured_date", "")
+            var savedSeedMovies = prefs.getInt("seed_movies", 1)
+            var savedSeedSeries = prefs.getInt("seed_series", 1)
+
+            if (savedDate != todayStr) {
+                // New day! Automatically refresh featured seeds once per day
+                savedSeedMovies = (1..10000).random()
+                savedSeedSeries = (1..10000).random()
+                prefs.edit()
+                    .putString("last_featured_date", todayStr)
+                    .putInt("seed_movies", savedSeedMovies)
+                    .putInt("seed_series", savedSeedSeries)
+                    .apply()
+            }
+
+            withContext(Dispatchers.Main) {
+                featuredSeedMovies = savedSeedMovies
+                featuredSeedSeries = savedSeedSeries
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("HomeViewModel", "Error loading featured seeds", e)
+        }
+    }
+
+    fun rerollFeaturedItems(tab: Int) {
+        val newSeed = (1..10000).random()
+        val prefs = application.getSharedPreferences("featured_preferences", Context.MODE_PRIVATE)
+        if (tab == 0) {
+            featuredSeedMovies = newSeed
+            prefs.edit().putInt("seed_movies", newSeed).apply()
+        } else {
+            featuredSeedSeries = newSeed
+            prefs.edit().putInt("seed_series", newSeed).apply()
         }
     }
 }

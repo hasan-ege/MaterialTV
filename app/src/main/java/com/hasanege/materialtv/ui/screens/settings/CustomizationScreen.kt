@@ -34,6 +34,7 @@ fun CustomizationScreen(onBackClick: () -> Unit) {
     val customBackgroundColor by viewModel.customBackgroundColor.collectAsState()
     val customTextColor by viewModel.customTextColor.collectAsState()
     val navBarStyle by viewModel.navBarStyle.collectAsState()
+    val bottomNavOnlyIcons by viewModel.bottomNavOnlyIcons.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val fontLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
@@ -155,6 +156,13 @@ fun CustomizationScreen(onBackClick: () -> Unit) {
                             else -> "Default Bottom Bar"
                         },
                         onClick = { showNavBarStyleDialog = true }
+                    )
+                    
+                    ExpressiveSettingSwitchItem(
+                        icon = Icons.Default.FilterFrames,
+                        title = "Only Icons in Bottom Bar",
+                        checked = bottomNavOnlyIcons,
+                        onCheckedChange = { viewModel.setBottomNavOnlyIcons(it) }
                     )
                 }
             }

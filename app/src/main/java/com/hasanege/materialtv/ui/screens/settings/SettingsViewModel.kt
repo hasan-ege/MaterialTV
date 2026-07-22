@@ -30,6 +30,12 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, "system")
     val autoRetryFailedDownloads: StateFlow<Boolean> = repository.autoRetryFailedDownloads
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    val bottomNavOnlyIcons: StateFlow<Boolean> = repository.bottomNavOnlyIcons
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setBottomNavOnlyIcons(enabled: Boolean) {
+        viewModelScope.launch { repository.setBottomNavOnlyIcons(enabled) }
+    }
 
 
     val enableDownloadCovers: StateFlow<Boolean> = repository.enableDownloadCovers

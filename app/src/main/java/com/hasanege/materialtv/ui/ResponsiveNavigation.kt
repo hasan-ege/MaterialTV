@@ -22,16 +22,17 @@ fun MaterialTVNavRail(
 ) {
     NavigationRail(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         items.forEach { item ->
+            val isSelected = currentItemRoute == item.route
             NavigationRailItem(
-                selected = currentItemRoute == item.route,
+                selected = isSelected,
                 onClick = { onItemClick(item) },
                 icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
-                label = { Text(stringResource(item.labelRes)) }
+                label = { Text(stringResource(item.labelRes), style = MaterialTheme.typography.labelMedium) }
             )
         }
     }

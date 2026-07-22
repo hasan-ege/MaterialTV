@@ -75,7 +75,18 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         val CUSTOM_BACKGROUND_COLOR = stringPreferencesKey("custom_background_color")
         val CUSTOM_TEXT_COLOR = stringPreferencesKey("custom_text_color")
         val NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
+        val BOTTOM_NAV_ONLY_ICONS = booleanPreferencesKey("bottom_nav_only_icons")
         val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
+    }
+
+    val bottomNavOnlyIcons: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->
+        prefs[BOTTOM_NAV_ONLY_ICONS] ?: false
+    }
+
+    suspend fun setBottomNavOnlyIcons(enabled: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[BOTTOM_NAV_ONLY_ICONS] = enabled
+        }
     }
 
     val maxConcurrentDownloads: Flow<Int> = context.settingsDataStore.data.map { prefs ->

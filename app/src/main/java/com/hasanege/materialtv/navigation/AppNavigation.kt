@@ -32,6 +32,11 @@ sealed class Screen(val route: String) {
     }
     object Search : Screen("search")
     object Favorites : Screen("favorites")
+    object Levels : Screen("levels")
+    object LiveDetail : Screen("liveDetail/{streamId}/{channelName}/{streamIcon}") {
+        fun createRoute(streamId: Int, channelName: String, streamIcon: String?) =
+            "liveDetail/$streamId/${java.net.URLEncoder.encode(channelName, "UTF-8")}/${java.net.URLEncoder.encode(streamIcon ?: "", "UTF-8")}"
+    }
 }
 
 @Composable
@@ -119,6 +124,26 @@ fun AppNavigation(
         composable(Screen.Player.route) { backStackEntry ->
             // Temporary stub until we implement PlayerScreen
             androidx.compose.material3.Text("Player Screen stub")
+        }
+        composable(Screen.Levels.route) {
+            com.hasanege.materialtv.ui.screens.levels.LevelsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.LiveDetail.route) { backStackEntry ->
+            val streamId = backStackEntry.arguments?.getString("streamId")?.toIntOrNull() ?: -1
+            val channelName = java.net.URLDecoder.decode(
+                backStackEntry.arguments?.getString("channelName") ?: "", "UTF-8"
+            )
+            val streamIcon = java.net.URLDecoder.decode(
+                backStackEntry.arguments?.getString("streamIcon") ?: "", "UTF-8"
+            ).takeIf { it.isNotBlank() }
+            com.hasanege.materialtv.LiveDetailScreenRoute(
+                streamId = streamId,
+                channelName = channelName,
+                streamIcon = streamIcon,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
     }

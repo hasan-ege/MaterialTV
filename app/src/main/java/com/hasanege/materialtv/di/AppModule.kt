@@ -26,7 +26,37 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideXtreamDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.XtreamDao {
-        return database.xtreamDao()
+    fun provideCategoryDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.CategoryDao {
+        return database.categoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideContentDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.ContentDao {
+        return database.contentDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSyncMetaDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.SyncMetaDao {
+        return database.syncMetaDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCastDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.CastDao {
+        return database.castDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEpisodeDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.EpisodeDao {
+        return database.episodeDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserDao(database: com.hasanege.materialtv.data.AppDatabase): com.hasanege.materialtv.data.dao.UserDao {
+        return database.userDao()
     }
 }

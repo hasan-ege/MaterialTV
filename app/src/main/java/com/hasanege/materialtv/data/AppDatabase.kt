@@ -7,24 +7,29 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        FavoriteEntity::class,
-        FavoriteListEntity::class,
-        WatchHistoryEntity::class,
         DownloadEntity::class,
         com.hasanege.materialtv.data.entities.CategoryEntity::class,
-        com.hasanege.materialtv.data.entities.VodEntity::class,
-        com.hasanege.materialtv.data.entities.SeriesEntity::class,
-        com.hasanege.materialtv.data.entities.LiveStreamEntity::class
+        com.hasanege.materialtv.data.entities.ContentEntity::class,
+        com.hasanege.materialtv.data.entities.CastEntity::class,
+        com.hasanege.materialtv.data.entities.ContentImageEntity::class,
+        com.hasanege.materialtv.data.entities.EpisodeEntity::class,
+        com.hasanege.materialtv.data.entities.SyncMetaEntity::class,
+        com.hasanege.materialtv.data.entities.FavoriteEntity::class,
+        com.hasanege.materialtv.data.entities.ListFolderEntity::class,
+        com.hasanege.materialtv.data.entities.UserRatingEntity::class,
+        com.hasanege.materialtv.data.entities.WatchHistoryEntity::class
     ],
-    version = 6, // Incremented to fix schema mismatch
+    version = 7, // Incremented for new offline-first schema
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun favoriteDao(): FavoriteDao
-    abstract fun favoriteListDao(): FavoriteListDao
-    abstract fun watchHistoryDao(): WatchHistoryDao
     abstract fun downloadDao(): DownloadDao
-    abstract fun xtreamDao(): XtreamDao
+    abstract fun categoryDao(): com.hasanege.materialtv.data.dao.CategoryDao
+    abstract fun contentDao(): com.hasanege.materialtv.data.dao.ContentDao
+    abstract fun castDao(): com.hasanege.materialtv.data.dao.CastDao
+    abstract fun episodeDao(): com.hasanege.materialtv.data.dao.EpisodeDao
+    abstract fun syncMetaDao(): com.hasanege.materialtv.data.dao.SyncMetaDao
+    abstract fun userDao(): com.hasanege.materialtv.data.dao.UserDao
 
     companion object {
         @Volatile

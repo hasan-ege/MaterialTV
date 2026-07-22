@@ -377,15 +377,7 @@ fun DetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Black.copy(alpha = 0.2f),
-                                        Color.Black.copy(alpha = 0.6f),
-                                        Color.Black.copy(alpha = 0.95f)
-                                    )
-                                )
-                            )
+                            .background(Color.Black.copy(alpha = 0.6f))
                     )
 
                     // Left Panel Content Container
@@ -791,16 +783,7 @@ fun DetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Transparent,
-                                        MaterialTheme.colorScheme.background.copy(alpha = 0.3f),
-                                        MaterialTheme.colorScheme.background.copy(alpha = 0.9f),
-                                        MaterialTheme.colorScheme.background
-                                    )
-                                )
-                            )
+                            .background(MaterialTheme.colorScheme.background)
                     )
                 }
 
@@ -815,16 +798,7 @@ fun DetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Transparent,
-                                        MaterialTheme.colorScheme.background
-                                    ),
-                                    startY = 0f,
-                                    endY = 100f
-                                )
-                            )
+                            .background(MaterialTheme.colorScheme.background)
                             .background(MaterialTheme.colorScheme.background)
                             .padding(bottom = 80.dp)
                     ) {

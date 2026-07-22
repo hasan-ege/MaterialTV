@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -37,15 +38,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.hasanege.materialtv.ui.theme.ExpressiveShapes
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBars
@@ -54,8 +60,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.border
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -66,8 +87,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import kotlinx.coroutines.flow.first
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -147,7 +171,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBar
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MaterialTVApp(
     homeViewModel: HomeViewModel = hiltViewModel(),
@@ -183,6 +207,12 @@ fun MaterialTVApp(
     }
     val startPage by settingsRepository.startPage.collectAsState(initial = initialStartPage)
     val navBarStyle by settingsRepository.navBarStyle.collectAsState(initial = initialNavBarStyle)
+    val initialBottomNavOnlyIcons = remember {
+        kotlinx.coroutines.runBlocking {
+            settingsRepository.bottomNavOnlyIcons.first()
+        }
+    }
+    val bottomNavOnlyIcons by settingsRepository.bottomNavOnlyIcons.collectAsState(initial = initialBottomNavOnlyIcons)
     
     // Determine initial navigation and tab based on startPage
     val initialNav = remember(startPage) {
@@ -214,41 +244,13 @@ fun MaterialTVApp(
 
 // ... (existing imports)
 
-    val scrollBehavior = androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior()
-
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            androidx.compose.material3.CenterAlignedTopAppBar(
-                title = { 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.app_name_material),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.app_name_tv),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    } 
-                },
-                actions = {
-                    // Icons moved to floating islands in HomeScreen
-                },
-                scrollBehavior = scrollBehavior,
-                colors = androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
-            )
-        }
+        modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         androidx.compose.foundation.layout.BoxWithConstraints(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
             val isWideScreen = maxWidth > 600.dp
             
@@ -310,20 +312,63 @@ fun MaterialTVApp(
                             }
                         }
                     }
-                    if (navBarStyle == "floating") {
-                        com.hasanege.materialtv.ui.MaterialTVBottomNavBar(
-                            items = bottomNavItems,
-                            currentItemRoute = currentScreen.value,
-                            onItemClick = { currentScreen.value = it.route },
-                            modifier = Modifier.align(Alignment.BottomCenter)
-                        )
-                    } else {
-                        com.hasanege.materialtv.ui.DefaultBottomNavBar(
-                            items = bottomNavItems,
-                            currentItemRoute = currentScreen.value,
-                            onItemClick = { currentScreen.value = it.route },
-                            modifier = Modifier.align(Alignment.BottomCenter)
-                        )
+                    val continueWatchingState by homeViewModel.continueWatchingState.collectAsState()
+                    val latestContinueItem = (continueWatchingState as? UiState.Success)?.data?.firstOrNull()
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .zIndex(3f)
+                    ) {
+                        if (latestContinueItem != null) {
+                            com.hasanege.materialtv.ui.PersistentFloatingMiniPlayer(
+                                title = latestContinueItem.name ?: "",
+                                subtitle = latestContinueItem.type?.uppercase() ?: "IPTV",
+                                imageUrl = latestContinueItem.streamIcon,
+                                isPlaying = false,
+                                onPlayPauseClick = {
+                                    val intent = Intent(context, PlayerActivity::class.java).apply {
+                                        putExtra("STREAM_ID", latestContinueItem.streamId)
+                                        putExtra("TITLE", latestContinueItem.name)
+                                        putExtra("AUTO_PLAY", true)
+                                        putExtra("position", latestContinueItem.position)
+                                    }
+                                    context.startActivity(intent)
+                                },
+                                onClick = {
+                                    if (latestContinueItem.type == "series") {
+                                        navController.navigate(Screen.SeriesDetail.createRoute(latestContinueItem.seriesId ?: -1, latestContinueItem.name ?: ""))
+                                    } else {
+                                        val intent = Intent(context, PlayerActivity::class.java).apply {
+                                            putExtra("STREAM_ID", latestContinueItem.streamId)
+                                            putExtra("TITLE", latestContinueItem.name)
+                                            putExtra("AUTO_PLAY", true)
+                                            putExtra("position", latestContinueItem.position)
+                                        }
+                                        context.startActivity(intent)
+                                    }
+                                },
+                                onCloseClick = {
+                                    homeViewModel.removeFromContinueWatching(latestContinueItem)
+                                }
+                            )
+                        }
+
+                        if (navBarStyle == "floating") {
+                            com.hasanege.materialtv.ui.MaterialTVBottomNavBar(
+                                items = bottomNavItems,
+                                currentItemRoute = currentScreen.value,
+                                onItemClick = { currentScreen.value = it.route },
+                                onlyIcons = bottomNavOnlyIcons
+                            )
+                        } else {
+                            com.hasanege.materialtv.ui.DefaultBottomNavBar(
+                                items = bottomNavItems,
+                                currentItemRoute = currentScreen.value,
+                                onItemClick = { currentScreen.value = it.route },
+                                onlyIcons = bottomNavOnlyIcons
+                            )
+                        }
                     }
                 }
             }
@@ -418,14 +463,7 @@ fun ExpandingSearchBar(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                )
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable(enabled = false) { }
         ) {
             Column(
@@ -700,6 +738,8 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
         }
     }
 
+    var showManageCategoriesBottomSheet by remember { mutableStateOf(false) }
+
     // Box layout
     Box(modifier = Modifier.fillMaxSize()) {
         
@@ -740,17 +780,92 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
                 .zIndex(2f) 
                 .padding(horizontal = 8.dp)
                 .padding(top = 12.dp, bottom = 12.dp)
-                .height(56.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 8.dp),
+                .fillMaxWidth()
+                .height(64.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FloatingActionIsland(
-                icon = Icons.Default.Cast,
-                contentDescription = stringResource(R.string.action_cast),
-                onClick = { 
-                    context.startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
+            var showMoreMenu by remember { mutableStateOf(false) }
+            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+            Box(
+                modifier = Modifier
+                    .wrapContentSize(align = Alignment.TopCenter, unbounded = true)
+                    .zIndex(10f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .padding(horizontal = 4.dp)
+                        .shadow(
+                            elevation = 6.dp,
+                            shape = RoundedCornerShape(28.dp),
+                            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        )
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .animateContentSize(alignment = Alignment.TopCenter),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .clickable {
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                showMoreMenu = !showMoreMenu
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Daha Fazla",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    if (showMoreMenu) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .clickable {
+                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                    showMoreMenu = false
+                                    context.startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Cast,
+                                contentDescription = "Cast",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .clickable {
+                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                    showMoreMenu = false
+                                    showManageCategoriesBottomSheet = true
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = "Kategorileri Düzenle",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
-            )
+            }
             
             ExpressiveTabSlider(
                 tabs = tabs,
@@ -764,6 +879,14 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
                 icon = Icons.Default.Search,
                 contentDescription = stringResource(R.string.action_search),
                 onClick = onSearchClick
+            )
+        }
+
+        if (showManageCategoriesBottomSheet) {
+            ManageCategoriesBottomSheet(
+                viewModel = homeViewModel,
+                selectedTab = selectedTabIndex,
+                onDismiss = { showManageCategoriesBottomSheet = false }
             )
         }
     }
@@ -781,6 +904,8 @@ fun FloatingActionIsland(
     
     Box(
         modifier = modifier
+            .width(60.dp)
+            .height(56.dp)
             .padding(horizontal = 4.dp)
             .shadow(
                 elevation = 6.dp,
@@ -796,20 +921,19 @@ fun FloatingActionIsland(
             .clickable {
                 haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                 onClick()
-            }
-            .padding(10.dp),
+            },
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 @Composable
 fun CategoryScreen(
@@ -820,9 +944,12 @@ fun CategoryScreen(
     val context = LocalContext.current
     val navController = com.hasanege.materialtv.navigation.LocalNavController.current
     val isRefreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true) })
 
-    Box(modifier = Modifier.pullRefresh(pullRefreshState), contentAlignment = Alignment.TopCenter) {
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = { viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true) },
+        modifier = Modifier.fillMaxSize()
+    ) {
         androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val isWide = maxWidth > 600.dp
             val adaptivePadding = if (isWide) 32.dp else 0.dp
@@ -835,8 +962,8 @@ fun CategoryScreen(
                     .padding(horizontal = adaptivePadding),
                 contentPadding = contentPadding
             ) {
-                // Continue Watching Section (Standard list item)
-                item {
+                // 1. Continue Watching Section
+                item(key = "continue_watching") {
                     val continueWatchingState by viewModel.continueWatchingState.collectAsState()
                     
                     when (val state = continueWatchingState) {
@@ -891,22 +1018,44 @@ fun CategoryScreen(
                     }
                 }
 
-                // Categories based on selected tab
+                // 2. Tab Specific Content (Movies, Series, Live TV)
                 when (selectedTab) {
                     0 -> {
                         when (val moviesByCategoriesState = viewModel.moviesByCategoriesState) {
                             is UiState.Loading -> item { CenteredProgressBar() }
                             is UiState.Success -> {
-                                // Hero Carousel with featured movies
                                 val allMovies = moviesByCategoriesState.data.values.flatten()
+                                val hiddenSet = viewModel.hiddenCategoryIdsMovies
+                                val customOrder = viewModel.orderedCategoryIdsMovies
+                                val orderMap = customOrder.withIndex().associate { it.value to it.index }
+                                
+                                val filteredData = moviesByCategoriesState.data.entries
+                                    .filter { it.value.isNotEmpty() && !hiddenSet.contains(it.key.categoryId ?: "") }
+                                    .sortedWith { a, b ->
+                                        val posA = orderMap[a.key.categoryId ?: ""]
+                                        val posB = orderMap[b.key.categoryId ?: ""]
+                                        if (posA != null && posB != null) {
+                                            posA.compareTo(posB)
+                                        } else if (posA != null) {
+                                            -1
+                                        } else if (posB != null) {
+                                            1
+                                        } else {
+                                            (a.key.categoryName ?: "").compareTo(b.key.categoryName ?: "", ignoreCase = true)
+                                        }
+                                    }
+
+                                // Hero Spotlight Banner (Shuffled top movies)
                                 if (allMovies.isNotEmpty()) {
-                                    item(key = "hero_carousel") {
+                                    item(key = "hero_carousel_movies") {
                                         HeroCarousel(
-                                            items = allMovies.shuffled(),
+                                            items = allMovies,
                                             key = { item -> item.streamId ?: 0 },
                                             imageUrlProvider = { it.streamIcon },
                                             titleProvider = { it.name },
                                             subtitleProvider = { it.year },
+                                            externalSeed = viewModel.featuredSeedMovies,
+                                            onRerollClick = { viewModel.rerollFeaturedItems(0) },
                                             onItemClick = { vodItem ->
                                                 navController.navigate(Screen.Detail.createRoute(vodItem.streamId ?: -1, vodItem.name ?: ""))
                                             }
@@ -915,7 +1064,7 @@ fun CategoryScreen(
                                 }
 
                                 items(
-                                    items = moviesByCategoriesState.data.entries.filter { it.value.isNotEmpty() }.toList(),
+                                    items = filteredData,
                                     key = { (category, _) -> category.categoryId }
                                 ) { (category, movies) ->
                                     ContentRow(title = category.categoryName, items = movies, onSeeAllClick = {
@@ -932,16 +1081,38 @@ fun CategoryScreen(
                         when (val seriesByCategoriesState = viewModel.seriesByCategoriesState) {
                             is UiState.Loading -> item { CenteredProgressBar() }
                             is UiState.Success -> {
-                                // Hero Carousel with featured series
                                 val allSeries = seriesByCategoriesState.data.values.flatten()
+                                val hiddenSet = viewModel.hiddenCategoryIdsSeries
+                                val customOrder = viewModel.orderedCategoryIdsSeries
+                                val orderMap = customOrder.withIndex().associate { it.value to it.index }
+
+                                val filteredData = seriesByCategoriesState.data.entries
+                                    .filter { it.value.isNotEmpty() && !hiddenSet.contains(it.key.categoryId ?: "") }
+                                    .sortedWith { a, b ->
+                                        val posA = orderMap[a.key.categoryId ?: ""]
+                                        val posB = orderMap[b.key.categoryId ?: ""]
+                                        if (posA != null && posB != null) {
+                                            posA.compareTo(posB)
+                                        } else if (posA != null) {
+                                            -1
+                                        } else if (posB != null) {
+                                            1
+                                        } else {
+                                            (a.key.categoryName ?: "").compareTo(b.key.categoryName ?: "", ignoreCase = true)
+                                        }
+                                    }
+
+                                // Hero Spotlight Banner
                                 if (allSeries.isNotEmpty()) {
                                     item(key = "hero_carousel_series") {
                                         HeroCarousel(
-                                            items = allSeries.shuffled(),
+                                            items = allSeries,
                                             key = { item -> item.seriesId ?: 0 },
                                             imageUrlProvider = { it.cover },
                                             titleProvider = { it.name },
                                             subtitleProvider = { it.year },
+                                            externalSeed = viewModel.featuredSeedSeries,
+                                            onRerollClick = { viewModel.rerollFeaturedItems(1) },
                                             onItemClick = { seriesItem ->
                                                 navController.navigate(Screen.SeriesDetail.createRoute(seriesItem.seriesId ?: -1, seriesItem.name ?: ""))
                                             }
@@ -950,7 +1121,7 @@ fun CategoryScreen(
                                 }
 
                                 items(
-                                    items = seriesByCategoriesState.data.entries.filter { it.value.isNotEmpty() }.toList(),
+                                    items = filteredData,
                                     key = { (category, _) -> category.categoryId }
                                 ) { (category, series) ->
                                     SeriesContentRow(
@@ -972,8 +1143,28 @@ fun CategoryScreen(
                         when (val liveByCategoriesState = viewModel.liveByCategoriesState) {
                             is UiState.Loading -> item { CenteredProgressBar() }
                             is UiState.Success -> {
+                                val hiddenSet = viewModel.hiddenCategoryIdsLive
+                                val customOrder = viewModel.orderedCategoryIdsLive
+                                val orderMap = customOrder.withIndex().associate { it.value to it.index }
+
+                                val filteredData = liveByCategoriesState.data.entries
+                                    .filter { it.value.isNotEmpty() && !hiddenSet.contains(it.key.categoryId ?: "") }
+                                    .sortedWith { a, b ->
+                                        val posA = orderMap[a.key.categoryId ?: ""]
+                                        val posB = orderMap[b.key.categoryId ?: ""]
+                                        if (posA != null && posB != null) {
+                                            posA.compareTo(posB)
+                                        } else if (posA != null) {
+                                            -1
+                                        } else if (posB != null) {
+                                            1
+                                        } else {
+                                            (a.key.categoryName ?: "").compareTo(b.key.categoryName ?: "", ignoreCase = true)
+                                        }
+                                    }
+
                                 items(
-                                    items = liveByCategoriesState.data.entries.filter { it.value.isNotEmpty() }.toList(),
+                                    items = filteredData,
                                     key = { (category, _) -> category.categoryId }
                                 ) { (category, liveStreams) ->
                                     LiveStreamContentRow(
@@ -1006,13 +1197,6 @@ fun CategoryScreen(
                 }
             }
         }
-        PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter),
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary
-        )
     }
 }
 
@@ -1024,151 +1208,279 @@ fun CategoryChips(viewModel: HomeViewModel, selectedTab: Int) {
         else -> Triple(viewModel.liveCategories, viewModel.selectedLiveCategoryId, viewModel::onLiveCategorySelected)
     }
 
+    if (categories.isEmpty()) return
+
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(vertical = 8.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.padding(bottom = 8.dp)
     ) {
         item {
+            val isSelected = selectedCategoryId == null
             FilterChip(
-                selected = selectedCategoryId == null,
+                selected = isSelected,
                 onClick = { onCategorySelected(null) },
-                label = { Text(stringResource(R.string.category_all)) },
-                shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium
+                label = { 
+                    Text(
+                        text = stringResource(R.string.category_all),
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    ) 
+                },
+                shape = ExpressiveShapes.Full,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = null
             )
         }
-        items(categories) { category ->
+        items(categories, key = { it.categoryId }) { category ->
+            val isSelected = category.categoryId == selectedCategoryId
             FilterChip(
-                selected = category.categoryId == selectedCategoryId,
+                selected = isSelected,
                 onClick = { onCategorySelected(category.categoryId) },
-                label = { Text(category.categoryName) },
-                shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium
+                label = { 
+                    Text(
+                        text = category.categoryName,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    ) 
+                },
+                shape = ExpressiveShapes.Full,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = null
             )
         }
     }
 }
 
 
-// Netflix-style Hero Carousel for featured content
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+// Expressive Organic Collage Stage Showcase (Matching Reference Screenshot 1)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun <T> HeroCarousel(
     items: List<T>,
     onItemClick: (T) -> Unit,
-    key: ((T) -> Any)? = null, // Added key provider support
+    key: ((T) -> Any)? = null,
     imageUrlProvider: (T) -> String?,
     titleProvider: (T) -> String?,
     subtitleProvider: (T) -> String? = { null },
+    externalSeed: Int = 1,
+    onRerollClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) return
     
-    // Unlimited items, shuffled
-    val heroCarouselState = rememberCarouselState { items.size }
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val heroHeight = remember(configuration) { 
-        if (configuration.screenWidthDp > 600) 400.dp else 280.dp 
+    val context = LocalContext.current
+    var rotationAngle by remember { mutableFloatStateOf(0f) }
+    val animatedRotation by animateFloatAsState(
+        targetValue = rotationAngle,
+        animationSpec = androidx.compose.animation.core.spring(
+            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+        ),
+        label = "reroll_spin"
+    )
+
+    // Deterministic shuffle using externalSeed: 100% persistent across navigation/recompositions!
+    val currentDisplayItems = remember(items, externalSeed) {
+        val random = java.util.Random(externalSeed.toLong())
+        items.shuffled(random).take(3)
     }
-    
+
     Column(modifier = modifier.padding(bottom = 16.dp)) {
-        Text(
-            text = stringResource(R.string.home_featured),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
-        )
-        
-        HorizontalMultiBrowseCarousel(
-            state = heroCarouselState,
-            preferredItemWidth = configuration.screenWidthDp.dp - 48.dp,
-            itemSpacing = 16.dp,
-            contentPadding = PaddingValues(horizontal = 24.dp),
+        // Expressive Top Title + Circular Reroll Icon FAB Row
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(heroHeight)
-        ) { index ->
-            val item = items[index]
-            
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Your",
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = (-1).sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "WATCH",
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 46.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.offset(y = (-14).dp)
+                )
+            }
+
+            // Circular Reroll Icon Button
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(ExpressiveShapes.ExtraLarge)
-                    .clickable { onItemClick(item) }
+                    .size(48.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .clickable { 
+                        rotationAngle += 360f
+                        onRerollClick()
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                // Background Image
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUrlProvider(item))
-                        .crossfade(500)
-                        .build(),
-                    imageLoader = ImageConfig.getImageLoader(LocalContext.current),
-                    contentDescription = titleProvider(item),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Reroll",
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer { rotationZ = animatedRotation }
                 )
+            }
+        }
+
+        // Asymmetric Organic Bubble Collage Stage (Matching Screenshot 1)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val leftItem = currentDisplayItems.getOrNull(0)
+            val centerItem = currentDisplayItems.getOrNull(1) ?: currentDisplayItems.firstOrNull()
+            val rightItem = currentDisplayItems.getOrNull(2)
+
+            // 1. LEFT SATELLITE BUBBLE (Small Circle/Petal)
+            leftItem?.let { item ->
+                val posterUrl = imageUrlProvider(item)
+                val title = titleProvider(item) ?: ""
                 
-                // Gradient Overlay
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            androidx.compose.ui.graphics.Brush.verticalGradient(
-                                colors = listOf(
-                                    androidx.compose.ui.graphics.Color.Transparent,
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
-                                ),
-                                startY = 0f,
-                                endY = Float.POSITIVE_INFINITY
-                            )
-                        )
-                )
-                
-                // Content
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(20.dp)
+                        .align(Alignment.CenterStart)
+                        .offset(x = 12.dp, y = (-28).dp)
+                        .size(86.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .clickable { onItemClick(item) }
                 ) {
-                    Text(
-                        text = titleProvider(item) ?: "",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                    AsyncImage(
+                        model = ImageRequest.Builder(context).data(posterUrl).crossfade(400).build(),
+                        contentDescription = title,
+                        contentScale = ContentScale.Crop,
+                        error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        modifier = Modifier.fillMaxSize()
                     )
-                    
-                    val subtitle = subtitleProvider(item)
-                    if (!subtitle.isNullOrEmpty()) {
-                        Text(
-                            text = subtitle,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                    
-                    Row(
-                        modifier = Modifier.padding(top = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        androidx.compose.material3.Button(
-                            onClick = { onItemClick(item) },
-                            shape = ExpressiveShapes.Large,
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Rounded.PlayArrow,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.detail_play))
+                }
+            }
+
+            // 2. RIGHT SATELLITE BUBBLE (Small Circle/Petal)
+            rightItem?.let { item ->
+                val posterUrl = imageUrlProvider(item)
+                val title = titleProvider(item) ?: ""
+                
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .offset(x = (-12).dp, y = 32.dp)
+                        .size(82.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .clickable { onItemClick(item) }
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context).data(posterUrl).crossfade(400).build(),
+                        contentDescription = title,
+                        contentScale = ContentScale.Crop,
+                        error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
+            // 3. CENTER HIGHLIGHT (BIG Rotated Organic Capsule - Matching Screenshot 1)
+            centerItem?.let { item ->
+                val posterUrl = imageUrlProvider(item)
+                val title = titleProvider(item) ?: ""
+
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                val scale by animateFloatAsState(
+                    targetValue = if (isPressed) 0.94f else 1f,
+                    animationSpec = androidx.compose.animation.core.spring(
+                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
+                    ),
+                    label = "center_card_scale"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(220.dp)
+                        .height(145.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            rotationZ = -14f
                         }
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 64.dp,
+                                topEnd = 24.dp,
+                                bottomStart = 24.dp,
+                                bottomEnd = 64.dp
+                            )
+                        )
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = ripple(),
+                            onClick = { onItemClick(item) }
+                        )
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context).data(posterUrl).crossfade(400).build(),
+                        contentDescription = title,
+                        contentScale = ContentScale.Crop,
+                        error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Dark Gradient Vignette
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f))
+                    )
+
+                    // Title Overlay
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(14.dp)
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = androidx.compose.ui.graphics.Color.White,
+                            maxLines = 1,
+                            modifier = Modifier.basicMarquee()
+                        )
                     }
                 }
             }
@@ -1182,7 +1494,7 @@ fun ContentRow(
     title: String,
     items: List<VodItem>,
     onSeeAllClick: () -> Unit,
-    key: ((VodItem) -> Any)? = { it.streamId ?: 0 }, // Key before action
+    key: ((VodItem) -> Any)? = { it.streamId ?: 0 },
     onItemClick: (VodItem) -> Unit
 ) {
     val context = LocalContext.current
@@ -1196,11 +1508,11 @@ fun ContentRow(
         ),
         exit = fadeOut(animationSpec = ExpressiveAnimations.exit())
     ) {
-        Column(modifier = Modifier.padding(vertical = 20.dp)) { 
+        Column(modifier = Modifier.padding(vertical = 16.dp)) { 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp), 
+                    .padding(horizontal = 24.dp, vertical = 6.dp), 
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1214,22 +1526,22 @@ fun ContentRow(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 TextButton(onClick = onSeeAllClick) { 
-                                    Text(
-                                        stringResource(R.string.action_see_all),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.SemiBold
-                                    ) 
-                                }
+                    Text(
+                        stringResource(R.string.action_see_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                }
             }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(items, key = { it.streamId ?: 0 }) { item ->
                     val interactionSource = remember { MutableInteractionSource() }
                     val isPressed by interactionSource.collectIsPressedAsState()
                     val scale by animateFloatAsState(
-                        targetValue = if (isPressed) 0.96f else 1f,
+                        targetValue = if (isPressed) 0.94f else 1f,
                         animationSpec = androidx.compose.animation.core.spring(
                             dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                             stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
@@ -1239,7 +1551,12 @@ fun ContentRow(
 
                     androidx.compose.material3.ElevatedCard(
                         modifier = Modifier
-                            .width(150.dp)
+                            .width(156.dp)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                                ExpressiveShapes.Medium
+                            )
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
@@ -1266,20 +1583,16 @@ fun ContentRow(
                                     }
                                 }
                             ),
-                        shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
+                        shape = ExpressiveShapes.Medium,
                         elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 2.dp
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp
                         ),
                         colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer
                         )
                     ) {
-                        Column {
-                            val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-                            val isTablet = configuration.screenWidthDp > 600
-                            val cardAspectRatio = remember(isTablet) { if (isTablet) 3f/4f else 2f/3f }
-                            
+                        Box(modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f)) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(item.streamIcon)
@@ -1290,27 +1603,71 @@ fun ContentRow(
                                 contentScale = ContentScale.Crop,
                                 error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
                                 placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            
+
+                            // Top Rating Badge
+                            item.rating5Based?.let { rating ->
+                                if (rating > 0) {
+                                    val displayRating = "%.1f".format(rating)
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(8.dp)
+                                            .clip(ExpressiveShapes.Full)
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Star,
+                                                contentDescription = null,
+                                                tint = androidx.compose.ui.graphics.Color(0xFFFFB300),
+                                                modifier = Modifier.size(12.dp)
+                                            )
+                                            Text(
+                                                text = " $displayRating",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Title & Info at Bottom
+                            Column(
                                 modifier = Modifier
+                                    .align(Alignment.BottomStart)
                                     .fillMaxWidth()
-                                    .aspectRatio(cardAspectRatio)
-                            )
-                            Text(
-                                item.name ?: "",
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                minLines = 2
-                            )
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = item.name ?: "",
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.basicMarquee()
+                                )
+                                item.year?.let { yr ->
+                                    Text(
+                                        text = yr,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
-            }
         }
     }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -1332,11 +1689,11 @@ fun SeriesContentRow(
         ),
         exit = fadeOut(animationSpec = ExpressiveAnimations.exit())
     ) {
-        Column(modifier = Modifier.padding(vertical = 20.dp)) {
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1350,22 +1707,22 @@ fun SeriesContentRow(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 TextButton(onClick = onSeeAllClick) { 
-                                    Text(
-                                        stringResource(R.string.action_see_all),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.SemiBold
-                                    ) 
-                                }
+                    Text(
+                        stringResource(R.string.action_see_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                }
             }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(items, key = { it.seriesId ?: 0 }) { item ->
                     val interactionSource = remember { MutableInteractionSource() }
                     val isPressed by interactionSource.collectIsPressedAsState()
                     val scale by animateFloatAsState(
-                        targetValue = if (isPressed) 0.96f else 1f,
+                        targetValue = if (isPressed) 0.94f else 1f,
                         animationSpec = androidx.compose.animation.core.spring(
                             dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                             stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
@@ -1375,7 +1732,12 @@ fun SeriesContentRow(
 
                     androidx.compose.material3.ElevatedCard(
                         modifier = Modifier
-                            .width(150.dp)
+                            .width(156.dp)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                                ExpressiveShapes.Medium
+                            )
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
@@ -1405,20 +1767,16 @@ fun SeriesContentRow(
                                     }
                                 }
                             ),
-                        shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
+                        shape = ExpressiveShapes.Medium,
                         elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 2.dp
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp
                         ),
                         colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer
                         )
                     ) {
-                        Column {
-                            val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-                            val isTablet = configuration.screenWidthDp > 600
-                            val cardAspectRatio = remember(isTablet) { if (isTablet) 3f/4f else 2f/3f }
-                            
+                        Box(modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f)) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(item.cover)
@@ -1429,27 +1787,58 @@ fun SeriesContentRow(
                                 contentScale = ContentScale.Crop,
                                 error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
                                 placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            
+
+                            // Top Series Pill Badge
+                            Box(
                                 modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .clip(ExpressiveShapes.Full)
+                                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "SERIES",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                            
+                            // Title & Info at Bottom
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
                                     .fillMaxWidth()
-                                    .aspectRatio(cardAspectRatio)
-                            )
-                            Text(
-                                item.name ?: "",
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                minLines = 2
-                            )
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = item.name ?: "",
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.basicMarquee()
+                                )
+                                item.year?.let { yr ->
+                                    Text(
+                                        text = yr,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
-            }
         }
     }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -1471,40 +1860,49 @@ fun LiveStreamContentRow(
         ),
         exit = fadeOut(animationSpec = ExpressiveAnimations.exit())
     ) {
-        Column(modifier = Modifier.padding(vertical = 20.dp)) {
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(androidx.compose.ui.graphics.Color.Red)
+                    )
+                    androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 TextButton(onClick = onSeeAllClick) { 
-                                    Text(
-                                        stringResource(R.string.action_see_all),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.SemiBold
-                                    ) 
-                                }
+                    Text(
+                        stringResource(R.string.action_see_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                }
             }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(items, key = { it.streamId ?: 0 }) { item ->
                     val interactionSource = remember { MutableInteractionSource() }
                     val isPressed by interactionSource.collectIsPressedAsState()
                     val scale by animateFloatAsState(
-                        targetValue = if (isPressed) 0.96f else 1f,
+                        targetValue = if (isPressed) 0.94f else 1f,
                         animationSpec = androidx.compose.animation.core.spring(
                             dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                             stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
@@ -1514,7 +1912,12 @@ fun LiveStreamContentRow(
 
                     androidx.compose.material3.ElevatedCard(
                         modifier = Modifier
-                            .width(150.dp)
+                            .width(200.dp)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                                ExpressiveShapes.Medium
+                            )
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
@@ -1541,16 +1944,16 @@ fun LiveStreamContentRow(
                                     }
                                 }
                             ),
-                        shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
+                        shape = ExpressiveShapes.Medium,
                         elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 2.dp
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp
                         ),
                         colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer
                         )
                     ) {
-                        Column {
+                        Box(modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(item.streamIcon)
@@ -1562,26 +1965,248 @@ fun LiveStreamContentRow(
                                 error = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
                                 placeholder = androidx.compose.ui.res.painterResource(R.drawable.ic_placeholder),
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
+                                    .fillMaxSize()
                                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                                    .padding(12.dp)
                             )
-                            Text(
-                                item.name ?: "",
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                minLines = 2
-                            )
+                            
+                            // Top LIVE Badge Pill
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(8.dp)
+                                    .clip(ExpressiveShapes.Full)
+                                    .background(androidx.compose.ui.graphics.Color(0xFFD32F2F))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                            .background(androidx.compose.ui.graphics.Color.White)
+                                    )
+                                    androidx.compose.foundation.layout.Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        text = "LIVE",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = androidx.compose.ui.graphics.Color.White
+                                    )
+                                }
+                            }
+                            
+                            // Bottom Title Overlay
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.9f))
+                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = item.name ?: "",
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.basicMarquee()
+                                )
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageCategoriesBottomSheet(
+    viewModel: HomeViewModel,
+    selectedTab: Int = 0,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var currentTab by remember { mutableIntStateOf(selectedTab) }
+    
+    val categoryList = remember(currentTab, viewModel.moviesByCategoriesState, viewModel.seriesByCategoriesState, viewModel.liveByCategoriesState) {
+        val activeCategories = when (currentTab) {
+            0 -> (viewModel.moviesByCategoriesState as? UiState.Success)?.data?.keys?.toList()
+            1 -> (viewModel.seriesByCategoriesState as? UiState.Success)?.data?.keys?.toList()
+            else -> (viewModel.liveByCategoriesState as? UiState.Success)?.data?.keys?.toList()
+        }
+        if (!activeCategories.isNullOrEmpty()) {
+            activeCategories
+        } else {
+            when (currentTab) {
+                0 -> viewModel.movieCategories
+                1 -> viewModel.seriesCategories
+                else -> viewModel.liveCategories
             }
         }
     }
 
+    val hiddenSet = when (currentTab) {
+        0 -> viewModel.hiddenCategoryIdsMovies
+        1 -> viewModel.hiddenCategoryIdsSeries
+        else -> viewModel.hiddenCategoryIdsLive
+    }
 
+    val customOrder = when (currentTab) {
+        0 -> viewModel.orderedCategoryIdsMovies
+        1 -> viewModel.orderedCategoryIdsSeries
+        else -> viewModel.orderedCategoryIdsLive
+    }
+
+    val sortedCategories = remember(categoryList, customOrder) {
+        if (customOrder.isEmpty()) {
+            categoryList.sortedBy { it.categoryName?.lowercase() ?: "" }
+        } else {
+            val orderMap = customOrder.withIndex().associate { it.value to it.index }
+            categoryList.sortedWith { a, b ->
+                val posA = orderMap[a.categoryId ?: ""]
+                val posB = orderMap[b.categoryId ?: ""]
+                if (posA != null && posB != null) {
+                    posA.compareTo(posB)
+                } else if (posA != null) {
+                    -1
+                } else if (posB != null) {
+                    1
+                } else {
+                    (a.categoryName ?: "").compareTo(b.categoryName ?: "", ignoreCase = true)
+                }
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        scrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Kategorileri Düzenle",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Sıralamayı değiştirin veya gizleyin",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                TextButton(onClick = { viewModel.resetCategoryPreferences(currentTab) }) {
+                    Text("Sıfırla", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+
+            androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
+
+            // Tab Selection Filter Chips inside BottomSheet
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                listOf("Filmler", "Diziler", "Canlı TV").forEachIndexed { idx, label ->
+                    FilterChip(
+                        selected = currentTab == idx,
+                        onClick = { currentTab = idx },
+                        label = { Text(label, fontWeight = if (currentTab == idx) FontWeight.Bold else FontWeight.Medium) },
+                        shape = ExpressiveShapes.Full,
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    )
+                }
+            }
+
+            androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
+
+            androidx.compose.foundation.layout.Spacer(Modifier.height(16.dp))
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+            ) {
+                itemsIndexed(sortedCategories, key = { _, cat -> cat.categoryId ?: "" }) { index, cat ->
+                    val catId = cat.categoryId ?: ""
+                    val isHidden = hiddenSet.contains(catId)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(ExpressiveShapes.Medium)
+                            .background(
+                                if (isHidden) MaterialTheme.colorScheme.surfaceContainerLowest
+                                else MaterialTheme.colorScheme.surfaceContainer
+                            )
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = cat.categoryName ?: "",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = if (isHidden) FontWeight.Normal else FontWeight.SemiBold,
+                            color = if (isHidden) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { viewModel.moveCategoryUp(selectedTab, sortedCategories, index) },
+                                enabled = index > 0
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                    contentDescription = "Yukarı Taşımak",
+                                    tint = if (index > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { viewModel.moveCategoryDown(selectedTab, sortedCategories, index) },
+                                enabled = index < sortedCategories.size - 1
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Aşağı Taşımak",
+                                    tint = if (index < sortedCategories.size - 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant
+                                )
+                            }
+
+                            IconButton(onClick = { viewModel.toggleCategoryVisibility(selectedTab, catId) }) {
+                                Icon(
+                                    imageVector = if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Gizle/Göster",
+                                    tint = if (isHidden) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            androidx.compose.foundation.layout.Spacer(Modifier.height(16.dp))
+        }
+    }
+}

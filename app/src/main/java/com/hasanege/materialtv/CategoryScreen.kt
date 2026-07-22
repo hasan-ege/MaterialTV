@@ -18,12 +18,13 @@ import com.hasanege.materialtv.network.SessionManager
 import com.hasanege.materialtv.ui.*
 import com.hasanege.materialtv.ui.theme.MaterialTVTheme
 import androidx.compose.ui.res.stringResource
-
-
+import androidx.paging.compose.collectAsLazyPagingItems
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CategoryScreen(viewModel: CategoryViewModel, categoryName: String) {
+    val state by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(categoryName) })
@@ -34,25 +35,21 @@ fun CategoryScreen(viewModel: CategoryViewModel, categoryName: String) {
             enter = fadeIn(animationSpec = tween(durationMillis = 500)),
             modifier = Modifier.padding(paddingValues)
         ) {
-            when (val state = viewModel.uiState.value) {
-                is UiState.Loading -> {
+            when (val data = state) {
+                null -> {
                     CenteredProgressBar()
                 }
-                is UiState.Success -> {
-                    when (state.data) {
-                        is CategoryData.Movies -> MoviesList(
-                            movies = state.data.items
-                        )
-                        is CategoryData.Series -> SeriesList(
-                            series = state.data.items
-                        )
-                        is CategoryData.LiveStreams -> LiveTVList(
-                            liveStreams = state.data.items
-                        )
-                    }
+                is CategoryData.Movies -> {
+                    val lazyPagingItems = data.items.collectAsLazyPagingItems()
+                    PagedMoviesList(movies = lazyPagingItems)
                 }
-                is UiState.Error -> {
-                    ErrorMessage(message = state.message)
+                is CategoryData.Series -> {
+                    val lazyPagingItems = data.items.collectAsLazyPagingItems()
+                    PagedSeriesList(series = lazyPagingItems)
+                }
+                is CategoryData.LiveStreams -> {
+                    val lazyPagingItems = data.items.collectAsLazyPagingItems()
+                    PagedLiveTVList(liveStreams = lazyPagingItems)
                 }
             }
         }

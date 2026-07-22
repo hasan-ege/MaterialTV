@@ -1,8 +1,11 @@
 @file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 package com.hasanege.materialtv.repository
 
-import com.hasanege.materialtv.data.AppDatabase
-import com.hasanege.materialtv.data.entities.toEntity
+import com.hasanege.materialtv.data.entities.ContentType
+import com.hasanege.materialtv.mapper.XtreamMappers.toCategory
+import com.hasanege.materialtv.mapper.XtreamMappers.toLiveStream
+import com.hasanege.materialtv.mapper.XtreamMappers.toSeriesItem
+import com.hasanege.materialtv.mapper.XtreamMappers.toVodItem
 import com.hasanege.materialtv.model.Category
 import com.hasanege.materialtv.model.LiveStream
 import com.hasanege.materialtv.model.SeriesInfoResponse
@@ -21,11 +24,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.coroutines.flow.map
+import androidx.paging.map
 import javax.inject.Singleton
 
 @Singleton
 class XtreamRepository @javax.inject.Inject constructor(
-    private val database: AppDatabase
+    private val catalogRepository: CatalogRepository
 ) {
     private val apiService: XtreamApiService?
         get() = com.hasanege.materialtv.network.SessionManager.serverUrl?.let {
@@ -38,42 +43,24 @@ class XtreamRepository @javax.inject.Inject constructor(
         isLenient = true
     }
 
-    suspend fun getVodCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        val service = apiService ?: return@withContext database.xtreamDao().getCategories("vod").firstOrNull()?.map { it.toCategory() } ?: emptyList()
-        try {
-            val response = service.getVodCategories(username, password)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-            database.xtreamDao().updateCategories("vod", result.map { it.toEntity("vod") })
-            result
-        } catch (e: Exception) {
-            database.xtreamDao().getCategories("vod").firstOrNull()?.map { it.toCategory() } ?: emptyList()
+    private val profileId: String
+        get() = com.hasanege.materialtv.network.SessionManager.username ?: "default"
+
+    fun observeVodCategories(username: String): kotlinx.coroutines.flow.Flow<List<Category>> {
+        return catalogRepository.observeCategories(ContentType.VOD, username).map { entities ->
+            entities.map { it.toCategory() }
         }
     }
 
-    suspend fun getSeriesCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        val service = apiService ?: return@withContext database.xtreamDao().getCategories("series").firstOrNull()?.map { it.toCategory() } ?: emptyList()
-        try {
-            val response = service.getSeriesCategories(username, password)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-            database.xtreamDao().updateCategories("series", result.map { it.toEntity("series") })
-            result
-        } catch (e: Exception) {
-            database.xtreamDao().getCategories("series").firstOrNull()?.map { it.toCategory() } ?: emptyList()
+    fun observeSeriesCategories(username: String): kotlinx.coroutines.flow.Flow<List<Category>> {
+        return catalogRepository.observeCategories(ContentType.SERIES, username).map { entities ->
+            entities.map { it.toCategory() }
         }
     }
 
-    suspend fun getLiveCategories(username: String, password: String): List<Category> = withContext(Dispatchers.IO) {
-        val service = apiService ?: return@withContext database.xtreamDao().getCategories("live").firstOrNull()?.map { it.toCategory() } ?: emptyList()
-        try {
-            val response = service.getLiveCategories(username, password)
-            if (response is JsonNull || (response is JsonArray && response.isEmpty())) return@withContext emptyList()
-            val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-            database.xtreamDao().updateCategories("live", result.map { it.toEntity("live") })
-            result
-        } catch (e: Exception) {
-            database.xtreamDao().getCategories("live").firstOrNull()?.map { it.toCategory() } ?: emptyList()
+    fun observeLiveCategories(username: String): kotlinx.coroutines.flow.Flow<List<Category>> {
+        return catalogRepository.observeCategories(ContentType.LIVE, username).map { entities ->
+            entities.map { it.toCategory() }
         }
     }
 
@@ -84,7 +71,7 @@ class XtreamRepository @javax.inject.Inject constructor(
     ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<VodItem>>> = channelFlow {
         send(com.hasanege.materialtv.network.Resource.Loading)
         
-        database.xtreamDao().getVodItems().collect { entities ->
+        catalogRepository.observeAllContents(ContentType.VOD, username).collect { entities ->
             val items = entities.map { it.toVodItem() }
             if (categoryId != null && categoryId != "all") {
                 send(com.hasanege.materialtv.network.Resource.Success(items.filter { it.categoryId == categoryId }))
@@ -94,6 +81,12 @@ class XtreamRepository @javax.inject.Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    fun getVodStreamsPaged(username: String, categoryId: String?): kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<VodItem>> {
+        val catId = if (categoryId == "all") null else categoryId
+        return catalogRepository.observeContents(catId, ContentType.VOD, username)
+            .map { pagingData -> pagingData.map { it.toVodItem() } }
+    }
+
     fun getSeries(
         username: String,
         password: String,
@@ -101,7 +94,7 @@ class XtreamRepository @javax.inject.Inject constructor(
     ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<SeriesItem>>> = channelFlow {
         send(com.hasanege.materialtv.network.Resource.Loading)
 
-        database.xtreamDao().getSeriesItems().collect { entities ->
+        catalogRepository.observeAllContents(ContentType.SERIES, username).collect { entities ->
             val items = entities.map { it.toSeriesItem() }
             if (categoryId != null && categoryId != "all") {
                 send(com.hasanege.materialtv.network.Resource.Success(items.filter { it.categoryId == categoryId }))
@@ -111,6 +104,12 @@ class XtreamRepository @javax.inject.Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    fun getSeriesPaged(username: String, categoryId: String?): kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<SeriesItem>> {
+        val catId = if (categoryId == "all") null else categoryId
+        return catalogRepository.observeContents(catId, ContentType.SERIES, username)
+            .map { pagingData -> pagingData.map { it.toSeriesItem() } }
+    }
+
     fun getLiveStreams(
         username: String,
         password: String,
@@ -118,7 +117,7 @@ class XtreamRepository @javax.inject.Inject constructor(
     ): kotlinx.coroutines.flow.Flow<com.hasanege.materialtv.network.Resource<List<LiveStream>>> = channelFlow {
         send(com.hasanege.materialtv.network.Resource.Loading)
 
-        database.xtreamDao().getLiveStreams().collect { entities ->
+        catalogRepository.observeAllContents(ContentType.LIVE, username).collect { entities ->
             val items = entities.map { it.toLiveStream() }
             if (categoryId != null && categoryId != "all") {
                 send(com.hasanege.materialtv.network.Resource.Success(items.filter { it.categoryId == categoryId }))
@@ -128,74 +127,14 @@ class XtreamRepository @javax.inject.Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun syncData(username: String, password: String) = withContext(Dispatchers.IO) {
-        val service = apiService ?: throw Exception("API service not initialized")
-        
-        // Fetch categories and streams in parallel to speed up sync
-        val jobs = listOf(
-            launch {
-                try {
-                    val response = service.getVodCategories(username, password)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-                        database.xtreamDao().updateCategories("vod", result.map { it.toEntity("vod") })
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            },
-            launch {
-                try {
-                    val response = service.getSeriesCategories(username, password)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-                        database.xtreamDao().updateCategories("series", result.map { it.toEntity("series") })
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            },
-            launch {
-                try {
-                    val response = service.getLiveCategories(username, password)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val result = json.decodeFromJsonElement(ListSerializer(Category.serializer()), response)
-                        database.xtreamDao().updateCategories("live", result.map { it.toEntity("live") })
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            },
-            launch {
-                try {
-                    val response = service.getVodStreams(username, password, categoryId = null)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val data = json.decodeFromJsonElement(ListSerializer(VodItem.serializer()), response)
-                        database.xtreamDao().updateVodItems(data.map { it.toEntity() })
-                    } else if (response is JsonArray && response.isEmpty()) {
-                        database.xtreamDao().updateVodItems(emptyList())
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            },
-            launch {
-                try {
-                    val response = service.getSeries(username, password, categoryId = null)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val data = json.decodeFromJsonElement(ListSerializer(SeriesItem.serializer()), response)
-                        database.xtreamDao().updateSeriesItems(data.map { it.toEntity() })
-                    } else if (response is JsonArray && response.isEmpty()) {
-                        database.xtreamDao().updateSeriesItems(emptyList())
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            },
-            launch {
-                try {
-                    val response = service.getLiveStreams(username, password, categoryId = null)
-                    if (response !is JsonNull && (response !is JsonArray || !response.isEmpty())) {
-                        val data = json.decodeFromJsonElement(ListSerializer(LiveStream.serializer()), response)
-                        database.xtreamDao().updateLiveStreams(data.map { it.toEntity() })
-                    } else if (response is JsonArray && response.isEmpty()) {
-                        database.xtreamDao().updateLiveStreams(emptyList())
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            }
-        )
-        // Wait for all sync jobs to complete
-        jobs.forEach { it.join() }
+    fun getLiveStreamsPaged(username: String, categoryId: String?): kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<LiveStream>> {
+        val catId = if (categoryId == "all") null else categoryId
+        return catalogRepository.observeContents(catId, ContentType.LIVE, username)
+            .map { pagingData -> pagingData.map { it.toLiveStream() } }
+    }
+
+    suspend fun syncData(username: String, password: String, forceSync: Boolean = false) = withContext(Dispatchers.IO) {
+        catalogRepository.triggerBackgroundSync(username, username, password, forceSync)
     }
 
     suspend fun getSeriesInfo(
