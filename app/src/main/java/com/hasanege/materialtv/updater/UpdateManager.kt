@@ -81,15 +81,17 @@ class UpdateManager(private val context: Context) {
                 var downloadUrl = ""
                 for (i in 0 until assets.length()) {
                     val asset = assets.getJSONObject(i)
-                    val url = asset.getString("browser_download_url")
-                    if (url.endsWith(".apk", ignoreCase = true)) {
+                    val url = asset.optString("browser_download_url", "")
+                    val name = asset.optString("name", "")
+                    if (url.endsWith(".apk", ignoreCase = true) || name.endsWith(".apk", ignoreCase = true)) {
                         downloadUrl = url
                         break
                     }
                 }
 
                 if (downloadUrl.isEmpty()) {
-                    downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$tagName.apk"
+                    val cleanTag = tagName.removePrefix("v").removePrefix("V")
+                    downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$cleanTag.apk"
                 }
 
                 val currentVersion = BuildConfig.VERSION_NAME
@@ -119,7 +121,8 @@ class UpdateManager(private val context: Context) {
                     return Result.failure(Exception("Son sürüm etiketi alınamadı"))
                 }
 
-                val downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$tagName.apk"
+                val cleanTag = tagName.removePrefix("v").removePrefix("V")
+                val downloadUrl = "https://github.com/hasan-ege/MaterialTV/releases/download/$tagName/MaterialTV-$cleanTag.apk"
                 val currentVersion = BuildConfig.VERSION_NAME
                 val hasUpdate = isVersionNewer(tagName, currentVersion)
 
