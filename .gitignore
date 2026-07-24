@@ -36,9 +36,14 @@ cmake-build-*/
 *.iws
 *.ipr
 
-# Keystore files
+# Keystore & Private Secrets
 *.jks
 *.keystore
+secrets.properties
+
+# AI Agent Rules & Sensitive Local Configs
+.agents/
+.gemini/
 
 # Google Services
 google-services.json
