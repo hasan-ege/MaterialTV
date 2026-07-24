@@ -116,6 +116,11 @@ MaterialTV is a mobile application designed as an Xtream Code API player for And
 - **Dual Player Engine**: Hem VLC hem ExoPlayer desteği ile maksimum uyumluluk
 - **Track Selection**: Ses ve altyazı parçaları için tam kontrol
 
-## 6. Son Güncelleme
-24 Kasım 2025
+## 6. Proje Kuralları (Project Rules)
+
+- **Official Release Keystore**: Release imzalarında daima `/home/hasan/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks` (Alias: `key0`, Şifre: `Z&g788310`) kullanılmalıdır. Projenin `gradle.properties` dosyası bu konumu işaret etmektedir.
+- **Update Manager & Release Formatı**: `UpdateManager` GitHub REST API (`releases/latest`) üzerinden çalışır. Yeni sürüm APK dosyaları GitHub Release üzerinde `MaterialTV-{sürüm}.apk` (Örn: `MaterialTV-3.0.apk` / `MaterialTV-v3.0.apk`) adı ile yayınlanmalıdır.
+
+## 7. Son Güncelleme
+24 Temmuz 2026
 
