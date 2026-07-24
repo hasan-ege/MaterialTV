@@ -1,0 +1,69 @@
+# Built artifacts
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART
+*.dex
+
+# Java & Kotlin class files
+*.class
+
+# Generated build files
+bin/
+gen/
+out/
+build/
+app/build/
+.kotlin/
+
+# Android Studio local configuration
+.gradle/
+local.properties
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+cmake-build-*/
+
+# Memory & profiling dumps
+*.hprof
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services
+google-services.json
+
+# Log files
+*.log
+build_*.txt
+build_*.log
+build_output.txt
+build_report
+build_result.txt
+build_diag.txt
+build_error.log
+build_error_log.txt
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary scratch & helper files
+image_cache/
+imdb_pg.html
+next_data.json
+app/src/main/java/com/hasanege/materialtv/extracted_player.txt
+screen*.png
+
+# Local Gradle Home
+.gradle_home/

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- DownloadManager uses external public directories, we need to map external-path -->
+    <external-path name="external_files" path="."/>
+    <!-- In case we save to getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) -->
+    <external-files-path name="external_files_path" path="." />
+    <!-- In case we save to getExternalCacheDir() -->
+    <external-cache-path name="external_cache_path" path="." />
+</paths>

@@ -1,0 +1,693 @@
+<resources>
+    <!-- Geliştirici Bilgileri -->
+    <string name="settings_developer_title">Geliştirici</string>
+    <string name="settings_github_label">GitHub</string>
+    <string name="settings_github_url">github.com/hasan-ege</string>
+
+    <!-- Mevcut Özellikler -->
+    <string name="settings_features_title">Mevcut Özellikler</string>
+    <string name="settings_feature_ui_title">Material 3 Expressive Arayüz</string>
+    <string name="settings_feature_ui_desc">Modern arayüz ve akıcı animasyonlar</string>
+    <string name="settings_feature_streaming_title">Entegre Yayın Deneyimi</string>
+    <string name="settings_feature_streaming_desc">Film, Dizi ve Canlı TV desteği</string>
+    <string name="settings_feature_search_title">Akıllı Arama</string>
+    <string name="settings_feature_search_desc">Gelişmiş filtreleme ve otomatik sekme geçişi</string>
+    <string name="settings_feature_history_title">İzleme Geçmişi ve Devamlılık</string>
+    <string name="settings_feature_history_desc">Kaldığınız yerden kolayca devam edin</string>
+    <string name="settings_feature_offline_title">Çevrimdışı Mod</string>
+    <string name="settings_feature_offline_desc">Gelişmiş arka plan indirme yöneticisi</string>
+    <string name="settings_feature_player_title">Çift Oynatıcı Motoru</string>
+    <string name="settings_feature_player_desc">Optimize edilmiş ExoPlayer ve uyumlu LibVLC</string>
+    <string name="settings_feature_performance_title">Performans Odaklı</string>
+    <string name="settings_feature_performance_desc">Hız düşüşünde otomatik yeniden başlatma</string>
+
+    <!-- Uygulama Adı -->
+    <string name="app_name">MaterialTV</string>
+    <string name="app_name_material">Material</string>
+    <string name="app_name_tv">TV</string>
+
+    <!-- Ana Navigasyon -->
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_favorites">Favoriler</string>
+    <string name="nav_downloads">İndirmeler</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Sekmeler -->
+    <string name="tab_movies">Filmler</string>
+    <string name="tab_series">Diziler</string>
+    <string name="tab_seasons">Sezonlar</string>
+    <string name="tab_live_tv">Canlı TV</string>
+    <string name="tab_category">Kategori</string>
+
+    <!-- Ortak Eylemler -->
+    <string name="action_search">Ara</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="action_back">Geri</string>
+    <string name="action_close">Kapat</string>
+    <string name="action_expand">Genişlet</string>
+    <string name="action_collapse">Daralt</string>
+    <string name="action_pause">Duraklat</string>
+    <string name="action_resume">Devam Et</string>
+    <string name="action_delete">Sil</string>
+    <string name="action_play">Oynat</string>
+    <string name="action_retry">Tekrar Dene</string>
+    <string name="action_cancel">İptal</string>
+    <string name="action_ok">TAMAM</string>
+    <string name="action_refresh">Yenile</string>
+    <string name="download_started">İndirme başladı</string>
+    <string name="action_see_all">Hepsini Gör</string>
+    <string name="action_cast">Yansıt</string>
+    <string name="action_clear">Temizle</string>
+    <string name="search_field_label">Film, dizi ve canlı TV ara</string>
+
+    <!-- Giriş -->
+    <string name="login_title">MaterialTV Giriş</string>
+    <string name="login_tab_xtream">Xtream Kodları</string>
+    <string name="login_tab_m3u">M3U Listesi</string>
+    <string name="login_m3u_url_label">M3U Liste URL</string>
+    <string name="login_server_url_label">Sunucu URL</string>
+    <string name="login_username_label">Kullanıcı Adı</string>
+    <string name="login_password_label">Şifre</string>
+    <string name="login_button_load_playlist">Listeyi Yükle</string>
+    <string name="login_button_sign_in">Giriş Yap</string>
+    <string name="login_error_generic">Giriş başarısız: %1$s</string>
+
+    <!-- Oynatıcı Kontrolleri -->
+    <string name="player_play">Oynat</string>
+    <string name="player_pause">Duraklat</string>
+    <string name="player_forward">10sn İleri</string>
+    <string name="player_rewind">10sn Geri</string>
+    <string name="player_next">Sonraki Bölüm</string>
+    <string name="player_previous">Önceki Bölüm</string>
+    <string name="player_lock">Kilitle</string>
+    <string name="player_unlock">Kilidi Aç</string>
+    <string name="player_aspect_ratio">En Boy Oranı</string>
+    <string name="player_switch_engine">Oynatıcı Motorunu Değiştir</string>
+    <string name="player_10s">10sn</string>
+    <string name="player_playback_speed">Oynatma Hızı</string>
+    <string name="player_speed_normal">Normal</string>
+
+    <!-- İz Seçimi -->
+    <string name="tracks_title">Ses ve Altyazı Seçimi</string>
+    <string name="tracks_audio">Ses</string>
+    <string name="tracks_subtitles">Altyazı</string>
+    <string name="tracks_disabled">Devre Dışı</string>
+    <string name="tracks_no_tracks">İz bulunamadı</string>
+
+    <!-- Ayarlar -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_player">Oynatıcı Ayarları</string>
+    <string name="settings_default_player">Varsayılan Oynatıcı</string>
+    <string name="settings_hybrid_mode">Hibrit Mod</string>
+    <string name="settings_vlc">VLC</string>
+    <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_use_vlc_downloads">İndirmeler için VLC Kullan</string>
+    <string name="settings_stats_for_nerds">Teknik İstatistikler</string>
+    <string name="settings_subtitle_size">Altyazı Boyutu</string>
+    <string name="settings_subtitle_small">Küçük</string>
+    <string name="settings_subtitle_normal">Normal</string>
+    <string name="settings_subtitle_large">Büyük</string>
+    <string name="settings_stream_quality">Yayın Kalitesi</string>
+    <string name="settings_auto">Otomatik</string>
+    <string name="settings_app_language">Uygulama Dili</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_language_system">Sistem varsayılanı</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_dialog_title">Dil</string>
+    <string name="settings_player_hybrid">Hibrit (Önerilen)</string>
+    <string name="settings_download_settings">İndirme Ayarları</string>
+    <string name="settings_downloads">İndirmeler</string>
+    <string name="settings_general">Genel</string>
+    <string name="settings_battery_optimization">Pil Optimizasyonu</string>
+    <string name="settings_battery_optimization_desc">Bazı cihazlarda, indirmelerin arka planda çalışmaya devam etmesi için bu uygulama için pil optimizasyonunu devre dışı bırakmanız gerekebilir.</string>
+    <string name="settings_stats_desc">Teknik oynatma bilgilerini göster</string>
+    <string name="settings_hybrid_desc">ExoPlayer hata verirse otomatik olarak VLC\'ye geçer</string>
+    <string name="settings_vlc_downloads_desc">İndirilen içerikler için VLC motorunu kullan</string>
+    <string name="settings_stats_nerds">Teknik İstatistikler</string>
+    <string name="settings_privacy">Gizlilik</string>
+    <string name="settings_clear_history">İzleme Geçmişini Temizle</string>
+    <string name="settings_clear_history_confirm">Temizle</string>
+    <string name="settings_cancel">İptal</string>
+    <string name="settings_history_cleared">Geçmiş temizlendi</string>
+    <string name="settings_back">Geri</string>
+    <string name="settings_max_concurrent_downloads">Maksimum Eş zamanlı İndirme: %1$d</string>
+    <string name="settings_experimental_reconnect">Deneysel: İndirme yeniden bağlanma (hız baypası)</string>
+    <string name="settings_auto_restart_speed_drop">Hız düşüşünde otomatik yeniden başlat</string>
+    <string name="settings_min_speed_threshold">Minimum Hız Eşiği</string>
+    <string name="settings_min_speed_description">Hız bu eşiğin altına düşerse indirme yeniden başlatılır</string>
+    <string name="settings_restart_delay">Yeniden Başlatma Gecikmesi</string>
+    <string name="settings_restart_delay_description">Hız düştükten sonra indirmeyi yeniden başlatmadan önce beklenecek süre</string>
+    <string name="settings_download_algorithm">İndirme Algoritması</string>
+    <string name="settings_algo_okhttp">OkHttp (Varsayılan)</string>
+    <string name="settings_algo_system">Sistem İndirme Yöneticisi</string>
+    <string name="settings_download_algorithm_dialog_title">İndirme Algoritması</string>
+    <string name="settings_download_algorithm_option_okhttp">OkHttp (Varsayılan)</string>
+    <string name="settings_download_algorithm_option_system">Sistem İndirme Yöneticisi</string>
+    <string name="downloads_system">Sistem İndirmeleri</string>
+    <string name="downloads_system_download">Sistem İndirme</string>
+    <string name="settings_language_option_system">Sistem varsayılanı</string>
+    <string name="settings_language_option_english">🇺🇸 English</string>
+    <string name="settings_language_option_turkish">🇹🇷 Türkçe</string>
+    <string name="settings_language_option_spanish">🇪🇸 Español</string>
+    <string name="settings_language_option_german">🇩🇪 Deutsch</string>
+    <string name="settings_language_option_french">🇫🇷 Français</string>
+    <string name="settings_language_option_portuguese">🇵🇹 Português</string>
+    <string name="settings_language_option_russian">🇷🇺 Русский</string>
+    <string name="settings_language_option_chinese">🇨🇳 中文</string>
+    <string name="settings_language_option_urdu">🇵🇰 اردو</string>
+    <string name="settings_language_option_japanese">🇯🇵 日本語</string>
+    <string name="settings_language_option_arabic">🇸🇦 العربية</string>
+    <string name="settings_clear_history_dialog_message">Tüm izleme geçmişinizi temizlemek istediğinizden emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="settings_about_version">Sürüm: %1$s</string>
+    <string name="settings_whats_new_header">%1$s Yenilikleri:</string>
+    <string name="settings_whats_new_profile">✨ Profil Yönetimi:
+• Profil adı düzenleme hatası giderildi
+• Anlık Arayüz güncellemeleri
+• Kalıcı profil ayarları</string>
+    <string name="settings_whats_new_continue">🔄 İzlemeye Devam Et:
+• Kalıcı silme sistemi
+• Güncellemelerden sonra öğeler silinmiş kalır
+• Tekrar izlendiğinde otomatik geri yükleme</string>
+    <string name="settings_whats_new_watch_time">⏱️ İzleme Süresi Gösterimi:
+• Türkçe format (Gün:Sa:Dak:Sn)
+• Akıllı süre biçimlendirme
+• Doğru süre takibi</string>
+    <string name="settings_whats_new_player">🎚️ Oynatıcı İyileştirmeleri:
+• İlerleme çubuğu donma sorunu giderildi
+• Akıcı zaman arama deneyimi
+• Optimize edilmiş performans</string>
+    <string name="settings_whats_new_technical">🔧 Teknik Güncellemeler:
+• Reaktif StateFlow mimarisi
+• Gerçek zamanlı arayüz güncellemeleri
+• Gelişmiş bellek yönetimi</string>
+
+    <!-- Profil -->
+    <string name="profile_title">Profil</string>
+    <string name="profile_watch_history">İzleme Geçmişi</string>
+    <string name="profile_continue_watching">İzlemeye Devam Et</string>
+    <string name="profile_total_watch_time">Toplam İzleme Süresi</string>
+    <string name="profile_clear_history">Geçmişi Temizle</string>
+    <string name="profile_logout">Çıkış Yap</string>
+    <string name="profile_picture_desc">Profil Resmi</string>
+    <string name="profile_change_picture_desc">Profil Resmini Değiştir</string>
+    <string name="profile_view_history">İzleme geçmişini görüntüle</string>
+    <string name="profile_open_history_desc">İzleme Geçmişini Aç</string>
+    <string name="profile_settings">Ayarlar</string>
+    <string name="profile_edit_name_title">Profil Adını Düzenle</string>
+    <string name="profile_name_label">İsim</string>
+    <string name="profile_save">Kaydet</string>
+    <string name="profile_cancel">İptal</string>
+    <string name="profile_tap_to_edit">Düzenlemek için dokun</string>
+
+    <!-- İzleme Geçmişi -->
+    <string name="history_title">İzleme Geçmişi</string>
+    <string name="history_empty">Henüz izleme geçmişi yok</string>
+    <string name="history_empty_desc">Geçmişinizi burada görmek için film ve dizi izlemeye başlayın</string>
+    <string name="history_progress">İlerleme: %d%%</string>
+    <string name="history_series_episode">Dizi Bölümü</string>
+    <string name="history_movie">Film</string>
+
+    <!-- Profil izleme süresi -->
+    <plurals name="profile_watch_time_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="profile_watch_time_hours">
+        <item quantity="one">%d saat</item>
+        <item quantity="other">%d saat</item>
+    </plurals>
+    <plurals name="profile_watch_time_minutes">
+        <item quantity="one">%d dakika</item>
+        <item quantity="other">%d dakika</item>
+    </plurals>
+    <plurals name="profile_watch_time_seconds">
+        <item quantity="one">%d saniye</item>
+        <item quantity="other">%d saniye</item>
+    </plurals>
+
+    <!-- İzlemeye Devam Et -->
+    <string name="continue_watching_title">İzlemeye Devam Et</string>
+    <string name="continue_watching_empty">Devam edilecek bir şey yok</string>
+    <string name="continue_watching_pin">Sabitle</string>
+    <string name="continue_watching_unpin">Sabitlemeyi Kaldır</string>
+    <string name="continue_watching_remove">Kaldır</string>
+
+    <!-- İndirmeler -->
+    <string name="downloads_title">İndirmeler</string>
+    <string name="downloads_empty">İndirilen içerik yok</string>
+    <string name="downloads_in_progress">İndiriliyor…</string>
+    <string name="downloads_status_title">İndirme Durumu</string>
+    <string name="downloads_status_downloading">İndiriliyor</string>
+    <string name="downloads_status_completed">Tamamlandı</string>
+    <string name="downloads_status_paused">Duraklatıldı</string>
+    <string name="downloads_status_pending">Bekliyor</string>
+    <string name="downloads_status_failed">Başarısız</string>
+    <string name="downloads_status_cancelled">İptal Edildi</string>
+    <string name="downloads_all">Hepsi</string>
+    <string name="downloads_empty_title">İndirme Yok</string>
+    <string name="downloads_empty_desc">Detay sayfasından indirme başlatabilirsiniz.</string>
+    <string name="downloads_completed">Tamamlandı</string>
+    <string name="downloads_failed">Başarısız</string>
+    <string name="downloads_paused">Duraklatıldı</string>
+    <string name="downloads_delete_confirm">Bu indirmeyi silmek istiyor musunuz?</string>
+    <string name="download_pause_desc">Duraklat</string>
+    <string name="download_cancel_desc">İptal Et</string>
+    <string name="download_resume_desc">Devam Et</string>
+    <string name="download_retry_desc">Tekrar Dene</string>
+    <string name="download_play_desc">Oynat</string>
+    <string name="download_delete_desc">Sil</string>
+
+    <!-- Zaman Biçimlendirme -->
+    <string name="time_days">%dg</string>
+    <string name="time_hours">%ds</string>
+    <string name="time_minutes">%dd</string>
+    <string name="time_seconds">%dsn</string>
+    <string name="time_just_now">Az önce</string>
+    <string name="time_minutes_ago">%d dakika önce</string>
+    <string name="time_hours_ago">%d saat önce</string>
+    <string name="time_days_ago">%d gün önce</string>
+    <string name="time_unit_day">g</string>
+    <string name="time_unit_hour">s</string>
+    <string name="time_unit_minute">d</string>
+    <string name="time_unit_second">sn</string>
+    <string name="unknown">Bilinmiyor</string>
+
+    <!-- Hata Mesajları -->
+    <string name="error_no_connection">Bağlantı yok</string>
+    <string name="error_stream_not_found">Yayın adresi bulunamadı</string>
+    <string name="error_missing_category_info">Hata: Kategori bilgisi eksik</string>
+    <string name="error_playback">Oynatma hatası: %s</string>
+    <string name="error_vlc_playback">VLC oynatma hatası: %s</string>
+    <string name="error_loading">İçerik yükleme hatası</string>
+    <string name="error_generic">Bir hata oluştu: %s</string>
+    <string name="error_no_series_found">Dizi bulunamadı</string>
+    <string name="error_no_live_streams_found">Canlı yayın bulunamadı</string>
+
+    <!-- Detay Ekranı -->
+    <string name="detail_play">Oynat</string>
+    <string name="detail_download">İndir</string>
+    <string name="detail_info">Bilgi</string>
+    <string name="detail_episodes">Bölümler</string>
+    <string name="detail_season">Sezon %1$s</string>
+    <string name="detail_episode">Bölüm %1$s</string>
+    <string name="detail_play_resume">%1$s\'%2$s devam</string>
+    <string name="detail_play_resume_episode">S%1$sB%2$s %3$s\'%4$s devam</string>
+    <string name="detail_play_episode">S%1$s B%2$s oynat</string>
+    <string name="detail_download_season">Sezonun Tamamını İndir</string>
+    <string name="detail_season_placeholder">Sezon</string>
+    <string name="detail_downloading">İndiriliyor %1$d%%</string>
+    <string name="detail_preparing">Hazırlanıyor…</string>
+
+    <!-- Teknik İstatistikler -->
+    <string name="stats_bitrate">Bit hızı:</string>
+    <string name="stats_dropped_frames">Atlanan:</string>
+    <string name="stats_video_format">Format:</string>
+    <string name="stats_player_engine">Motor:</string>
+
+    <!-- Diyaloglar -->
+    <string name="dialog_download_title">İndir</string>
+    <string name="dialog_download_message">Bu içeriği indirmek istiyor musunuz?</string>
+    <string name="dialog_confirm">Onayla</string>
+    <string name="dialog_dismiss">Kapat</string>
+
+    <!-- Favoriler -->
+    <string name="favorites_title">Favoriler</string>
+    <string name="favorites_sort_date_added">Eklenme Tarihi</string>
+    <string name="favorites_sort_name">İsim</string>
+    <string name="favorites_sort_rating">Puan</string>
+    <string name="favorites_sort_direction">Sıralama Yönü</string>
+    <string name="favorites_sort_ascending">Artan</string>
+    <string name="favorites_sort_descending">Azalan</string>
+    <string name="content_type_movie_upper">FİLM</string>
+    <string name="content_type_series_upper">DİZİ</string>
+    <string name="content_type_live_upper">CANLI</string>
+    <string name="favorites_filter_title">Favorileri Filtrele</string>
+    <string name="favorites_type">Tür</string>
+    <string name="favorites_all">Hepsi</string>
+    <string name="favorites_status">Durum</string>
+    <string name="favorites_watched">İzlendi</string>
+    <string name="favorites_unwatched">İzlenmedi</string>
+    <string name="favorites_done">Tamam</string>
+    <string name="favorites_clear">Temizle</string>
+    <string name="favorites_sort_by">Sırala</string>
+    <string name="favorites_create_list">Yeni Liste Oluştur</string>
+    <string name="favorites_list_name">Liste Adı</string>
+    <string name="favorites_create">Oluştur</string>
+    <string name="favorites_edit">Favoriyi Düzenle</string>
+    <string name="favorites_rating">Puan</string>
+    <string name="favorites_notes">Notlar</string>
+    <string name="favorites_mark_watched">İzlendi olarak işaretle</string>
+    <string name="favorites_move_to_list">Listeye Taşı</string>
+    <string name="favorites_remove">Kaldır</string>
+    <string name="favorites_save">Kaydet</string>
+    <string name="favorites_all_favorites">Tüm Favoriler</string>
+    <string name="favorites_delete_list">Listeyi Sil</string>
+    <string name="favorites_delete_list_confirm">\'%1$s\' listesini silmek istediğinizden emin misiniz? Bu listedeki tüm favoriler kaldırılacaktır.</string>
+    <string name="favorites_all_favorites_default">Tüm Favoriler (Varsayılan)</string>
+    <string name="favorites_add">Favorilere Ekle</string>
+    <string name="favorites_remove_action">Favorilerden Kaldır</string>
+    <string name="favorites_stars_desc">%d yıldız</string>
+    <string name="favorites_filter_desc">Favorileri filtrele</string>
+    <string name="favorites_sort_desc">Favorileri sırala</string>
+    <string name="favorites_create_list_desc">Yeni liste oluştur</string>
+    <string name="favorites_added">Favorilere eklendi</string>
+    <string name="favorites_removed">Favorilerden çıkarıldı</string>
+
+    <!-- Oynatıcı -->
+    <string name="player_audio_tracks">Ses İzleri</string>
+    <string name="player_no_audio_tracks">Kullanılabilir ses izi yok</string>
+    <string name="player_subtitles">Altyazılar</string>
+    <string name="player_no_subtitles">Kullanılabilir altyazı izi yok</string>
+    <string name="player_none">Yok</string>
+    <string name="player_close">Kapat</string>
+    <string name="player_audio_subtitle_selection">Ses ve Altyazı Seçimi</string>
+    <string name="player_engine_label">Motor: %1$s</string>
+    <string name="player_position_label">Konum: %1$s / %2$s</string>
+    <string name="player_skip_intro">İntroyu Atla</string>
+    <string name="player_skip_recap">Özeti Atla</string>
+    <string name="player_skip_outro">Jeneriği Atla</string>
+
+    <!-- İzleme Geçmişi -->
+    <string name="watch_history_clear_all">Hepsini Temizle</string>
+
+    <!-- Genel -->
+    <string name="live">Canlı</string>
+
+    <!-- Profil Ekranı -->
+    <string name="profile_quick_actions">Hızlı Eylemler</string>
+    <string name="profile_settings_subtitle">Profil ve uygulama ayarları</string>
+    <string name="profile_stats_watched">İzlendi</string>
+    <string name="profile_stats_movies">Film</string>
+    <string name="profile_stats_series">Dizi</string>
+    <string name="profile_welcome">Hoş geldin, %1$s!</string>
+    <string name="profile_welcome_subtitle">İzlemenin tadını çıkarmaya devam et</string>
+
+    <!-- Ayarlar Profil Bölümü -->
+    <string name="settings_profile">Profil</string>
+    <string name="settings_profile_edit_subtitle">Profil ayarlarını düzenle</string>
+    <string name="settings_profile_name">Profil Adı</string>
+    <string name="settings_profile_photo">Profil Fotoğrafı</string>
+    <string name="settings_profile_photo_change">Değiştir</string>
+    <string name="settings_profile_photo_add">Ekle</string>
+    <string name="settings_profile_name_edit_title">Profil Adını Düzenle</string>
+    <string name="settings_profile_name_label">İsim</string>
+    <string name="settings_profile_save">Kaydet</string>
+    <string name="settings_profile_cancel">İptal</string>
+
+    <!-- Başlangıç Sayfası Seçenekleri -->
+    <string name="start_page_movies">Filmler</string>
+    <string name="start_page_series">Diziler</string>
+    <string name="start_page_live">Canlı TV</string>
+    <string name="start_page_favorites">Favoriler</string>
+    <string name="start_page_downloads">İndirmeler</string>
+    <string name="start_page_profile">Profil</string>
+    <string name="start_page_title">Başlangıç Sayfası</string>
+
+    <!-- İndirmeler Ekranı -->
+    <string name="downloads_tab_all">Hepsi</string>
+    <string name="downloads_tab_downloading">İndiriliyor</string>
+    <string name="downloads_tab_completed">Tamamlandı</string>
+    <string name="downloads_tab_waiting">Bekliyor</string>
+    <string name="downloads_storage_access_required">Depolama Erişimi Gerekli</string>
+    <string name="downloads_storage_access_message">İndirilen dosyaları görmek için \'Tüm dosyalara erişim\' iznini vermeniz gerekiyor. Bu izni MaterialTV Ayarlarından etkinleştirin.</string>
+    <string name="downloads_open_settings">Ayarları Aç</string>
+    <string name="downloads_later">Sonra</string>
+
+    <!-- Zaman Birimleri (Kısa) -->
+    <string name="time_hour_short">sa</string>
+    <string name="time_minute_short">dk</string>
+
+    <!-- İndirmeler - Ek -->
+    <string name="downloads_other">Diğer İndirmeler</string>
+    <string name="downloads_episodes_count">%d bölüm</string>
+    <string name="downloads_completed_count">%d tamamlandı</string>
+    <string name="downloads_downloading_count">%d indiriliyor</string>
+    <string name="downloads_progress_completed">%%%d tamamlandı</string>
+    <string name="downloads_remaining">%s kaldı</string>
+
+    <!-- Favoriler - Ek -->
+    <string name="favorites_empty_title">Henüz Favori Yok</string>
+    <string name="favorites_empty_desc">Favori filmleriniz, dizileriniz ve canlı TV kanallarınız burada görünecek</string>
+    
+    <!-- İçerik Türü Etiketleri -->
+    <string name="content_type_movie">Film</string>
+    <string name="content_type_series">Dizi</string>
+    <string name="content_type_live_tv">Canlı TV</string>
+
+    <!-- İzleme Geçmişi - Ek -->
+    <string name="history_empty_title">Henüz izleme geçmişi yok</string>
+    <string name="history_watched_percent">%%%d İzlendi</string>
+
+    <!-- Profil - Ek -->
+    <string name="profile_logout_subtitle">Hesabınızdan çıkış yapın</string>
+
+    <!-- Ana Ekran -->
+    <string name="home_live_tv">Canlı TV</string>
+    <string name="home_continue_watching">İzlemeye Devam Et</string>
+    <string name="home_movies">Filmler</string>
+    <string name="home_series">Diziler</string>
+    <string name="home_categories">Kategoriler</string>
+    <string name="home_recently_added">Son Eklenenler</string>
+    <string name="home_popular">Popüler</string>
+
+    <!-- Arama -->
+    <string name="search_no_results">Sonuç bulunamadı</string>
+    <string name="search_try_different">Farklı bir arama terimi deneyin</string>
+    <string name="search_hint">Film, dizi, kanal ara…</string>
+
+    <!-- Detay -->
+    <string name="detail_rating">Puan</string>
+    <string name="detail_year">Yıl</string>
+    <string name="detail_duration">Süre</string>
+    <string name="detail_genre">Tür</string>
+    <string name="detail_director">Yönetmen: %1$s</string>
+    <string name="detail_cast">Oyuncular: %1$s</string>
+    <string name="detail_description">Açıklama</string>
+
+    <!-- Genel Mesajlar -->
+    <string name="loading">Yükleniyor…</string>
+    <string name="retry">Tekrar Dene</string>
+    <string name="no_internet">İnternet bağlantısı yok</string>
+    <string name="something_went_wrong">Bir şeyler yanlış gitti</string>
+
+    <!-- Ek Ana Ekran Dizeleri -->
+    <string name="category_all">Hepsi</string>
+    <string name="error_loading_categories">Kategoriler yüklenemedi</string>
+
+    <!-- Bildirim Dizeleri -->
+    <string name="notification_channel_name">İndirmeler</string>
+    <string name="notification_channel_desc">İndirme ilerlemesini ve durumunu gösterir</string>
+    <string name="notification_time_left_sec">%1$dsn kaldı</string>
+    <string name="notification_time_left_min_sec">%1$dd %2$dsn kaldı</string>
+    <string name="notification_time_left_hour_min">%1$dsa %2$dd kaldı</string>
+    <string name="notification_paused_count">%1$d duraklatıldı</string>
+    <string name="notification_active_count">%1$d aktif</string>
+    <string name="notification_downloading">İndiriliyor…</string>
+    <string name="notification_tap_to_resume">Devam etmek için dokun</string>
+    <string name="notification_preparing">Hazırlanıyor…</string>
+    <string name="notification_progress_label">İlerleme: %%%1$d</string>
+    <string name="notification_size_label">Boyut: %1$s</string>
+    <string name="notification_speed_label">Hız: %1$s</string>
+    <string name="notification_remaining_label">Kalan: %1$s</string>
+    <string name="notification_paused_downloads_label">Duraklatılan İndirmeler</string>
+    <string name="notification_action_pause">Duraklat</string>
+    <string name="notification_action_start">Başlat</string>
+    <string name="notification_completed_title">İndirme Tamamlandı: %1$s</string>
+    <string name="notification_completed_desc">%1$s indirildi</string>
+    <string name="notification_failed_title">İndirme Başarısız: %1$s</string>
+    <string name="notification_failed_desc">%1$s indirilemedi</string>
+    <string name="notification_failed_big_text">İndirme başarısız: %1$s\nTekrar denemek için dokun.</string>
+    <string name="notification_action_resume">Devam Et</string>
+    <string name="notification_action_cancel">İptal Et</string>
+    <string name="notification_paused_title">İndirme Duraklatıldı</string>
+    <string name="settings_concurrent_limit">Eşzamanlı İndirme Sınırı</string>
+    <string name="settings_concurrent_desc_single">Aynı anda 1 indirme, diğerleri sıraya alınır</string>
+    <string name="settings_concurrent_desc_multiple">Aynı anda %1$d aktif indirmeye izin ver</string>
+    <string name="settings_threshold_label">Sonraki Bölüm Eşiği</string>
+    <string name="settings_threshold_desc">Bölüm bitmeden %1$d dakika önce öneri görünür</string>
+    <string name="settings_notifications">İndirme Bildirimleri</string>
+    <string name="settings_autoplay">Sonraki Bölümü Otomatik Oynat</string>
+    <string name="settings_auto_retry">Başarısız İndirmeleri Otomatik Tekrar Dene</string>
+    <string name="settings_use_ffmpeg">FFmpeg İndiriciyi Kullan</string>
+    <string name="settings_clear_search_history">Arama Geçmişini Temizle</string>
+    <string name="settings_clear_search_history_confirm">Arama Geçmişini Temizle</string>
+    <string name="settings_search_history_cleared">Arama geçmişi temizlendi</string>
+    
+    <string name="settings_copied_to_clipboard">Panoya kopyalandı</string>
+    
+    <!-- Hesap Bilgileri -->
+    <string name="settings_account_info">Hesap Bilgileri</string>
+    <string name="settings_account_status">Durum</string>
+    <string name="settings_account_expiry">Bitiş Tarihi</string>
+    <string name="settings_account_connections">Aktif Bağlantılar</string>
+    <string name="settings_account_server">Sunucu</string>
+    <string name="settings_account_status_active">Aktif</string>
+    <string name="settings_account_status_expired">Süresi Dolmuş</string>
+    
+    <!-- Birimler -->
+    <string name="unit_kbps">KB/sn</string>
+    <string name="unit_mbps">MB/sn</string>
+    <string name="unit_min">dk</string>
+    <string name="unit_sec">sn</string>
+    
+    <!-- Birim Biçimlendirme -->
+    <string name="unit_format_b">%1$d B</string>
+    <string name="unit_format_kb">%1$.1f KB</string>
+    <string name="unit_format_mb">%1$.1f MB</string>
+    <string name="unit_format_gb">%1$.2f GB</string>
+    <string name="unit_format_speed_bps">%1$d B/sn</string>
+    <string name="unit_format_speed_kbps">%1$.1f KB/sn</string>
+    <string name="unit_format_speed_mbps">%1$.1f MB/sn</string>
+    
+    <!-- Dışa Aktarılan Yeni Dizeler -->
+    <string name="detail_unknown_title">Bilinmeyen Başlık</string>
+    <string name="detail_no_description">Açıklama bulunmuyor.</string>
+    <string name="profile_default_user">Kullanıcı</string>
+    <string name="shared_no_results_desc">Farklı bir arama yapmayı deneyin</string>
+    <string name="shared_no_connection_desc">Lütfen internet bağlantınızı kontrol edin.</string>
+    <string name="detail_suffix_dan">dan</string>
+    <string name="detail_suffix_den">den</string>
+    <string name="detail_suffix_tan">tan</string>
+    <string name="detail_suffix_ten">ten</string>
+    <string name="detail_cast_header">Oyuncular</string>
+    <string name="detail_trailer_header">Fragman</string>
+    
+    <!-- İçerik Derecelendirme (Akıllı İşaretler) -->
+    <string name="content_rating_general">Genel</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Şiddet</string>
+    <string name="content_warning_horror">Korku</string>
+    <string name="content_warning_sexuality">Cinsellik</string>
+    <string name="content_warning_negative">Olumsuz Örnek</string>
+    <string name="detail_reviews_header">Kullanıcı Yorumları</string>
+    <string name="detail_view_all_reviews">Hepsini Gör</string>
+    <string name="reviews_screen_title">IMDb Yorumları</string>
+
+    <!-- Sorumluluk Reddi Strings -->
+    <string name="disclaimer_title">Sorumluluk Reddi Beyanı</string>
+    <string name="disclaimer_text">Bu uygulama herhangi bir medya veya içerik sağlamaz veya barındırmaz. Kullanıcılar kendi giriş bilgilerini veya çalma listesi URL\'lerini (Xtream Kodları veya M3U) sağlamalıdır. Geliştiricilerin herhangi bir üçüncü taraf içerik sağlayıcısıyla hiçbir bağlantısı yoktur. Devam ederek bu şartları kabul etmiş olursunuz.</string>
+    <string name="disclaimer_accept">Kabul Et</string>
+    <string name="disclaimer_decline">Reddet</string>
+
+    <!-- Customization Screen -->
+    <string name="customization_title">Özelleştirme</string>
+    <string name="customization_appearance">Görünüm</string>
+    <string name="customization_theme">Tema</string>
+    <string name="customization_theme_light">Açık</string>
+    <string name="customization_theme_dark">Koyu</string>
+    <string name="customization_theme_amoled">Amoled Siyah</string>
+    <string name="customization_theme_custom">Özel</string>
+    <string name="customization_theme_system">Sistem Varsayılanı</string>
+    <string name="customization_accent_color">Vurgu Rengi</string>
+    <string name="customization_background_color">Arka Plan Rengi</string>
+    <string name="customization_text_color">Metin Rengi</string>
+    <string name="customization_font_style">Yazı Tipi Stili</string>
+    <string name="customization_font_serif">Serif</string>
+    <string name="customization_font_sans_serif">Sans Serif</string>
+    <string name="customization_font_monospace">Sabit Genişlikli</string>
+    <string name="customization_font_cursive">El Yazısı</string>
+    <string name="customization_font_default">Varsayılan</string>
+    <string name="customization_font_custom">Özel Yazı Tipi</string>
+    <string name="customization_navigation">Gezinme</string>
+    <string name="customization_navbar_style">Gezinme Çubuğu Stili</string>
+    <string name="customization_navbar_bottom">Varsayılan Alt Çubuk</string>
+    <string name="customization_navbar_floating">Yüzen Kapsül</string>
+    <string name="customization_navbar_rail">Sol Çubuk</string>
+    <string name="customization_bottom_nav_only_icons">Alt Çubukta Sadece İkonlar</string>
+    <string name="customization_theme_mode">Tema Modu</string>
+    <string name="customization_font_family">Yazı Tipi Ailesi</string>
+    <string name="customization_load_custom">Özel Yükle...</string>
+    <string name="customization_select_accent_color">Vurgu Rengi Seç</string>
+    <string name="customization_select_background_color">Arka Plan Rengi Seç</string>
+    <string name="customization_select_text_color">Metin Rengi Seç</string>
+    <string name="customization_color_hex">Renk HEX (örn. #FF0000)</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_account_options">Hesap ve Seçenekler</string>
+    <string name="profile_watch_history_desc">Geçmişinizi görün ve yönetin</string>
+    <string name="profile_edit_categories">Kategorileri Düzenle</string>
+    <string name="profile_edit_categories_desc">Kategori sıralama ve gizleme tercihleriniz</string>
+    <string name="profile_settings_desc">Uygulama tercihlerini özelleştirin</string>
+    <string name="profile_change_photo">Fotoğraf Değiştir</string>
+    <string name="profile_photo">Profil Fotoğrafı</string>
+    <string name="profile_movies">Film</string>
+    <string name="profile_series">Dizi</string>
+    <string name="profile_live">Canlı</string>
+    <string name="profile_watch_time">Süre</string>
+    <string name="profile_live_badge">● CANLI</string>
+    <string name="profile_now_airing">ŞU AN</string>
+    <string name="profile_unknown_program">Bilinmeyen Program</string>
+    <string name="profile_no_epg">Yayın akışı bilgisi bulunamadı.</string>
+    <string name="profile_no_channel_selected">Kanal Seçilmedi</string>
+    <string name="profile_no_channel_selected_desc">Yaklaşan yayınları takip etmek için bir kanal seçin.</string>
+    <string name="profile_select_channel">Kanal Seç</string>
+    <string name="profile_search_channel">Kanal Ara...</string>
+    <string name="profile_no_matching_channel">Eşleşen kanal bulunamadı.</string>
+    <string name="profile_movie">Film</string>
+    <string name="profile_episode">Bölüm</string>
+    <string name="profile_remaining">%1$ddk kaldı</string>
+    <string name="profile_file_not_found">Dosya bulunamadı</string>
+
+    <!-- Downloads Screen -->
+    <string name="downloads_select_folder">İndirme Klasörünü Seç</string>
+    <string name="downloads_folder_selected">Klasör seçildi. Bulunan dosya: %1$d</string>
+    <string name="downloads_scan_local_files">Yerel Dosyaları Taraması</string>
+    <string name="downloads_rename_title">Yeniden Adlandır</string>
+    <string name="downloads_rename_label">İsim</string>
+
+    <!-- Profile Photo Crop -->
+    <string name="crop_profile_image_title">Profil Fotoğrafını Kırp</string>
+    <string name="crop_profile_image_hint">Dairenin içine sığdırmak için sıkıştırıp sürükleyin.</string>
+    <string name="crop_and_save">Kırp ve Kaydet</string>
+
+    <!-- Customization Header -->
+    <string name="customization_appearance_title">Görünüm &amp; Özelleştirme</string>
+    <string name="customization_appearance_desc">Tema, Renkler, Gezinme Çubuğu</string>
+    <string name="settings_last_updated">Son Güncelleme</string>
+
+    <!-- Hero Banner & Categories -->
+    <string name="home_continue">İzlemeye</string>
+    <string name="home_watching">DEVAM ET</string>
+    <string name="manage_categories_title">Kategorileri Düzenle</string>
+    <string name="manage_categories_subtitle">Sıralamayı değiştirin veya gizleyin</string>
+    <string name="manage_categories_reset">Sıfırla</string>
+    <string name="manage_categories_movies">Filmler</string>
+    <string name="manage_categories_series">Diziler</string>
+    <string name="manage_categories_live">Canlı TV</string>
+
+    <!-- TMDB & Updates -->
+    <string name="settings_tmdb_integration">TMDB Entegrasyonu</string>
+    <string name="settings_tmdb_api_key">TMDB API Anahtarı</string>
+    <string name="settings_tmdb_api_key_desc">TMDB API Anahtarı girerek içerikler için yüksek kaliteli afiş ve arkaplanları aktif edebilirsiniz.</string>
+    <string name="settings_tmdb_not_set">Girilmedi</string>
+
+    <!-- OpenSubtitles -->
+    <string name="settings_opensubtitles_integration">OpenSubtitles Entegrasyonu</string>
+    <string name="settings_opensubtitles_api_key">OpenSubtitles API Anahtarı</string>
+    <string name="settings_opensubtitles_api_key_desc">Oynatıcıda online alt yazı arayıp indirmek için OpenSubtitles API anahtarınızı girin.</string>
+    <string name="player_tab_embed">Dahili (Embed)</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">OpenSubtitles API anahtarı ayarlanmamış. Lütfen Ayarlar\'dan API anahtarınızı girin.</string>
+    <string name="opensubtitles_quota_exceeded">OpenSubtitles günlük indirme limitiniz (kullanım hakkınız) doldu! Lütfen daha sonra tekrar deneyin veya OpenSubtitles hesabınızı yükseltin.</string>
+    <string name="opensubtitles_search_no_results">Bu içerik için OpenSubtitles üzerinde alt yazı bulunamadı.</string>
+    <string name="opensubtitles_searching">OpenSubtitles alt yazıları aranıyor…</string>
+    <string name="opensubtitles_downloading">Alt yazı indiriliyor…</string>
+    <string name="settings_opensubtitles_languages_title">OpenSubtitles Alt Yazı Dilleri</string>
+    <string name="settings_opensubtitles_languages_desc">Alt yazı arama sonuçlarında filtrelenecek dilleri seçin</string>
+    <string name="opensubtitles_languages_dialog_title">Alt Yazı Dillerini Seçin</string>
+
+    <string name="settings_updates_title">Güncellemeler</string>
+    <string name="settings_app_update_title">Uygulama Güncellemesi</string>
+    <string name="settings_update_checking">Kontrol ediliyor...</string>
+    <string name="settings_update_available">Yeni Sürüm:</string>
+    <string name="settings_update_up_to_date">Güncel</string>
+    <string name="settings_update_error">Hata:</string>
+    <string name="settings_update_check_hint">Güncellemeleri denetlemek için tıklayın</string>
+    <!-- Watch Time Formats -->
+    <string name="watch_time_days_hours_format">%1$dg %2$dsa</string>
+    <string name="watch_time_hours_format">%1$dsa</string>
+    <string name="watch_time_minutes_format">%1$ddk</string>
+</resources>

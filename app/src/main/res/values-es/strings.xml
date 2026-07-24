@@ -1,0 +1,603 @@
+<resources>
+    <!-- Developer Strings -->
+    <string name="settings_developer_title">Desarrollador</string>
+    <string name="settings_github_label">GitHub</string>
+    <string name="settings_github_url">github.com/hasan-ege</string>
+
+    <!-- Current Features -->
+    <string name="settings_features_title">Características actuales</string>
+    <string name="settings_feature_ui_title">Interfaz expresiva de Material 3</string>
+    <string name="settings_feature_ui_desc">Interfaz moderna y animaciones fluidas</string>
+    <string name="settings_feature_streaming_title">Experiencia de streaming integrada</string>
+    <string name="settings_feature_streaming_desc">Soporte para películas, series y TV en vivo</string>
+    <string name="settings_feature_search_title">Búsqueda inteligente</string>
+    <string name="settings_feature_search_desc">Filtrado avanzado y cambio automático de pestañas</string>
+    <string name="settings_feature_history_title">Historial de visualización y continuidad</string>
+    <string name="settings_feature_history_desc">Retoma fácilmente donde lo dejaste</string>
+    <string name="settings_feature_offline_title">Modo sin conexión</string>
+    <string name="settings_feature_offline_desc">Administrador de descargas en segundo plano avanzado</string>
+    <string name="settings_feature_player_title">Motores de reproducción duales</string>
+    <string name="settings_feature_player_desc">ExoPlayer optimizado y LibVLC compatible</string>
+    <string name="settings_feature_performance_title">Enfocado en el rendimiento</string>
+    <string name="settings_feature_performance_desc">Reinicio automático por caída de velocidad y baja latencia</string>
+
+    <!-- App Name -->
+    <string name="app_name">MaterialTV</string>
+    <string name="app_name_material">Material</string>
+    <string name="app_name_tv">TV</string>
+
+    <!-- Main Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_favorites">Favoritos</string>
+    <string name="nav_downloads">Descargas</string>
+    <string name="nav_profile">Perfil</string>
+
+    <!-- Tabs -->
+    <string name="tab_movies">Películas</string>
+    <string name="tab_series">Series</string>
+    <string name="tab_seasons">Temporadas</string>
+    <string name="tab_live_tv">TV en Vivo</string>
+    <string name="tab_category">Categoría</string>
+
+    <!-- Common Actions -->
+    <string name="action_search">Buscar</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="action_back">Atrás</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_expand">Expandir</string>
+    <string name="action_collapse">Contraer</string>
+    <string name="action_pause">Pausar</string>
+    <string name="action_resume">Reanudar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_play">Reproducir</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="download_started">Descarga iniciada</string>
+    <string name="action_see_all">Ver todo</string>
+    <string name="action_cast">Transmitir</string>
+    <string name="action_clear">Limpiar</string>
+    <string name="search_field_label">Buscar películas, series y TV</string>
+
+    <!-- Login -->
+    <string name="login_title">Inicio de sesión en MaterialTV</string>
+    <string name="login_tab_xtream">Códigos Xtream</string>
+    <string name="login_tab_m3u">Lista de reproducción M3U</string>
+    <string name="login_m3u_url_label">URL de lista M3U</string>
+    <string name="login_server_url_label">URL del servidor</string>
+    <string name="login_username_label">Usuario</string>
+    <string name="login_password_label">Contraseña</string>
+    <string name="login_button_load_playlist">Cargar lista</string>
+    <string name="login_button_sign_in">Iniciar sesión</string>
+    <string name="login_error_generic">Error de inicio de sesión: %1$s</string>
+
+    <!-- Player Controls -->
+    <string name="player_play">Reproducir</string>
+    <string name="player_pause">Pausar</string>
+    <string name="player_forward">Adelantar 10s</string>
+    <string name="player_rewind">Retroceder 10s</string>
+    <string name="player_next">Siguiente episodio</string>
+    <string name="player_previous">Episodio anterior</string>
+    <string name="player_lock">Bloquear</string>
+    <string name="player_unlock">Desbloquear</string>
+    <string name="player_aspect_ratio">Relación de aspecto</string>
+    <string name="player_switch_engine">Cambiar motor de reproducción</string>
+    <string name="player_10s">10s</string>
+
+    <!-- Track Selection -->
+    <string name="tracks_title">Selección de audio y subtítulos</string>
+    <string name="tracks_audio">Audio</string>
+    <string name="tracks_subtitles">Subtítulos</string>
+    <string name="tracks_disabled">Desactivado</string>
+    <string name="tracks_no_tracks">Sin pistas</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_player">Ajustes del reproductor</string>
+    <string name="settings_default_player">Reproductor predeterminado</string>
+    <string name="settings_hybrid_mode">Modo híbrido</string>
+    <string name="settings_vlc">VLC</string>
+    <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_use_vlc_downloads">Usar VLC para descargas</string>
+    <string name="settings_stats_for_nerds">Estadísticas para nerds</string>
+    <string name="settings_subtitle_size">Tamaño de subtítulos</string>
+    <string name="settings_subtitle_small">Pequeño</string>
+    <string name="settings_subtitle_normal">Normal</string>
+    <string name="settings_subtitle_large">Grande</string>
+    <string name="settings_stream_quality">Calidad de transmisión</string>
+    <string name="settings_auto">Automático</string>
+    <string name="settings_app_language">Idioma de la aplicación</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_system">Predeterminado del sistema</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_dialog_title">Idioma</string>
+    <string name="settings_player_hybrid">Híbrido (Recomendado)</string>
+    <string name="settings_download_settings">Ajustes de descarga</string>
+    <string name="settings_downloads">Descargas</string>
+    <string name="settings_general">General</string>
+    <string name="settings_battery_optimization">Optimización de batería</string>
+    <string name="settings_battery_optimization_desc">En algunos dispositivos, es posible que deba desactivar la optimización de batería para que las descargas largas sigan ejecutándose en segundo plano.</string>
+    <string name="settings_stats_desc">Mostrar información técnica de reproducción</string>
+    <string name="settings_hybrid_desc">Cambia automáticamente a VLC si ExoPlayer falla</string>
+    <string name="settings_vlc_downloads_desc">Usar el motor VLC para contenido descargado</string>
+    <string name="settings_stats_nerds">Estadísticas para nerds</string>
+    <string name="settings_privacy">Privacidad</string>
+    <string name="settings_clear_history">Limpiar historial de visualización</string>
+    <string name="settings_clear_history_confirm">Limpiar</string>
+    <string name="settings_cancel">Cancelar</string>
+    <string name="settings_history_cleared">Historial limpiado</string>
+    <string name="settings_back">Atrás</string>
+    <string name="settings_max_concurrent_downloads">Máximas descargas simultáneas: %1$d</string>
+    <string name="settings_experimental_reconnect">Experimental: Reconexión de descarga (bypass de velocidad)</string>
+    <string name="settings_auto_restart_speed_drop">Reiniciar automáticamente por caída de velocidad</string>
+    <string name="settings_min_speed_threshold">Umbral de velocidad mínima</string>
+    <string name="settings_min_speed_description">La descarga se reiniciará si la velocidad cae por debajo de este umbral</string>
+    <string name="settings_restart_delay">Retraso de reinicio</string>
+    <string name="settings_restart_delay_description">Tiempo de espera antes de reiniciar la descarga tras una caída de velocidad</string>
+    <string name="settings_download_algorithm">Algoritmo de descarga</string>
+    <string name="settings_algo_okhttp">OkHttp (Predeterminado)</string>
+    <string name="settings_algo_system">Administrador de descargas del sistema</string>
+    <string name="settings_download_algorithm_dialog_title">Algoritmo de descarga</string>
+    <string name="settings_download_algorithm_option_okhttp">OkHttp (Predeterminado)</string>
+    <string name="settings_download_algorithm_option_system">Administrador de descargas del sistema</string>
+    <string name="downloads_system">Descargas del sistema</string>
+    <string name="downloads_system_download">Descarga del sistema</string>
+    <string name="settings_language_option_system">Predeterminado del sistema</string>
+    <string name="settings_language_option_english">🇺🇸 English</string>
+    <string name="settings_language_option_turkish">🇹🇷 Türkçe</string>
+    <string name="settings_language_option_spanish">🇪🇸 Español</string>
+    <string name="settings_language_option_german">🇩🇪 Deutsch</string>
+    <string name="settings_language_option_french">🇫🇷 Français</string>
+    <string name="settings_language_option_portuguese">🇵🇹 Português</string>
+    <string name="settings_language_option_russian">🇷🇺 Русский</string>
+    <string name="settings_language_option_chinese">🇨🇳 中文</string>
+    <string name="settings_language_option_urdu">🇵🇰 اردو</string>
+    <string name="settings_language_option_japanese">🇯🇵 日本語</string>
+    <string name="settings_language_option_arabic">🇸🇦 العربية</string>
+    <string name="settings_clear_history_dialog_message">¿Estás seguro de que quieres limpiar todo tu historial de visualización? Esta acción no se puede deshacer.</string>
+    <string name="settings_about_version">Versión: %1$s</string>
+    <string name="settings_whats_new_header">Novedades en %1$s:</string>
+    <string name="settings_whats_new_profile">✨ Gestión de perfil:
+• Corregida la edición de nombre de perfil
+• Actualizaciones instantáneas de la interfaz
+• Ajustes de perfil persistentes</string>
+    <string name="settings_whats_new_continue">🔄 Seguir viendo:
+• Sistema de eliminación permanente
+• Los elementos permanecen eliminados tras las actualizaciones
+• Restauración automática al volver a ver</string>
+    <string name="settings_whats_new_watch_time">⏱️ Visualización de tiempo de reproducción:
+• Formato turco (Día:Hr:Min:Seg)
+• Formateo de tiempo inteligente
+• Seguimiento preciso de la duración</string>
+    <string name="settings_whats_new_player">🎚️ Mejoras en el reproductor:
+• Corregido el bloqueo del deslizador
+• Experiencia de búsqueda suave
+• Rendimiento optimizado</string>
+    <string name="settings_whats_new_technical">🔧 Actualizaciones técnicas:
+• Arquitectura reactiva StateFlow
+• Actualizaciones de la interfaz en tiempo real
+• Gestión de memoria mejorada</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Perfil</string>
+    <string name="profile_watch_history">Historial de visualización</string>
+    <string name="profile_continue_watching">Seguir viendo</string>
+    <string name="profile_total_watch_time">Tiempo total de visualización</string>
+    <string name="profile_clear_history">Limpiar historial</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_picture_desc">Foto de perfil</string>
+    <string name="profile_change_picture_desc">Cambiar foto de perfil</string>
+    <string name="profile_view_history">Ver historial de visualización</string>
+    <string name="profile_open_history_desc">Abrir historial de visualización</string>
+    <string name="profile_settings">Ajustes</string>
+    <string name="profile_edit_name_title">Editar nombre de perfil</string>
+    <string name="profile_name_label">Nombre</string>
+    <string name="profile_save">Guardar</string>
+    <string name="profile_cancel">Cancelar</string>
+    <string name="profile_tap_to_edit">Toca para editar</string>
+
+    <!-- Watch History -->
+    <string name="history_title">Historial de visualización</string>
+    <string name="history_empty">Aún no hay historial de visualización</string>
+    <string name="history_empty_desc">Empieza a ver películas y series para ver tu historial aquí</string>
+    <string name="history_progress">Progreso: %d%%</string>
+    <string name="history_series_episode">Episodio de serie</string>
+    <string name="history_movie">Película</string>
+
+    <!-- Profile watch time -->
+    <plurals name="profile_watch_time_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="profile_watch_time_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="profile_watch_time_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="profile_watch_time_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+
+    <!-- Continue Watching -->
+    <string name="continue_watching_title">Seguir viendo</string>
+    <string name="continue_watching_empty">Nada para continuar</string>
+    <string name="continue_watching_pin">Fijar</string>
+    <string name="continue_watching_unpin">Desfijar</string>
+    <string name="continue_watching_remove">Eliminar</string>
+
+    <!-- Downloads -->
+    <string name="downloads_title">Descargas</string>
+    <string name="downloads_empty">No hay contenido descargado</string>
+    <string name="downloads_in_progress">Descargando…</string>
+    <string name="downloads_status_title">Estado de descarga</string>
+    <string name="downloads_status_downloading">Descargando</string>
+    <string name="downloads_status_completed">Completado</string>
+    <string name="downloads_status_paused">Pausado</string>
+    <string name="downloads_status_pending">Pendiente</string>
+    <string name="downloads_status_failed">Fallido</string>
+    <string name="downloads_status_cancelled">Cancelado</string>
+    <string name="downloads_all">Todo</string>
+    <string name="downloads_empty_title">No hay descargas</string>
+    <string name="downloads_empty_desc">Puedes iniciar descargas desde la página de detalles de la película o serie.</string>
+    <string name="downloads_completed">Completado</string>
+    <string name="downloads_failed">Fallido</string>
+    <string name="downloads_paused">Pausado</string>
+    <string name="downloads_delete_confirm">¿Eliminar esta descarga?</string>
+    <string name="download_pause_desc">Pausar</string>
+    <string name="download_cancel_desc">Cancelar</string>
+    <string name="download_resume_desc">Reanudar</string>
+    <string name="download_retry_desc">Reintentar</string>
+    <string name="download_play_desc">Reproducir</string>
+    <string name="download_delete_desc">Eliminar</string>
+
+    <!-- Time Formatting -->
+    <string name="time_days">%dd</string>
+    <string name="time_hours">%dh</string>
+    <string name="time_minutes">%dm</string>
+    <string name="time_seconds">%ds</string>
+    <string name="time_just_now">Recién</string>
+    <string name="time_minutes_ago">hace %d minutos</string>
+    <string name="time_hours_ago">hace %d horas</string>
+    <string name="time_days_ago">hace %d días</string>
+    <string name="time_unit_day">d</string>
+    <string name="time_unit_hour">h</string>
+    <string name="time_unit_minute">m</string>
+    <string name="time_unit_second">s</string>
+    <string name="unknown">Desconocido</string>
+
+    <!-- Error Messages -->
+    <string name="error_no_connection">Sin conexión</string>
+    <string name="error_stream_not_found">URL de transmisión no encontrada</string>
+    <string name="error_missing_category_info">Error: Falta información de categoría</string>
+    <string name="error_playback">Error de reproducción: %s</string>
+    <string name="error_vlc_playback">Error de reproducción VLC: %s</string>
+    <string name="error_loading">Error al cargar contenido</string>
+    <string name="error_generic">Ocurrió un error: %s</string>
+    <string name="error_no_series_found">No se encontraron series</string>
+    <string name="error_no_live_streams_found">No se encontraron canales en vivo</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_play">Reproducir</string>
+    <string name="detail_download">Descargar</string>
+    <string name="detail_info">Información</string>
+    <string name="detail_episode">Episodio %1$s</string>
+    <string name="detail_play_resume">Reanudar desde %1$s</string>
+    <string name="detail_season_placeholder">Temporada</string>
+    <string name="detail_downloading">Descargando %1$d%%</string>
+    <string name="detail_preparing">Preparando…</string>
+
+    <!-- Stats for Nerds -->
+    <string name="stats_bitrate">Tasa de bits:</string>
+    <string name="stats_dropped_frames">Perdidos:</string>
+    <string name="stats_video_format">Formato:</string>
+    <string name="stats_player_engine">Motor:</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_download_title">Descargar</string>
+    <string name="dialog_download_message">¿Quieres descargar este contenido?</string>
+    <string name="dialog_confirm">Confirmar</string>
+    <string name="dialog_dismiss">Descartar</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Favoritos</string>
+    <string name="favorites_sort_date_added">Fecha de adición</string>
+    <string name="favorites_sort_name">Nombre</string>
+    <string name="favorites_sort_rating">Calificación</string>
+    <string name="favorites_sort_direction">Dirección de orden</string>
+    <string name="favorites_sort_ascending">Ascendente</string>
+    <string name="favorites_sort_descending">Descendente</string>
+    <string name="content_type_movie_upper">PELÍCULA</string>
+    <string name="content_type_series_upper">SERIE</string>
+    <string name="content_type_live_upper">VIVO</string>
+    <string name="favorites_filter_title">Filtrar favoritos</string>
+    <string name="favorites_type">Tipo</string>
+    <string name="favorites_all">Todo</string>
+    <string name="favorites_status">Estado</string>
+    <string name="favorites_watched">Visto</string>
+    <string name="favorites_unwatched">No visto</string>
+    <string name="favorites_done">Hecho</string>
+    <string name="favorites_clear">Limpiar</string>
+    <string name="favorites_sort_by">Ordenar por</string>
+    <string name="favorites_create_list">Crear nueva lista</string>
+    <string name="favorites_list_name">Nombre de lista</string>
+    <string name="favorites_create">Crear</string>
+    <string name="favorites_edit">Editar favorito</string>
+    <string name="favorites_rating">Calificación</string>
+    <string name="favorites_notes">Notas</string>
+    <string name="favorites_mark_watched">Marcar como visto</string>
+    <string name="favorites_move_to_list">Mover a lista</string>
+    <string name="favorites_remove">Eliminar</string>
+    <string name="favorites_save">Guardar</string>
+    <string name="favorites_all_favorites">Todos los favoritos</string>
+    <string name="favorites_delete_list">Eliminar lista</string>
+    <string name="favorites_delete_list_confirm">¿Estás seguro de que quieres eliminar \'%1$s\'? Todos los favoritos en esta lista serán eliminados.</string>
+    <string name="favorites_all_favorites_default">Todos los favoritos (Predeterminado)</string>
+    <string name="favorites_add">Añadir a favoritos</string>
+    <string name="favorites_remove_action">Eliminar de favoritos</string>
+    <string name="favorites_stars_desc">%d estrellas</string>
+    <string name="favorites_filter_desc">Filtrar favoritos</string>
+    <string name="favorites_sort_desc">Ordenar favoritos</string>
+    <string name="favorites_create_list_desc">Crear nueva lista</string>
+    <string name="favorites_added">Añadido a favoritos</string>
+    <string name="favorites_removed">Eliminado de favoritos</string>
+
+    <!-- Player -->
+    <string name="player_audio_tracks">Pistas de audio</string>
+    <string name="player_no_audio_tracks">No hay pistas de audio disponibles</string>
+    <string name="player_subtitles">Subtítulos</string>
+    <string name="player_no_subtitles">No hay pistas de subtítulos disponibles</string>
+    <string name="player_none">Ninguno</string>
+    <string name="player_close">Cerrar</string>
+    <string name="player_audio_subtitle_selection">Selección de audio y subtítulos</string>
+    <string name="player_engine_label">Motor: %1$s</string>
+    <string name="player_position_label">Posición: %1$s / %2$s</string>
+
+    <!-- Watch History -->
+    <string name="watch_history_clear_all">Limpiar todo</string>
+
+    <!-- General -->
+    <string name="live">Vivo</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_quick_actions">Acciones rápidas</string>
+    <string name="profile_settings_subtitle">Ajustes de perfil y aplicación</string>
+    <string name="profile_stats_watched">Visto</string>
+    <string name="profile_stats_movies">Películas</string>
+    <string name="profile_stats_series">Series</string>
+    <string name="profile_welcome">¡Bienvenido, %1$s!</string>
+    <string name="profile_welcome_subtitle">Sigue disfrutando la visualización</string>
+
+    <!-- Settings Profile Section -->
+    <string name="settings_profile">Perfil</string>
+    <string name="settings_profile_edit_subtitle">Editar ajustes de perfil</string>
+    <string name="settings_profile_name">Nombre de perfil</string>
+    <string name="settings_profile_photo">Foto de perfil</string>
+    <string name="settings_profile_photo_change">Cambiar</string>
+    <string name="settings_profile_photo_add">Añadir</string>
+    <string name="settings_profile_name_edit_title">Editar nombre de perfil</string>
+    <string name="settings_profile_name_label">Nombre</string>
+    <string name="settings_profile_save">Guardar</string>
+    <string name="settings_profile_cancel">Cancelar</string>
+
+    <!-- Start Page Options -->
+    <string name="start_page_movies">Películas</string>
+    <string name="start_page_series">Series</string>
+    <string name="start_page_live">TV en vivo</string>
+    <string name="start_page_favorites">Favoritos</string>
+    <string name="start_page_downloads">Descargas</string>
+    <string name="start_page_profile">Perfil</string>
+    <string name="start_page_title">Página de inicio</string>
+
+    <!-- Downloads Screen -->
+    <string name="downloads_tab_all">Todo</string>
+    <string name="downloads_tab_downloading">Descargando</string>
+    <string name="downloads_tab_completed">Completado</string>
+    <string name="downloads_tab_waiting">Esperando</string>
+    <string name="downloads_storage_access_required">Acceso al almacenamiento requerido</string>
+    <string name="downloads_storage_access_message">Debes habilitar el permiso de \'Acceso a todos los archivos\' para ver los archivos descargados. Habilita este permiso en los ajustes de MaterialTV.</string>
+    <string name="downloads_open_settings">Abrir ajustes</string>
+    <string name="downloads_later">Luego</string>
+
+    <!-- Time Units (Short) -->
+    <string name="time_hour_short">h</string>
+    <string name="time_minute_short">m</string>
+
+    <!-- Downloads - Additional -->
+    <string name="downloads_other">Otras descargas</string>
+    <string name="downloads_episodes_count">%d episodios</string>
+    <string name="downloads_completed_count">%d completados</string>
+    <string name="downloads_downloading_count">%d descargando</string>
+    <string name="downloads_progress_completed">%d%% completado</string>
+    <string name="downloads_remaining">%s restante</string>
+
+    <!-- Favorites - Additional -->
+    <string name="favorites_empty_title">Aún no hay favoritos</string>
+    <string name="favorites_empty_desc">Tus películas, series y canales favoritos aparecerán aquí</string>
+    
+    <!-- Content Type Labels -->
+    <string name="content_type_movie">Película</string>
+    <string name="content_type_series">Serie</string>
+    <string name="content_type_live_tv">TV en Vivo</string>
+
+    <!-- Watch History - Additional -->
+    <string name="history_empty_title">Aún no hay historial de visualización</string>
+    <string name="history_watched_percent">%d%% Visto</string>
+
+    <!-- Profile - Additional -->
+    <string name="profile_logout_subtitle">Cerrar sesión en su cuenta</string>
+
+    <!-- Home Screen -->
+    <string name="home_live_tv">TV en Vivo</string>
+    <string name="home_continue_watching">Seguir viendo</string>
+    <string name="home_movies">Películas</string>
+    <string name="home_series">Series</string>
+    <string name="home_categories">Categorías</string>
+    <string name="home_recently_added">Añadidos recientemente</string>
+    <string name="home_popular">Popular</string>
+
+    <!-- Search -->
+    <string name="search_no_results">No se encontraron resultados</string>
+    <string name="search_try_different">Pruebe con un término de búsqueda diferente</string>
+    <string name="search_hint">Buscar películas, series, canales…</string>
+
+    <!-- Detail -->
+    <string name="detail_rating">Calificación</string>
+    <string name="detail_year">Año</string>
+    <string name="detail_duration">Duración</string>
+    <string name="detail_genre">Género</string>
+    <string name="detail_director">Director: %1$s</string>
+    <string name="detail_cast">Reparto: %1$s</string>
+    <string name="detail_description">Descripción</string>
+
+    <!-- General Messages -->
+    <string name="loading">Cargando…</string>
+    <string name="retry">Reintentar</string>
+    <string name="no_internet">Sin conexión a Internet</string>
+    <string name="something_went_wrong">Algo salió mal</string>
+
+    <!-- Additional Home Strings -->
+    <string name="category_all">Todo</string>
+    <string name="error_loading_categories">Error al cargar categorías</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_name">Descargas</string>
+    <string name="notification_channel_desc">Muestra el progreso y estado de las descargas</string>
+    <string name="notification_time_left_sec">%1$ds restante</string>
+    <string name="notification_time_left_min_sec">%1$dm %2$ds restante</string>
+    <string name="notification_time_left_hour_min">%1$dh %2$dm restante</string>
+    <string name="notification_paused_count">%1$d pausadas</string>
+    <string name="notification_active_count">%1$d activas</string>
+    <string name="notification_downloading">Descargando…</string>
+    <string name="notification_tap_to_resume">Toca para reanudar</string>
+    <string name="notification_preparing">Preparando…</string>
+    <string name="notification_progress_label">Progreso: %1$d%%</string>
+    <string name="notification_size_label">Tamaño: %1$s</string>
+    <string name="notification_speed_label">Velocidad: %1$s</string>
+    <string name="notification_remaining_label">Restante: %1$s</string>
+    <string name="notification_paused_downloads_label">Descargas pausadas</string>
+    <string name="notification_action_pause">Pausar</string>
+    <string name="notification_action_start">Iniciar</string>
+    <string name="notification_completed_title">Descarga completada: %1$s</string>
+    <string name="notification_completed_desc">%1$s ha sido descargado</string>
+    <string name="notification_failed_title">Descarga fallida: %1$s</string>
+    <string name="notification_failed_desc">No se pudo descargar %1$s</string>
+    <string name="notification_failed_big_text">Descarga fallida: %1$s\nToca para reintentar.</string>
+    <string name="notification_action_resume">Reanudar</string>
+    <string name="notification_action_cancel">Cancelar</string>
+    <string name="notification_paused_title">Descarga pausada</string>
+    <string name="settings_concurrent_limit">Límite de descargas simultáneas</string>
+    <string name="settings_concurrent_desc_single">1 descarga a la vez, otras en cola</string>
+    <string name="settings_concurrent_desc_multiple">Permitir hasta %1$d descargas activas</string>
+    <string name="settings_threshold_label">Umbral de siguiente episodio</string>
+    <string name="settings_threshold_desc">La sugerencia aparece %1$d minutos antes de terminar</string>
+    <string name="settings_notifications">Notificaciones de descarga</string>
+    <string name="settings_autoplay">Auto-reproducir siguiente episodio</string>
+    <string name="settings_auto_retry">Reintento automático de descargas fallidas</string>
+    <string name="settings_use_ffmpeg">Usar motor FFmpeg</string>
+    <string name="settings_clear_search_history">Limpiar historial de búsqueda</string>
+    <string name="settings_clear_search_history_confirm">Limpiar historial de búsqueda</string>
+    <string name="settings_search_history_cleared">Historial de búsqueda limpiado</string>
+    
+    <string name="settings_copied_to_clipboard">Copiado al portapapeles</string>
+    
+    <!-- Account Information -->
+    <string name="settings_account_info">Información de la cuenta</string>
+    <string name="settings_account_status">Estado</string>
+    <string name="settings_account_expiry">Fecha de vencimiento</string>
+    <string name="settings_account_connections">Conexiones activas</string>
+    <string name="settings_account_server">Servidor</string>
+    <string name="settings_account_status_active">Activo</string>
+    <string name="settings_account_status_expired">Vencido</string>
+    
+    <!-- Units -->
+    <string name="unit_kbps">KB/s</string>
+    <string name="unit_mbps">MB/s</string>
+    <string name="unit_min">min</string>
+    <string name="unit_sec">seg</string>
+    
+    <!-- Unit Formatting -->
+    <string name="unit_format_b">%1$d B</string>
+    <string name="unit_format_kb">%1$.1f KB</string>
+    <string name="unit_format_mb">%1$.1f MB</string>
+    <string name="unit_format_gb">%1$.2f GB</string>
+    <string name="unit_format_speed_bps">%1$d B/s</string>
+    <string name="unit_format_speed_kbps">%1$.1f KB/s</string>
+    <string name="unit_format_speed_mbps">%1$.1f MB/s</string>
+    
+    <!-- New Strings for Externalization -->
+    <string name="detail_unknown_title">Título desconocido</string>
+    <string name="detail_no_description">No hay descripción disponible.</string>
+    <string name="profile_default_user">Usuario</string>
+    <string name="shared_no_results_desc">Pruebe con una consulta de búsqueda diferente</string>
+    <string name="shared_no_connection_desc">Por favor, compruebe su conexión a internet.</string>
+    <string name="detail_suffix_dan">de</string>
+    <string name="detail_suffix_den">de</string>
+    <string name="detail_suffix_tan">de</string>
+    <string name="detail_suffix_ten">de</string>
+    <string name="detail_download_season">Descargar temporada completa</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">General</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">Violencia</string>
+    <string name="content_warning_horror">Terror</string>
+    <string name="content_warning_sexuality">Sexualidad</string>
+    <string name="content_warning_negative">Comportamiento negativo</string>
+    <string name="detail_cast_header">Reparto</string>
+    <string name="detail_reviews_header">Opiniones de usuarios</string>
+    <string name="detail_view_all_reviews">Ver todo</string>
+    <string name="reviews_screen_title">Reseñas de IMDb</string>
+    <string name="detail_trailer_header">Tráiler</string>
+
+    <!-- Customization Header -->
+    <string name="customization_title">Personalización</string>
+    <string name="customization_appearance_title">Apariencia &amp; Personalización</string>
+    <string name="customization_appearance_desc">Tema, Colores, Barra de navegación</string>
+    <string name="settings_last_updated">Última actualización</string>
+
+    <!-- Hero Banner & Categories -->
+    <string name="home_continue">Continuar</string>
+    <string name="home_watching">VIENDO</string>
+    <string name="manage_categories_title">Editar categorías</string>
+    <string name="manage_categories_subtitle">Reordenar o ocultar categorías</string>
+    <string name="manage_categories_reset">Restablecer</string>
+    <string name="manage_categories_movies">Películas</string>
+    <string name="manage_categories_series">Series</string>
+    <string name="manage_categories_live">TV en vivo</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_account_options">Cuenta &amp; Opciones</string>
+    <string name="profile_watch_history_desc">Ver y administrar su historial</string>
+    <string name="profile_edit_categories">Editar categorías</string>
+    <string name="profile_edit_categories_desc">Preferencias de orden y visibilidad</string>
+    <string name="profile_settings_desc">Personalizar preferencias de la aplicación</string>
+    <string name="profile_movies">Películas</string>
+    <string name="profile_series">Series</string>
+    <string name="profile_live">En vivo</string>
+    <string name="profile_watch_time">Tiempo de reproducción</string>
+
+    <!-- TMDB & Updates -->
+    <string name="settings_tmdb_integration">Integración TMDB</string>
+    <string name="settings_tmdb_api_key">Clave API de TMDB</string>
+    <string name="settings_tmdb_api_key_desc">Ingrese la clave API de TMDB para activar pósteres y fondos de alta calidad.</string>
+    <string name="settings_tmdb_not_set">No configurado</string>
+    <string name="settings_updates_title">Actualizaciones</string>
+    <string name="settings_app_update_title">Actualización de la aplicación</string>
+    <string name="settings_update_checking">Buscando actualizaciones...</string>
+    <string name="settings_update_available">Nueva versión:</string>
+    <string name="settings_update_up_to_date">Actualizado</string>
+    <string name="settings_update_error">Error:</string>
+    <string name="settings_update_check_hint">Haga clic para buscar actualizaciones</string>
+    <!-- Watch Time Formats -->
+    <string name="watch_time_days_hours_format">%1$dd %2$dh</string>
+    <string name="watch_time_hours_format">%1$dh</string>
+    <string name="watch_time_minutes_format">%1$dmin</string>
+</resources>

@@ -1,0 +1,557 @@
+<resources>
+    <!-- 开发者信息 -->
+    <string name="settings_developer_title">开发者</string>
+    <string name="settings_github_label">GitHub</string>
+    <string name="settings_github_url">github.com/hasan-ege</string>
+
+    <!-- 当前功能 -->
+    <string name="settings_features_title">当前功能</string>
+    <string name="settings_feature_ui_title">Material 3 表现力 UI</string>
+    <string name="settings_feature_ui_desc">现代界面和流畅动画</string>
+    <string name="settings_feature_streaming_title">集成串流体验</string>
+    <string name="settings_feature_streaming_desc">支持电影、剧集、直播电视</string>
+    <string name="settings_feature_search_title">智能搜索</string>
+    <string name="settings_feature_search_desc">高级过滤和自动标签切换</string>
+    <string name="settings_feature_history_title">观看历史与连续性</string>
+    <string name="settings_feature_history_desc">轻松从上次中断的地方继续</string>
+    <string name="settings_feature_offline_title">离线模式</string>
+    <string name="settings_feature_offline_desc">高级后台下载管理器</string>
+    <string name="settings_feature_player_title">双播放器引擎</string>
+    <string name="settings_feature_player_desc">优化的 ExoPlayer 和兼容的 LibVLC</string>
+    <string name="settings_feature_performance_title">性能专注</string>
+    <string name="settings_feature_performance_desc">速度下降时自动重启和低延迟</string>
+
+    <!-- 应用名称 -->
+    <string name="app_name">MaterialTV</string>
+    <string name="app_name_material">Material</string>
+    <string name="app_name_tv">TV</string>
+
+    <!-- 主导航 -->
+    <string name="nav_home">主页</string>
+    <string name="nav_favorites">收藏</string>
+    <string name="nav_downloads">下载</string>
+    <string name="nav_profile">个人资料</string>
+
+    <!-- 标签页 -->
+    <string name="tab_movies">电影</string>
+    <string name="tab_series">剧集</string>
+    <string name="tab_seasons">季</string>
+    <string name="tab_live_tv">直播电视</string>
+    <string name="tab_category">分类</string>
+
+    <!-- 常用操作 -->
+    <string name="action_search">搜索</string>
+    <string name="action_settings">设置</string>
+    <string name="action_back">返回</string>
+    <string name="action_close">关闭</string>
+    <string name="action_expand">展开</string>
+    <string name="action_collapse">折叠</string>
+    <string name="action_pause">暂停</string>
+    <string name="action_resume">继续</string>
+    <string name="action_delete">删除</string>
+    <string name="action_play">播放</string>
+    <string name="action_retry">重试</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_ok">确定</string>
+    <string name="action_refresh">刷新</string>
+    <string name="download_started">下载已开始</string>
+    <string name="action_see_all">查看全部</string>
+    <string name="action_cast">投屏</string>
+    <string name="action_clear">清除</string>
+    <string name="search_field_label">搜索电影、剧集和直播电视</string>
+
+    <!-- 登录 -->
+    <string name="login_title">登录 MaterialTV</string>
+    <string name="login_tab_xtream">Xtream 代码</string>
+    <string name="login_tab_m3u">M3U 播放列表</string>
+    <string name="login_m3u_url_label">M3U 播放列表 URL</string>
+    <string name="login_server_url_label">服务器 URL</string>
+    <string name="login_username_label">用户名</string>
+    <string name="login_password_label">密码</string>
+    <string name="login_button_load_playlist">加载播放列表</string>
+    <string name="login_button_sign_in">登录</string>
+    <string name="login_error_generic">登录失败：%1$s</string>
+
+    <!-- 播放器控制 -->
+    <string name="player_play">播放</string>
+    <string name="player_pause">暂停</string>
+    <string name="player_forward">前进 10 秒</string>
+    <string name="player_rewind">后退 10 秒</string>
+    <string name="player_next">下一集</string>
+    <string name="player_previous">上一集</string>
+    <string name="player_lock">锁定</string>
+    <string name="player_unlock">解锁</string>
+    <string name="player_aspect_ratio">宽高比</string>
+    <string name="player_switch_engine">切换播放器引擎</string>
+    <string name="player_10s">10秒</string>
+
+    <!-- 轨道选择 -->
+    <string name="tracks_title">音频和字幕选择</string>
+    <string name="tracks_audio">音频</string>
+    <string name="tracks_subtitles">字幕</string>
+    <string name="tracks_disabled">已禁用</string>
+    <string name="tracks_no_tracks">无轨道</string>
+
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_player">播放器设置</string>
+    <string name="settings_default_player">默认播放器</string>
+    <string name="settings_hybrid_mode">混合模式</string>
+    <string name="settings_vlc">VLC</string>
+    <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_use_vlc_downloads">使用 VLC 进行下载</string>
+    <string name="settings_stats_for_nerds">技术统计</string>
+    <string name="settings_subtitle_size">字幕大小</string>
+    <string name="settings_subtitle_small">小</string>
+    <string name="settings_subtitle_normal">正常</string>
+    <string name="settings_subtitle_large">大</string>
+    <string name="settings_stream_quality">串流质量</string>
+    <string name="settings_auto">自动</string>
+    <string name="settings_app_language">应用语言</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_system">系统默认</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_dialog_title">语言</string>
+    <string name="settings_player_hybrid">混合（推荐）</string>
+    <string name="settings_download_settings">下载设置</string>
+    <string name="settings_downloads">下载</string>
+    <string name="settings_general">常规</string>
+    <string name="settings_battery_optimization">电池优化</string>
+    <string name="settings_battery_optimization_desc">在某些设备上，您可能需要禁用此应用的电池优化，以允许下载在后台持续运行。</string>
+    <string name="settings_stats_desc">显示技术播放信息</string>
+    <string name="settings_hybrid_desc">如果 ExoPlayer 失败，自动切换到 VLC</string>
+    <string name="settings_vlc_downloads_desc">对已下载内容使用 VLC 引擎</string>
+    <string name="settings_stats_nerds">技术统计</string>
+    <string name="settings_privacy">隐私</string>
+    <string name="settings_clear_history">清除观看历史</string>
+    <string name="settings_clear_history_confirm">清除</string>
+    <string name="settings_cancel">取消</string>
+    <string name="settings_history_cleared">历史已清除</string>
+    <string name="settings_back">返回</string>
+    <string name="settings_max_concurrent_downloads">最大并发下载数：%1$d</string>
+    <string name="settings_experimental_reconnect">实验性：下载重连（速度绕过）</string>
+    <string name="settings_auto_restart_speed_drop">速度下降时自动重启</string>
+    <string name="settings_min_speed_threshold">最低速度阈值</string>
+    <string name="settings_min_speed_description">如果速度低于此阈值，下载将重启</string>
+    <string name="settings_restart_delay">重启延迟</string>
+    <string name="settings_restart_delay_description">速度下降后重启下载前的等待时间</string>
+    <string name="settings_download_algorithm">下载算法</string>
+    <string name="settings_algo_okhttp">OkHttp（默认）</string>
+    <string name="settings_algo_system">系统下载管理器</string>
+    <string name="settings_download_algorithm_dialog_title">下载算法</string>
+    <string name="settings_download_algorithm_option_okhttp">OkHttp（默认）</string>
+    <string name="settings_download_algorithm_option_system">系统下载管理器</string>
+    <string name="downloads_system">系统下载</string>
+    <string name="downloads_system_download">系统下载</string>
+    <string name="settings_language_option_system">系统默认</string>
+    <string name="settings_language_option_english">🇺🇸 English</string>
+    <string name="settings_language_option_turkish">🇹🇷 Türkçe</string>
+    <string name="settings_language_option_spanish">🇪🇸 Español</string>
+    <string name="settings_language_option_german">🇩🇪 Deutsch</string>
+    <string name="settings_language_option_french">🇫🇷 Français</string>
+    <string name="settings_language_option_portuguese">🇵🇹 Português</string>
+    <string name="settings_language_option_russian">🇷🇺 Русский</string>
+    <string name="settings_language_option_chinese">🇨🇳 中文</string>
+    <string name="settings_language_option_urdu">🇵🇰 اردو</string>
+    <string name="settings_language_option_japanese">🇯🇵 日本語</string>
+    <string name="settings_language_option_arabic">🇸🇦 العربية</string>
+    <string name="settings_clear_history_dialog_message">您确定要清除整个观看历史吗？此操作无法撤销。</string>
+    <string name="settings_about_version">版本：%1$s</string>
+    <string name="settings_whats_new_header">%1$s 的新功能：</string>
+    <string name="settings_whats_new_profile">✨ 个人资料管理：
+• 修复了个人资料名称编辑
+• 即时 UI 更新
+• 持久化个人资料设置</string>
+    <string name="settings_whats_new_continue">🔄 继续观看：
+• 永久移除系统
+• 更新后项目保持移除状态
+• 重新观看时自动恢复</string>
+    <string name="settings_whats_new_watch_time">⏱️ 观看时间显示：
+• 土耳其格式（天:时:分:秒）
+• 智能时间格式化
+• 准确的时长追踪</string>
+    <string name="settings_whats_new_player">🎚️ 播放器改进：
+• 修复了滑块冻结
+• 流畅的进度跳转体验
+• 优化性能</string>
+    <string name="settings_whats_new_technical">🔧 技术更新：
+• 反应式 StateFlow 架构
+• 实时 UI 更新
+• 增强内存管理</string>
+
+    <!-- 个人资料 -->
+    <string name="profile_title">个人资料</string>
+    <string name="profile_watch_history">观看历史</string>
+    <string name="profile_continue_watching">继续观看</string>
+    <string name="profile_total_watch_time">总观看时间</string>
+    <string name="profile_clear_history">清除历史</string>
+    <string name="profile_logout">退出登录</string>
+    <string name="profile_picture_desc">个人资料图片</string>
+    <string name="profile_change_picture_desc">更改个人资料图片</string>
+    <string name="profile_view_history">查看您的观看历史</string>
+    <string name="profile_open_history_desc">打开观看历史</string>
+    <string name="profile_settings">设置</string>
+    <string name="profile_edit_name_title">编辑个人资料名称</string>
+    <string name="profile_name_label">名称</string>
+    <string name="profile_save">保存</string>
+    <string name="profile_cancel">取消</string>
+    <string name="profile_tap_to_edit">轻点以编辑</string>
+
+    <!-- 观看历史 -->
+    <string name="history_title">观看历史</string>
+    <string name="history_empty">暂无观看历史</string>
+    <string name="history_empty_desc">开始观看电影和剧集以在此处查看您的历史记录</string>
+    <string name="history_progress">进度：%d%%</string>
+    <string name="history_series_episode">剧集</string>
+    <string name="history_movie">电影</string>
+
+    <!-- 观看时间 -->
+    <plurals name="profile_watch_time_days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="profile_watch_time_hours">
+        <item quantity="other">%d 小时</item>
+    </plurals>
+    <plurals name="profile_watch_time_minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
+    <plurals name="profile_watch_time_seconds">
+        <item quantity="other">%d 秒</item>
+    </plurals>
+
+    <!-- 继续观看 -->
+    <string name="continue_watching_title">继续观看</string>
+    <string name="continue_watching_empty">暂无内容可继续观看</string>
+    <string name="continue_watching_pin">置顶</string>
+    <string name="continue_watching_unpin">取消置顶</string>
+    <string name="continue_watching_remove">移除</string>
+
+    <!-- 下载 -->
+    <string name="downloads_title">下载</string>
+    <string name="downloads_empty">暂无下载内容</string>
+    <string name="downloads_in_progress">正在下载…</string>
+    <string name="downloads_status_title">下载状态</string>
+    <string name="downloads_status_downloading">正在下载</string>
+    <string name="downloads_status_completed">已完成</string>
+    <string name="downloads_status_paused">已暂停</string>
+    <string name="downloads_status_pending">等待中</string>
+    <string name="downloads_status_failed">已失败</string>
+    <string name="downloads_status_cancelled">已取消</string>
+    <string name="downloads_all">全部</string>
+    <string name="downloads_empty_title">无下载</string>
+    <string name="downloads_empty_desc">您可以从电影或剧集详情页开始下载。</string>
+    <string name="downloads_completed">已完成</string>
+    <string name="downloads_failed">已失败</string>
+    <string name="downloads_paused">已暂停</string>
+    <string name="downloads_delete_confirm">删除此下载？</string>
+    <string name="download_pause_desc">暂停</string>
+    <string name="download_cancel_desc">取消</string>
+    <string name="download_resume_desc">继续</string>
+    <string name="download_retry_desc">重试</string>
+    <string name="download_play_desc">播放</string>
+    <string name="download_delete_desc">删除</string>
+
+    <!-- 时间格式 -->
+    <string name="time_days">%d天</string>
+    <string name="time_hours">%d时</string>
+    <string name="time_minutes">%d分</string>
+    <string name="time_seconds">%d秒</string>
+    <string name="time_just_now">刚刚</string>
+    <string name="time_minutes_ago">%d 分钟前</string>
+    <string name="time_hours_ago">%d 小时前</string>
+    <string name="time_days_ago">%d 天前</string>
+    <string name="time_unit_day">天</string>
+    <string name="time_unit_hour">时</string>
+    <string name="time_unit_minute">分</string>
+    <string name="time_unit_second">秒</string>
+    <string name="unknown">未知</string>
+
+    <!-- 错误信息 -->
+    <string name="error_no_connection">无网络连接</string>
+    <string name="error_stream_not_found">未找到串流 URL</string>
+    <string name="error_missing_category_info">错误：缺少分类信息</string>
+    <string name="error_playback">播放错误：%s</string>
+    <string name="error_vlc_playback">VLC 播放错误：%s</string>
+    <string name="error_loading">加载内容出错</string>
+    <string name="error_generic">发生错误：%s</string>
+    <string name="error_no_series_found">未找到剧集</string>
+    <string name="error_no_live_streams_found">未找到直播频道</string>
+
+    <!-- 详情页 -->
+    <string name="detail_play">播放</string>
+    <string name="detail_download">下载</string>
+    <string name="detail_info">信息</string>
+    <string name="detail_episodes">剧集</string>
+    <string name="detail_season">第 %1$s 季</string>
+    <string name="detail_episode">第 %1$s 集</string>
+    <string name="detail_play_resume">从 %1$s 继续播放</string>
+    <string name="detail_season_placeholder">季</string>
+    <string name="detail_downloading">正在下载 %1$d%%</string>
+    <string name="detail_preparing">正在准备…</string>
+
+    <!-- 技术统计 -->
+    <string name="stats_bitrate">比特率：</string>
+    <string name="stats_dropped_frames">丢帧：</string>
+    <string name="stats_video_format">格式：</string>
+    <string name="stats_player_engine">引擎：</string>
+
+    <!-- 对话框 -->
+    <string name="dialog_download_title">下载</string>
+    <string name="dialog_download_message">您确定要下载此内容吗？</string>
+    <string name="dialog_confirm">确定</string>
+    <string name="dialog_dismiss">关闭</string>
+
+    <!-- 收藏 -->
+    <string name="favorites_title">收藏</string>
+    <string name="favorites_sort_date_added">添加时间</string>
+    <string name="favorites_sort_name">名称</string>
+    <string name="favorites_sort_rating">评分</string>
+    <string name="favorites_sort_direction">排序方向</string>
+    <string name="favorites_sort_ascending">升序</string>
+    <string name="favorites_sort_descending">降序</string>
+    <string name="content_type_movie_upper">电影</string>
+    <string name="content_type_series_upper">剧集</string>
+    <string name="content_type_live_upper">直播</string>
+    <string name="favorites_filter_title">过滤收藏</string>
+    <string name="favorites_type">类型</string>
+    <string name="favorites_all">全部</string>
+    <string name="favorites_status">状态</string>
+    <string name="favorites_watched">已看</string>
+    <string name="favorites_unwatched">未看</string>
+    <string name="favorites_done">完成</string>
+    <string name="favorites_clear">清除</string>
+    <string name="favorites_sort_by">排序方式</string>
+    <string name="favorites_create_list">创建新列表</string>
+    <string name="favorites_list_name">列表名称</string>
+    <string name="favorites_create">创建</string>
+    <string name="favorites_edit">编辑收藏</string>
+    <string name="favorites_rating">评分</string>
+    <string name="favorites_notes">备注</string>
+    <string name="favorites_mark_watched">标记为已看</string>
+    <string name="favorites_move_to_list">移动到列表</string>
+    <string name="favorites_remove">移除</string>
+    <string name="favorites_save">保存</string>
+    <string name="favorites_all_favorites">所有收藏</string>
+    <string name="favorites_delete_list">删除列表</string>
+    <string name="favorites_delete_list_confirm">您确定要删除“%1$s”吗？此列表中的所有收藏都将被移除。</string>
+    <string name="favorites_all_favorites_default">所有收藏（默认）</string>
+    <string name="favorites_add">添加到收藏</string>
+    <string name="favorites_remove_action">从收藏中移除</string>
+    <string name="favorites_stars_desc">%d 星</string>
+    <string name="favorites_filter_desc">过滤收藏</string>
+    <string name="favorites_sort_desc">排序收藏</string>
+    <string name="favorites_create_list_desc">创建新列表</string>
+    <string name="favorites_added">已添加到收藏</string>
+    <string name="favorites_removed">已从收藏中移除</string>
+
+    <!-- 播放器 -->
+    <string name="player_audio_tracks">音轨</string>
+    <string name="player_no_audio_tracks">无可用音轨</string>
+    <string name="player_subtitles">字幕</string>
+    <string name="player_no_subtitles">无可用字幕轨</string>
+    <string name="player_none">无</string>
+    <string name="player_close">关闭</string>
+    <string name="player_audio_subtitle_selection">音频和字幕选择</string>
+    <string name="player_engine_label">引擎：%1$s</string>
+    <string name="player_position_label">位置：%1$s / %2$s</string>
+
+    <!-- 观看历史 -->
+    <string name="watch_history_clear_all">全部清除</string>
+
+    <!-- 通用 -->
+    <string name="live">直播</string>
+
+    <!-- 个人资料页 -->
+    <string name="profile_quick_actions">快捷操作</string>
+    <string name="profile_settings_subtitle">个人资料和应用设置</string>
+    <string name="profile_stats_watched">已看</string>
+    <string name="profile_stats_movies">电影</string>
+    <string name="profile_stats_series">剧集</string>
+    <string name="profile_welcome">欢迎，%1$s！</string>
+    <string name="profile_welcome_subtitle">继续享受观看</string>
+
+    <!-- 设置个人资料部分 -->
+    <string name="settings_profile">个人资料</string>
+    <string name="settings_profile_edit_subtitle">编辑个人资料设置</string>
+    <string name="settings_profile_name">个人资料名称</string>
+    <string name="settings_profile_photo">个人资料照片</string>
+    <string name="settings_profile_photo_change">更改</string>
+    <string name="settings_profile_photo_add">添加</string>
+    <string name="settings_profile_name_edit_title">编辑个人资料名称</string>
+    <string name="settings_profile_name_label">名称</string>
+    <string name="settings_profile_save">保存</string>
+    <string name="settings_profile_cancel">取消</string>
+
+    <!-- 启动页选项 -->
+    <string name="start_page_movies">电影</string>
+    <string name="start_page_series">剧集</string>
+    <string name="start_page_live">直播电视</string>
+    <string name="start_page_favorites">收藏</string>
+    <string name="start_page_downloads">下载</string>
+    <string name="start_page_profile">个人资料</string>
+    <string name="start_page_title">启动页</string>
+
+    <!-- 下载页 -->
+    <string name="downloads_tab_all">全部</string>
+    <string name="downloads_tab_downloading">正在下载</string>
+    <string name="downloads_tab_completed">已完成</string>
+    <string name="downloads_tab_waiting">等待中</string>
+    <string name="downloads_storage_access_required">需要存储访问权限</string>
+    <string name="downloads_storage_access_message">您需要启用“所有文件访问”权限才能查看下载的文件。请在 MaterialTV 的设置中启用此权限。</string>
+    <string name="downloads_open_settings">打开设置</string>
+    <string name="downloads_later">稍后</string>
+
+    <!-- 时间单位 -->
+    <string name="time_hour_short">时</string>
+    <string name="time_minute_short">分</string>
+
+    <!-- 下载 - 附加 -->
+    <string name="downloads_other">其他下载</string>
+    <string name="downloads_episodes_count">%d 集</string>
+    <string name="downloads_completed_count">%d 已完成</string>
+    <string name="downloads_downloading_count">%d 正下载</string>
+    <string name="downloads_progress_completed">%d%% 已完成</string>
+    <string name="downloads_remaining">剩余 %s</string>
+
+    <!-- 收藏 - 附加 -->
+    <string name="favorites_empty_title">暂无收藏</string>
+    <string name="favorites_empty_desc">您收藏的电影、剧集和直播频道将显示在这里</string>
+    
+    <!-- 内容类型标签 -->
+    <string name="content_type_movie">电影</string>
+    <string name="content_type_series">剧集</string>
+    <string name="content_type_live_tv">直播电视</string>
+
+    <!-- 观看历史 - 附加 -->
+    <string name="history_empty_title">暂无观看历史</string>
+    <string name="history_watched_percent">%d%% 已看</string>
+
+    <!-- 个人资料 - 附加 -->
+    <string name="profile_logout_subtitle">退出您的账户</string>
+
+    <!-- 首页 -->
+    <string name="home_live_tv">直播电视</string>
+    <string name="home_continue_watching">继续观看</string>
+    <string name="home_movies">电影</string>
+    <string name="home_series">剧集</string>
+    <string name="home_categories">分类</string>
+    <string name="home_recently_added">最近添加</string>
+    <string name="home_popular">热门</string>
+
+    <!-- 搜索 -->
+    <string name="search_no_results">未找到结果</string>
+    <string name="search_try_different">尝试不同的搜索词</string>
+    <string name="search_hint">搜索电影、剧集、频道…</string>
+
+    <!-- 详情 -->
+    <string name="detail_rating">评分</string>
+    <string name="detail_year">年份</string>
+    <string name="detail_duration">时长</string>
+    <string name="detail_genre">类型</string>
+    <string name="detail_director">导演：%1$s</string>
+    <string name="detail_cast">主演：%1$s</string>
+    <string name="detail_description">简介</string>
+
+    <!-- 通用消息 -->
+    <string name="loading">加载中…</string>
+    <string name="retry">重试</string>
+    <string name="no_internet">无网络连接</string>
+    <string name="something_went_wrong">出了点问题</string>
+
+    <!-- 首页附加 -->
+    <string name="category_all">全部</string>
+    <string name="error_loading_categories">无法加载分类</string>
+
+    <!-- 通知 -->
+    <string name="notification_channel_name">下载</string>
+    <string name="notification_channel_desc">显示下载进度和状态</string>
+    <string name="notification_time_left_sec">剩余 %1$d 秒</string>
+    <string name="notification_time_left_min_sec">剩余 %1$d 分 %2$d 秒</string>
+    <string name="notification_time_left_hour_min">剩余 %1$d 小时 %2$d 分</string>
+    <string name="notification_paused_count">%1$d 已暂停</string>
+    <string name="notification_active_count">%1$d 活跃</string>
+    <string name="notification_downloading">正在下载…</string>
+    <string name="notification_tap_to_resume">轻点以继续</string>
+    <string name="notification_preparing">正在准备…</string>
+    <string name="notification_progress_label">进度：%1$d%%</string>
+    <string name="notification_size_label">大小：%1$s</string>
+    <string name="notification_speed_label">速度：%1$s</string>
+    <string name="notification_remaining_label">剩余：%1$s</string>
+    <string name="notification_paused_downloads_label">已暂停的下载</string>
+    <string name="notification_action_pause">暂停</string>
+    <string name="notification_action_start">开始</string>
+    <string name="notification_completed_title">下载完成：%1$s</string>
+    <string name="notification_completed_desc">%1$s 已下载</string>
+    <string name="notification_failed_title">下载失败：%1$s</string>
+    <string name="notification_failed_desc">无法下载 %1$s</string>
+    <string name="notification_failed_big_text">下载失败：%1$s\n轻点以重试。</string>
+    <string name="notification_action_resume">继续</string>
+    <string name="notification_action_cancel">取消</string>
+    <string name="notification_paused_title">下载已暂停</string>
+    <string name="settings_concurrent_limit">并发下载限制</string>
+    <string name="settings_concurrent_desc_single">一次 1 个下载，其他在队列中</string>
+    <string name="settings_concurrent_desc_multiple">允许最多 %1$d 个活跃下载</string>
+    <string name="settings_threshold_label">下一集阈值</string>
+    <string name="settings_threshold_desc">剧集结束前 %1$d 分钟显示建议</string>
+    <string name="settings_notifications">下载通知</string>
+    <string name="settings_autoplay">自动播放下一集</string>
+    <string name="settings_auto_retry">自动重试失败的下载</string>
+    <string name="settings_use_ffmpeg">使用 FFmpeg 下载器</string>
+    <string name="settings_clear_search_history">清除搜索历史</string>
+    <string name="settings_clear_search_history_confirm">清除搜索历史</string>
+    <string name="settings_search_history_cleared">搜索历史已清除</string>
+    
+    <string name="settings_copied_to_clipboard">已复制到剪贴板</string>
+    
+    <!-- 账户信息 -->
+    <string name="settings_account_info">账户信息</string>
+    <string name="settings_account_status">状态</string>
+    <string name="settings_account_expiry">到期日期</string>
+    <string name="settings_account_connections">活跃连接</string>
+    <string name="settings_account_server">服务器</string>
+    <string name="settings_account_status_active">活跃</string>
+    <string name="settings_account_status_expired">已到期</string>
+    
+    <!-- 单位 -->
+    <string name="unit_kbps">KB/s</string>
+    <string name="unit_mbps">MB/s</string>
+    <string name="unit_min">分</string>
+    <string name="unit_sec">秒</string>
+    
+    <!-- 单位格式 -->
+    <string name="unit_format_b">%1$d B</string>
+    <string name="unit_format_kb">%1$.1f KB</string>
+    <string name="unit_format_mb">%1$.1f MB</string>
+    <string name="unit_format_gb">%1$.2f GB</string>
+    <string name="unit_format_speed_bps">%1$d B/s</string>
+    <string name="unit_format_speed_kbps">%1$.1f KB/s</string>
+    <string name="unit_format_speed_mbps">%1$.1f MB/s</string>
+    
+    <!-- Dışa Aktarılan Yeni Dizeler -->
+    <string name="detail_unknown_title">未知标题</string>
+    <string name="detail_no_description">暂无描述。</string>
+    <string name="profile_default_user">用户</string>
+    <string name="shared_no_results_desc">尝试不同的搜索查询</string>
+    <string name="shared_no_connection_desc">请检查您的互联网连接。</string>
+    <string name="detail_suffix_dan">自</string>
+    <string name="detail_suffix_den">自</string>
+    <string name="detail_suffix_tan">自</string>
+    <string name="detail_suffix_ten">来自</string>
+    <string name="detail_download_season">下载整季</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">通用</string>
+    <string name="content_rating_7">7+</string>
+    <string name="content_rating_13">13+</string>
+    <string name="content_rating_18">18+</string>
+    <string name="content_warning_violence">暴力</string>
+    <string name="content_warning_horror">恐怖</string>
+    <string name="content_warning_sexuality">性内容</string>
+    <string name="content_warning_negative">负面行为</string>
+    <string name="detail_cast_header">演员</string>
+    <string name="detail_reviews_header">用户评价</string>
+    <string name="detail_view_all_reviews">查看全部</string>
+    <string name="reviews_screen_title">IMDb 影评</string>
+    <string name="detail_trailer_header">预告片</string>
+</resources>

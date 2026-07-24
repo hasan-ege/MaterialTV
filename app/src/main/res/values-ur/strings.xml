@@ -1,0 +1,546 @@
+<resources>
+    <!-- Developer Strings -->
+    <string name="settings_developer_title">ڈویلپر</string>
+    <string name="settings_github_label">GitHub</string>
+    <string name="settings_github_url">github.com/hasan-ege</string>
+
+    <!-- Current Features -->
+    <string name="settings_features_title">موجودہ خصوصیات</string>
+    <string name="settings_feature_ui_title">Material 3 Expressive UI</string>
+    <string name="settings_feature_ui_desc">جدید انٹرفیس اور ہموار اینیمیشنز</string>
+    <string name="settings_feature_streaming_title">مربوط سٹریمنگ کا تجربہ</string>
+    <string name="settings_feature_streaming_desc">فلموں، سیریز اور لائیو ٹی وی کی سپورٹ</string>
+    <string name="settings_feature_search_title">ذہین تلاش</string>
+    <string name="settings_feature_search_desc">اعلی درجے کی فلٹرنگ اور خودکار ٹیب کی تبدیلی</string>
+    <string name="settings_feature_history_title">دیکھنے کی ہسٹری اور تسلسل</string>
+    <string name="settings_feature_history_desc">جہاں سے چھوڑا تھا وہیں سے آسانی سے شروع کریں</string>
+    <string name="settings_feature_offline_title">آف لائن موڈ</string>
+    <string name="settings_feature_offline_desc">اعلی درجے کا بیک گراؤنڈ ڈاؤن لوڈ مینیجر</string>
+    <string name="settings_feature_player_title">دوہرا پلیئر انجن</string>
+    <string name="settings_feature_player_desc">بہتر بنایا گیا ExoPlayer اور ہم آہنگ LibVLC</string>
+    <string name="settings_feature_performance_title">کارکردگی پر مبنی</string>
+    <string name="settings_feature_performance_desc">رفتار میں کمی پر خودکار دوبارہ شروع اور کم تاخیر</string>
+
+    <!-- App Name -->
+    <string name="app_name">MaterialTV</string>
+    <string name="app_name_material">Material</string>
+    <string name="app_name_tv">TV</string>
+
+    <!-- Main Navigation -->
+    <string name="nav_home">ہوم</string>
+    <string name="nav_favorites">پسندیدہ</string>
+    <string name="nav_downloads">ڈاؤن لوڈز</string>
+    <string name="nav_profile">پروفائل</string>
+
+    <!-- Tabs -->
+    <string name="tab_movies">فلمیں</string>
+    <string name="tab_series">سیریز</string>
+    <string name="tab_seasons">سیزن</string>
+    <string name="tab_live_tv">لائیو ٹی وی</string>
+    <string name="tab_category">زمرہ</string>
+
+    <!-- Common Actions -->
+    <string name="action_search">تلاش کریں</string>
+    <string name="action_settings">ترتیبات</string>
+    <string name="action_back">واپس</string>
+    <string name="action_close">بند کریں</string>
+    <string name="action_expand">پھیلائیں</string>
+    <string name="action_collapse">سمیٹیں</string>
+    <string name="action_pause">روکیں</string>
+    <string name="action_resume">جاری رکھیں</string>
+    <string name="action_delete">حذف کریں</string>
+    <string name="action_play">چلائیں</string>
+    <string name="action_retry">دوبارہ کوشش کریں</string>
+    <string name="action_cancel">منسوخ کریں</string>
+    <string name="action_ok">ٹھیک ہے</string>
+    <string name="action_refresh">ریفریش کریں</string>
+    <string name="download_started">ڈاؤن لوڈ شروع ہو گیا</string>
+    <string name="action_see_all">سب دیکھیں</string>
+    <string name="action_cast">کاسٹ کریں</string>
+    <string name="action_clear">صاف کریں</string>
+    <string name="search_field_label">فلمیں، سیریز اور ٹی وی تلاش کریں</string>
+
+    <!-- Login -->
+    <string name="login_title">MaterialTV میں لاگ ان کریں</string>
+    <string name="login_tab_xtream">Xtream کوڈز</string>
+    <string name="login_tab_m3u">M3U پلے لسٹ</string>
+    <string name="login_m3u_url_label">M3U پلے لسٹ URL</string>
+    <string name="login_server_url_label">سرور URL</string>
+    <string name="login_username_label">صارف کا نام</string>
+    <string name="login_password_label">پاس ورڈ</string>
+    <string name="login_button_load_playlist">پلے لسٹ لوڈ کریں</string>
+    <string name="login_button_sign_in">لاگ ان کریں</string>
+    <string name="login_error_generic">لاگ ان ناکام رہا: %1$s</string>
+
+    <!-- Player Controls -->
+    <string name="player_play">چلائیں</string>
+    <string name="player_pause">روکیں</string>
+    <string name="player_forward">10 سیکنڈ آگے</string>
+    <string name="player_rewind">10 سیکنڈ پیچھے</string>
+    <string name="player_next">اگلی قسط</string>
+    <string name="player_previous">پچھلی قسط</string>
+    <string name="player_lock">لاک کریں</string>
+    <string name="player_unlock">انلاک کریں</string>
+    <string name="player_aspect_ratio">پہلو تناسب</string>
+    <string name="player_switch_engine">پلیئر انجن تبدیل کریں</string>
+    <string name="player_10s">10 سیکنڈ</string>
+
+    <!-- Track Selection -->
+    <string name="tracks_title">آڈیو اور سب ٹائٹل کا انتخاب</string>
+    <string name="tracks_audio">آڈیو</string>
+    <string name="tracks_subtitles">سب ٹائٹلز</string>
+    <string name="tracks_disabled">غیر فعال</string>
+    <string name="tracks_no_tracks">کوئی ٹریک نہیں</string>
+
+    <!-- Settings -->
+    <string name="settings_title">ترتیبات</string>
+    <string name="settings_player">پلیئر کی ترتیبات</string>
+    <string name="settings_default_player">ڈیفالٹ پلیئر</string>
+    <string name="settings_hybrid_mode">ہائبرڈ موڈ</string>
+    <string name="settings_vlc">VLC</string>
+    <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_use_vlc_downloads">ڈاؤن لوڈز کے لیے VLC استعمال کریں</string>
+    <string name="settings_stats_for_nerds">تکنیکی اعداد و شمار</string>
+    <string name="settings_subtitle_size">سب ٹائٹل کا سائز</string>
+    <string name="settings_subtitle_small">چھوٹا</string>
+    <string name="settings_subtitle_normal">نارمل</string>
+    <string name="settings_subtitle_large">بڑا</string>
+    <string name="settings_stream_quality">سٹریم کا معیار</string>
+    <string name="settings_auto">خودکار</string>
+    <string name="settings_app_language">ایپ کی زبان</string>
+    <string name="settings_language">زبان</string>
+    <string name="settings_language_system">سسٹم ڈیفالٹ</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_dialog_title">زبان</string>
+    <string name="settings_player_hybrid">ہائبرڈ (تجویز کردہ)</string>
+    <string name="settings_download_settings">ڈاؤن لوڈ ترتیبات</string>
+    <string name="settings_downloads">ڈاؤن لوڈز</string>
+    <string name="settings_general">عام</string>
+    <string name="settings_battery_optimization">بیٹری آپٹیمائزیشن</string>
+    <string name="settings_battery_optimization_desc">کچھ آلات پر، آپ کو اس ایپ کے لیے بیٹری کی اصلاح کو غیر فعال کرنے کی ضرورت پڑ سکتی ہے تاکہ ڈاؤن لوڈز بیک گراؤنڈ میں جاری رہ سکیں۔</string>
+    <string name="settings_stats_desc">تکنیکی پلے بیک معلومات دکھائیں</string>
+    <string name="settings_hybrid_desc">اگر ExoPlayer ناکام ہو جائے تو خودکار طور پر VLC پر سوئچ کریں</string>
+    <string name="settings_vlc_downloads_desc">ڈاؤن لوڈ کردہ مواد کے لیے VLC انجن استعمال کریں</string>
+    <string name="settings_stats_nerds">تکنیکی اعداد و شمار</string>
+    <string name="settings_privacy">رازداری</string>
+    <string name="settings_clear_history">ہسٹری صاف کریں</string>
+    <string name="settings_clear_history_confirm">صاف کریں</string>
+    <string name="settings_cancel">منسوخ کریں</string>
+    <string name="settings_history_cleared">ہسٹری صاف کر دی گئی</string>
+    <string name="settings_back">واپس</string>
+    <string name="settings_max_concurrent_downloads">زیادہ سے زیادہ بیک وقت ڈاؤن لوڈز: %1$d</string>
+    <string name="settings_experimental_reconnect">تجرباتی: ڈاؤن لوڈ دوبارہ جوڑنا (رفتار بائی پاس)</string>
+    <string name="settings_auto_restart_speed_drop">رفتار میں کمی پر خودکار دوبارہ شروع</string>
+    <string name="settings_min_speed_threshold">کم از کم رفتار کی حد</string>
+    <string name="settings_min_speed_description">اگر رفتار اس حد سے نیچے گر جائے تو ڈاؤن لوڈ دوبارہ شروع ہو جائے گا</string>
+    <string name="settings_restart_delay">دوبارہ شروع کرنے میں تاخیر</string>
+    <string name="settings_restart_delay_description">رفتار گرنے کے بعد ڈاؤن لوڈ دوبارہ شروع کرنے سے پہلے انتظار کا وقت</string>
+    <string name="settings_download_algorithm">ڈاؤن لوڈ الگورتھم</string>
+    <string name="settings_algo_okhttp">OkHttp (ڈیفالٹ)</string>
+    <string name="settings_algo_system">سسٹم ڈاؤن لوڈ مینیجر</string>
+    <string name="settings_download_algorithm_dialog_title">ڈاؤن لوڈ الگورتھم</string>
+    <string name="settings_download_algorithm_option_okhttp">OkHttp (ڈیفالٹ)</string>
+    <string name="settings_download_algorithm_option_system">سسٹم ڈاؤن لوڈ مینیجر</string>
+    <string name="downloads_system">سسٹم ڈاؤن لوڈز</string>
+    <string name="downloads_system_download">سسٹم ڈاؤن لوڈ</string>
+    <string name="settings_language_option_system">سسٹم ڈیفالٹ</string>
+    <string name="settings_language_option_english">🇺🇸 English</string>
+    <string name="settings_language_option_turkish">🇹🇷 Türkçe</string>
+    <string name="settings_language_option_spanish">🇪🇸 Español</string>
+    <string name="settings_language_option_german">🇩🇪 Deutsch</string>
+    <string name="settings_language_option_french">🇫🇷 Français</string>
+    <string name="settings_language_option_portuguese">🇵🇹 Português</string>
+    <string name="settings_language_option_russian">🇷🇺 Русский</string>
+    <string name="settings_language_option_chinese">🇨🇳 中文</string>
+    <string name="settings_language_option_urdu">🇵🇰 اردو</string>
+    <string name="settings_language_option_japanese">🇯🇵 日本語</string>
+    <string name="settings_language_option_arabic">🇸🇦 العربية</string>
+    <string name="settings_clear_history_dialog_message">کیا آپ واقعی اپنی تمام دیکھنے کی ہسٹری صاف کرنا چاہتے ہیں؟ اس عمل کو واپس نہیں لیا جا سکتا۔</string>
+    <string name="settings_about_version">ورژن: %1$s</string>
+    <string name="settings_whats_new_header">%1$s میں نیا کیا ہے:</string>
+    <string name="settings_whats_new_profile">✨ پروفائل مینجمنٹ:\n• پروفائل کے نام کی ترمیم درست کی گئی\n• فوری UI اپڈیٹس\n• مستقل پروفائل ترتیبات</string>
+    <string name="settings_whats_new_continue">🔄 دیکھنا جاری رکھیں:\n• مستقل خاتمے کا نظام\n• اپڈیٹس کے بعد آئٹمز حذف رہتے ہیں\n• دوبارہ دیکھنے پر خودکار بحالی</string>
+    <string name="settings_whats_new_watch_time">⏱️ دیکھنے کے وقت کا ڈسپلے:\n• ترکی فارمیٹ (دن:گھنٹہ:منٹ:سیکنڈ)\n• ذہین وقت کی فارمیٹنگ\n• درست دورانیہ ٹریکنگ</string>
+    <string name="settings_whats_new_player">🎚️ پلیئر میں بہتری:\n• سلائیڈر کنٹرول درست کیا گیا\n• ہموار وقت کی تلاش\n• بہتر کارکردگی</string>
+    <string name="settings_whats_new_technical">🔧 تکنیکی اپڈیٹس:\n• ری ایکٹو StateFlow آرکیٹیکچر\n• ریئل ٹائم UI اپڈیٹس\n• بہتر میموری مینجمنٹ</string>
+
+    <!-- Profile -->
+    <string name="profile_title">پروفائل</string>
+    <string name="profile_watch_history">دیکھنے کی ہسٹری</string>
+    <string name="profile_continue_watching">دیکھنا جاری رکھیں</string>
+    <string name="profile_total_watch_time">کل دیکھنے کا وقت</string>
+    <string name="profile_clear_history">ہسٹری صاف کریں</string>
+    <string name="profile_logout">لاگ آؤٹ</string>
+    <string name="profile_picture_desc">پروفائل کی تصویر</string>
+    <string name="profile_change_picture_desc">پروفائل کی تصویر تبدیل کریں</string>
+    <string name="profile_view_history">دیکھنے کی ہسٹری دیکھیں</string>
+    <string name="profile_open_history_desc">دیکھنے کی ہسٹری کھولیں</string>
+    <string name="profile_settings">ترتیبات</string>
+    <string name="profile_edit_name_title">پروفائل کا نام تبدیل کریں</string>
+    <string name="profile_name_label">نام</string>
+    <string name="profile_save">محفوظ کریں</string>
+    <string name="profile_cancel">منسوخ کریں</string>
+    <string name="profile_tap_to_edit">ترمیم کے لیے ٹچ کریں</string>
+
+    <!-- Watch History -->
+    <string name="history_title">دیکھنے کی ہسٹری</string>
+    <string name="history_empty">ابھی تک کوئی دیکھنے کی ہسٹری نہیں ہے</string>
+    <string name="history_empty_desc">یہاں دیکھنے کے لیے فلمیں اور سیریز دیکھنا شروع کریں</string>
+    <string name="history_progress">پیش رفت: %d%%</string>
+    <string name="history_series_episode">سیریز کی قسط</string>
+    <string name="history_movie">فلم</string>
+
+    <!-- Profile watch time -->
+    <plurals name="profile_watch_time_days">
+        <item quantity="one">%d دن</item>
+        <item quantity="other">%d دن</item>
+    </plurals>
+    <plurals name="profile_watch_time_hours">
+        <item quantity="one">%d گھنٹہ</item>
+        <item quantity="other">%d گھنٹے</item>
+    </plurals>
+    <plurals name="profile_watch_time_minutes">
+        <item quantity="one">%d منٹ</item>
+        <item quantity="other">%d منٹ</item>
+    </plurals>
+    <plurals name="profile_watch_time_seconds">
+        <item quantity="one">%d سیکنڈ</item>
+        <item quantity="other">%d سیکنڈ</item>
+    </plurals>
+
+    <!-- Continue Watching -->
+    <string name="continue_watching_title">دیکھنا جاری رکھیں</string>
+    <string name="continue_watching_empty">جاری رکھنے کے لیے کوئی مواد نہیں ہے</string>
+    <string name="continue_watching_pin">پن کریں</string>
+    <string name="continue_watching_unpin">ان پن کریں</string>
+    <string name="continue_watching_remove">ہٹائیں</string>
+
+    <!-- Downloads -->
+    <string name="downloads_title">ڈاؤن لوڈز</string>
+    <string name="downloads_empty">کوئی ڈاؤن لوڈ کردہ مواد نہیں ہے</string>
+    <string name="downloads_in_progress">ڈاؤن لوڈ ہو رہا ہے…</string>
+    <string name="downloads_status_title">ڈاؤن لوڈ اسٹیٹس</string>
+    <string name="downloads_status_downloading">ڈاؤن لوڈ ہو رہا ہے</string>
+    <string name="downloads_status_completed">مکمل ہو گیا</string>
+    <string name="downloads_status_paused">روک دیا گیا</string>
+    <string name="downloads_status_pending">منتظر</string>
+    <string name="downloads_status_failed">ناکام</string>
+    <string name="downloads_status_cancelled">منسوخ کر دیا گیا</string>
+    <string name="downloads_all">تمام</string>
+    <string name="downloads_empty_title">کوئی ڈاؤن لوڈ نہیں</string>
+    <string name="downloads_empty_desc">آپ تفصیلات کے صفحے سے ڈاؤن لوڈ شروع کر سکتے ہیں۔</string>
+    <string name="downloads_completed">مکمل ہو گیا</string>
+    <string name="downloads_failed">ناکام</string>
+    <string name="downloads_paused">روک دیا گیا</string>
+    <string name="downloads_delete_confirm">کیا آپ اس ڈاؤن لوڈ کو حذف کرنا چاہتے ہیں؟</string>
+    <string name="download_pause_desc">روکیں</string>
+    <string name="download_cancel_desc">منسوخ کریں</string>
+    <string name="download_resume_desc">جاری رکھیں</string>
+    <string name="download_retry_desc">دوبارہ کوشش کریں</string>
+    <string name="download_play_desc">چلائیں</string>
+    <string name="download_delete_desc">حذف کریں</string>
+
+    <!-- Time Formatting -->
+    <string name="time_days">%d دن</string>
+    <string name="time_hours">%d گھنٹے</string>
+    <string name="time_minutes">%d منٹ</string>
+    <string name="time_seconds">%d سیکنڈ</string>
+    <string name="time_just_now">ابھی ابھی</string>
+    <string name="time_minutes_ago">%d منٹ پہلے</string>
+    <string name="time_hours_ago">%d گھنٹے پہلے</string>
+    <string name="time_days_ago">%d دن پہلے</string>
+    <string name="time_unit_day">دن</string>
+    <string name="time_unit_hour">گھنٹہ</string>
+    <string name="time_unit_minute">منٹ</string>
+    <string name="time_unit_second">سیکنڈ</string>
+    <string name="unknown">نامعلوم</string>
+
+    <!-- Error Messages -->
+    <string name="error_no_connection">کوئی کنکشن نہیں ہے</string>
+    <string name="error_stream_not_found">سٹریمنگ URL نہیں ملا</string>
+    <string name="error_missing_category_info">غلطی: زمرہ کی معلومات غائب ہے</string>
+    <string name="error_playback">پلے بیک کی خرابی: %s</string>
+    <string name="error_vlc_playback">VLC پلے بیک خرابی: %s</string>
+    <string name="error_loading">مواد لوڈ کرنے میں غلطی</string>
+    <string name="error_generic">ایک خرابی پیش آئی ہے: %s</string>
+    <string name="error_no_series_found">کوئی سیریز نہیں ملی</string>
+    <string name="error_no_live_streams_found">کوئی لائیو چینل نہیں ملا</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_play">چلائیں</string>
+    <string name="detail_download">ڈاؤن لوڈ کریں</string>
+    <string name="detail_info">معلومات</string>
+    <string name="detail_episodes">قسطیں</string>
+    <string name="detail_season">سیزن %1$s</string>
+    <string name="detail_episode">قسط %1$s</string>
+    <string name="detail_play_resume">%1$s سے جاری رکھیں</string>
+    <string name="detail_season_placeholder">سیزن</string>
+    <string name="detail_downloading">ڈاؤن لوڈ ہو رہا ہے %1$d%%</string>
+    <string name="detail_preparing">تیاری ہو رہی ہے…</string>
+
+    <!-- Stats for Nerds -->
+    <string name="stats_bitrate">بٹ ریٹ:</string>
+    <string name="stats_dropped_frames">ڈراپ فریمز:</string>
+    <string name="stats_video_format">فارمیٹ:</string>
+    <string name="stats_player_engine">انجن:</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_download_title">ڈاؤن لوڈ کریں</string>
+    <string name="dialog_download_message">کیا آپ یہ مواد ڈاؤن لوڈ کرنا چاہتے ہیں؟</string>
+    <string name="dialog_confirm">تصدیق کریں</string>
+    <string name="dialog_dismiss">بند کریں</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">پسندیدہ</string>
+    <string name="favorites_sort_date_added">شامل کرنے کی تاریخ</string>
+    <string name="favorites_sort_name">نام</string>
+    <string name="favorites_sort_rating">درجہ بندی</string>
+    <string name="favorites_sort_direction">ترتیب کی سمت</string>
+    <string name="favorites_sort_ascending">بڑھتی ہوئی</string>
+    <string name="favorites_sort_descending">گھٹتی ہوئی</string>
+    <string name="content_type_movie_upper">فلم</string>
+    <string name="content_type_series_upper">سیریز</string>
+    <string name="content_type_live_upper">لائیو</string>
+    <string name="favorites_filter_title">پسندیدہ فلٹر کریں</string>
+    <string name="favorites_type">قسم</string>
+    <string name="favorites_all">تمام</string>
+    <string name="favorites_status">اسٹیٹس</string>
+    <string name="favorites_watched">دیکھا گیا</string>
+    <string name="favorites_unwatched">نہیں دیکھا گیا</string>
+    <string name="favorites_done">مکمل</string>
+    <string name="favorites_clear">صاف کریں</string>
+    <string name="favorites_sort_by">ترتیب دیں</string>
+    <string name="favorites_create_list">نئی لسٹ بنائیں</string>
+    <string name="favorites_list_name">لسٹ کا نام</string>
+    <string name="favorites_create">بنائیں</string>
+    <string name="favorites_edit">پسندیدہ میں ترمیم کریں</string>
+    <string name="favorites_rating">درجہ بندی</string>
+    <string name="favorites_notes">نوٹس</string>
+    <string name="favorites_mark_watched">دیکھا ہوا نشان زد کریں</string>
+    <string name="favorites_move_to_list">لسٹ میں منتقل کریں</string>
+    <string name="favorites_remove">ہٹائیں</string>
+    <string name="favorites_save">محفوظ کریں</string>
+    <string name="favorites_all_favorites">تمام پسندیدہ</string>
+    <string name="favorites_delete_list">لسٹ حذف کریں</string>
+    <string name="favorites_delete_list_confirm">کیا آپ واقعی \'%1$s\' لسٹ حذف کرنا چاہتے ہیں؟ اس لسٹ میں شامل تمام پسندیدہ ہٹا دیے جائیں گے۔</string>
+    <string name="favorites_all_favorites_default">تمام پسندیدہ (ڈیفالٹ)</string>
+    <string name="favorites_add">پسندیدہ میں شامل کریں</string>
+    <string name="favorites_remove_action">پسندیدہ سے ہٹائیں</string>
+    <string name="favorites_stars_desc">%d ستارے</string>
+    <string name="favorites_filter_desc">پسندیدہ فلٹر کریں</string>
+    <string name="favorites_sort_desc">پسندیدہ ترتیب دیں</string>
+    <string name="favorites_create_list_desc">نئی لسٹ بنائیں</string>
+    <string name="favorites_added">پسندیدہ میں شامل کر دیا گیا</string>
+    <string name="favorites_removed">پسندیدہ سے ہٹا دیا گیا</string>
+
+    <!-- Player -->
+    <string name="player_audio_tracks">آڈیو ٹریکس</string>
+    <string name="player_no_audio_tracks">کوئی آڈیو ٹریک نہیں ملا</string>
+    <string name="player_subtitles">سب ٹائٹلز</string>
+    <string name="player_no_subtitles">کوئی سب ٹائٹل ٹریک نہیں ملا</string>
+    <string name="player_none">کوئی نہیں</string>
+    <string name="player_close">بند کریں</string>
+    <string name="player_audio_subtitle_selection">آڈیو اور سب ٹائٹل کا انتخاب</string>
+    <string name="player_engine_label">انجن: %1$s</string>
+    <string name="player_position_label">مقام: %1$s / %2$s</string>
+
+    <!-- Watch History -->
+    <string name="watch_history_clear_all">تمام صاف کریں</string>
+
+    <!-- General -->
+    <string name="live">لائیو</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_quick_actions">فوری اقدامات</string>
+    <string name="profile_settings_subtitle">پروفائل اور ایپ کی ترتیبات</string>
+    <string name="profile_stats_watched">دیکھا گیا</string>
+    <string name="profile_stats_movies">فلمیں</string>
+    <string name="profile_stats_series">سیریز</string>
+    <string name="profile_welcome">خوش آمدید، %1$s!</string>
+    <string name="profile_welcome_subtitle">دیکھنے کا لطف اٹھاتے رہیں</string>
+
+    <!-- Settings Profile Section -->
+    <string name="settings_profile">پروفائل</string>
+    <string name="settings_profile_edit_subtitle">پروفائل کی ترتیبات تبدیل کریں</string>
+    <string name="settings_profile_name">پروفائل کا نام</string>
+    <string name="settings_profile_photo">پروفائل تصویر</string>
+    <string name="settings_profile_photo_change">تبدیل کریں</string>
+    <string name="settings_profile_photo_add">شامل کریں</string>
+    <string name="settings_profile_name_edit_title">پروفائل نام میں ترمیم کریں</string>
+    <string name="settings_profile_name_label">نام</string>
+    <string name="settings_profile_save">محفوظ کریں</string>
+    <string name="settings_profile_cancel">منسوخ کریں</string>
+
+    <!-- Start Page Options -->
+    <string name="start_page_movies">فلمیں</string>
+    <string name="start_page_series">سیریز</string>
+    <string name="start_page_live">لائیو ٹی وی</string>
+    <string name="start_page_favorites">پسندیدہ</string>
+    <string name="start_page_downloads">ڈاؤن لوڈز</string>
+    <string name="start_page_profile">پروفائل</string>
+    <string name="start_page_title">اسٹارٹ پیج</string>
+
+    <!-- Downloads Screen -->
+    <string name="downloads_tab_all">تمام</string>
+    <string name="downloads_tab_downloading">ڈاؤن لوڈ ہو رہا ہے</string>
+    <string name="downloads_tab_completed">مکمل ہو گیا</string>
+    <string name="downloads_tab_waiting">منتظر</string>
+    <string name="downloads_storage_access_required">اسٹوریج تک رسائی درکار ہے</string>
+    <string name="downloads_storage_access_message">ڈاؤن لوڈ کردہ فائلیں دیکھنے کے لیے آپ کو \'تمام فائلوں تک رسائی\' کی اجازت دینی ہوگی۔ اسے MaterialTV کی ترتیبات سے فعال کریں۔</string>
+    <string name="downloads_open_settings">ترتیبات کھولیں</string>
+    <string name="downloads_later">بعد میں</string>
+
+    <!-- Time Units (Short) -->
+    <string name="time_hour_short">گھنٹہ</string>
+    <string name="time_minute_short">منٹ</string>
+
+    <!-- Downloads - Additional -->
+    <string name="downloads_other">دیگر ڈاؤن لوڈز</string>
+    <string name="downloads_episodes_count">%d قسطیں</string>
+    <string name="downloads_completed_count">%d مکمل</string>
+    <string name="downloads_downloading_count">%d ڈاؤن لوڈ ہو رہے ہیں</string>
+    <string name="downloads_progress_completed">%d%% مکمل</string>
+    <string name="downloads_remaining">%s باقی</string>
+
+    <!-- Favorites - Additional -->
+    <string name="favorites_empty_title">ابھی کوئی پسندیدہ نہیں ہے</string>
+    <string name="favorites_empty_desc">آپ کی پسندیدہ فلمیں، سیریز اور چینلز یہاں ظاہر ہوں گے</string>
+    
+    <!-- Content Type Labels -->
+    <string name="content_type_movie">فلم</string>
+    <string name="content_type_series">سیریز</string>
+    <string name="content_type_live_tv">لائیو ٹی وی</string>
+
+    <!-- Watch History - Additional -->
+    <string name="history_empty_title">دیکھنے کی ہسٹری خالی ہے</string>
+    <string name="history_watched_percent">%d%% دیکھا گیا</string>
+
+    <!-- Profile - Additional -->
+    <string name="profile_logout_subtitle">اکاؤنٹ سے لاگ آؤٹ کریں</string>
+
+    <!-- Home Screen -->
+    <string name="home_live_tv">لائیو ٹی وی</string>
+    <string name="home_continue_watching">دیکھنا جاری رکھیں</string>
+    <string name="home_movies">فلمیں</string>
+    <string name="home_series">سیریز</string>
+    <string name="home_categories">زمرہ جات</string>
+    <string name="home_recently_added">حالیہ اضافہ</string>
+    <string name="home_popular">مقبول</string>
+
+    <!-- Search -->
+    <string name="search_no_results">کوئی نتائج نہیں ملے</string>
+    <string name="search_try_different">مختلف تلاش آزمائیں</string>
+    <string name="search_hint">فلمیں، سیریز، چینلز تلاش کریں…</string>
+
+    <!-- Detail -->
+    <string name="detail_rating">درجہ بندی</string>
+    <string name="detail_year">سال</string>
+    <string name="detail_duration">دورانیہ</string>
+    <string name="detail_genre">صنف</string>
+    <string name="detail_director">ہدایت کار: %1$s</string>
+    <string name="detail_cast">اداکار: %1$s</string>
+    <string name="detail_description">تفصیل</string>
+
+    <!-- General Messages -->
+    <string name="loading">لوڈ ہو رہا ہے…</string>
+    <string name="retry">دوبارہ کوشش کریں</string>
+    <string name="no_internet">انٹرنیٹ نہیں ہے</string>
+    <string name="something_went_wrong">کچھ غلط ہو گیا</string>
+
+    <!-- Additional Home Strings -->
+    <string name="category_all">تمام</string>
+    <string name="error_loading_categories">زمرے لوڈ نہیں ہوسکے</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_name">ڈاؤن لوڈز</string>
+    <string name="notification_channel_desc">ڈاؤن لوڈ کی پیش رفت اور اسٹیٹس دکھاتا ہے</string>
+    <string name="notification_time_left_sec">%1$d سیکنڈ باقی</string>
+    <string name="notification_time_left_min_sec">%1$d منٹ %2$d سیکنڈ باقی</string>
+    <string name="notification_time_left_hour_min">%1$d گھنٹے %2$d منٹ باقی</string>
+    <string name="notification_paused_count">%1$d روکے گئے</string>
+    <string name="notification_active_count">%1$d فعال</string>
+    <string name="notification_downloading">ڈاؤن لوڈ ہو رہا ہے…</string>
+    <string name="notification_tap_to_resume">جاری رکھنے کے لیے ٹچ کریں</string>
+    <string name="notification_preparing">تیاری ہو رہی ہے…</string>
+    <string name="notification_progress_label">پیش رفت: %1$d%%</string>
+    <string name="notification_size_label">سائز: %1$s</string>
+    <string name="notification_speed_label">رفتار: %1$s</string>
+    <string name="notification_remaining_label">باقی: %1$s</string>
+    <string name="notification_paused_downloads_label">روکے گئے ڈاؤن لوڈز</string>
+    <string name="notification_action_pause">روکیں</string>
+    <string name="notification_action_start">شروع کریں</string>
+    <string name="notification_completed_title">ڈاؤن لوڈ مکمل: %1$s</string>
+    <string name="notification_completed_desc">%1$s ڈاؤن لوڈ کر لیا گیا ہے</string>
+    <string name="notification_failed_title">ڈاؤن لوڈ ناکام: %1$s</string>
+    <string name="notification_failed_desc">%1$s ڈاؤن لوڈ نہیں ہو سکا</string>
+    <string name="notification_failed_big_text">ڈاؤن لوڈ کی خرابی: %1$s\nدوبارہ کوشش کرنے کے لیے ٹچ کریں۔</string>
+    <string name="notification_action_resume">جاری رکھیں</string>
+    <string name="notification_action_cancel">منسوخ کریں</string>
+    <string name="notification_paused_title">ڈاؤن لوڈ روک دیا گیا</string>
+    <string name="settings_concurrent_limit">بیک وقت ڈاؤن لوڈ کی حد</string>
+    <string name="settings_concurrent_desc_single">ایک وقت میں 1 ڈاؤن لوڈ، باقی قطار میں</string>
+    <string name="settings_concurrent_desc_multiple">زیادہ سے زیادہ %1$d فعال ڈاؤن لوڈز کی اجازت دیں</string>
+    <string name="settings_threshold_label">اگلی قسط کی حد</string>
+    <string name="settings_threshold_desc">خاتمے سے %1$d منٹ پہلے تجویز دکھائیں</string>
+    <string name="settings_notifications">ڈاؤن لوڈ نوٹیفیکیشنز</string>
+    <string name="settings_autoplay">اگلی قسط خودکار طور پر چلائیں</string>
+    <string name="settings_auto_retry">ناکام ڈاؤن لوڈز کی خودکار کوشش کریں</string>
+    <string name="settings_use_ffmpeg">FFmpeg ڈاؤنلوڈر استعمال کریں</string>
+    <string name="settings_clear_search_history">تلاش کی ہسٹری صاف کریں</string>
+    <string name="settings_clear_search_history_confirm">تلاش کی ہسٹری صاف کریں</string>
+    <string name="settings_search_history_cleared">تلاش کی ہسٹری صاف کر دی گئی</string>
+    
+    <string name="settings_copied_to_clipboard">کلپ بورڈ پر کاپی کر دیا گیا</string>
+    
+    <!-- Account Information -->
+    <string name="settings_account_info">اکاؤنٹ کی معلومات</string>
+    <string name="settings_account_status">اسٹیٹس</string>
+    <string name="settings_account_expiry">میعاد ختم ہونے کی تاریخ</string>
+    <string name="settings_account_connections">فعال کنکشنز</string>
+    <string name="settings_account_server">سرور</string>
+    <string name="settings_account_status_active">فعال</string>
+    <string name="settings_account_status_expired">میعاد ختم</string>
+    
+    <!-- Units -->
+    <string name="unit_kbps">KB/s</string>
+    <string name="unit_mbps">MB/s</string>
+    <string name="unit_min">منٹ</string>
+    <string name="unit_sec">سیکنڈ</string>
+    
+    <!-- Unit Formatting -->
+    <string name="unit_format_b">%1$d B</string>
+    <string name="unit_format_kb">%1$.1f KB</string>
+    <string name="unit_format_mb">%1$.1f MB</string>
+    <string name="unit_format_gb">%1$.2f GB</string>
+    <string name="unit_format_speed_bps">%1$d B/s</string>
+    <string name="unit_format_speed_kbps">%1$.1f KB/s</string>
+    <string name="unit_format_speed_mbps">%1$.1f MB/s</string>
+    
+    <!-- New Strings for Externalization -->
+    <string name="detail_unknown_title">نامعلوم عنوان</string>
+    <string name="detail_no_description">کوئی تفصیل دستیاب نہیں ہے۔</string>
+    <string name="profile_default_user">صارف</string>
+    <string name="shared_no_results_desc">مختلف تلاش آزمائیں</string>
+    <string name="shared_no_connection_desc">براہ کرم اپنا انٹرنیٹ کنکشن چیک کریں۔</string>
+    <string name="detail_suffix_dan">سے</string>
+    <string name="detail_suffix_den">سے</string>
+    <string name="detail_suffix_tan">سے</string>
+    <string name="detail_suffix_ten">سے</string>
+    <string name="detail_download_season">پورا سیزن ڈاؤن لوڈ کریں</string>
+
+    <!-- Content Rating -->
+    <string name="content_rating_general">عام</string>
+    <string name="content_rating_7">٧+</string>
+    <string name="content_rating_13">١٣+</string>
+    <string name="content_rating_18">١٨+</string>
+    <string name="content_warning_violence">تشدد</string>
+    <string name="content_warning_horror">خوفناک</string>
+    <string name="content_warning_sexuality">جنسی</string>
+    <string name="content_warning_negative">منفی رویہ</string>
+    <string name="detail_cast_header">اداکار</string>
+    <string name="detail_reviews_header">صارفین کے جائزے</string>
+    <string name="detail_view_all_reviews">تمام دیکھیں</string>
+    <string name="reviews_screen_title">IMDb جائزے</string>
+    <string name="detail_trailer_header">ٹریلر</string>
+</resources>
