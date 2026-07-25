@@ -44,11 +44,12 @@ object RetrofitClient {
 
             val headersInterceptor = Interceptor { chain ->
                 val originalRequest = chain.request()
-                val requestWithHeaders = originalRequest.newBuilder()
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
-                    .header("x-requested-with", "com.hasanege.materialtv")
-                    .build()
-                chain.proceed(requestWithHeaders)
+                val requestBuilder = originalRequest.newBuilder()
+                if (originalRequest.header("User-Agent") == null) {
+                    requestBuilder.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
+                }
+                requestBuilder.header("x-requested-with", "com.hasanege.materialtv")
+                chain.proceed(requestBuilder.build())
             }
 
             val cacheInterceptor = Interceptor { chain ->

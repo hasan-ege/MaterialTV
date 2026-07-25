@@ -14,6 +14,19 @@ import javax.inject.Singleton
 
 class OpenSubtitlesQuotaException(message: String) : Exception(message)
 
+const val DEFAULT_OPENSUBTITLES_API_KEY = "nBSt40xO1Hlh6eI007d4p11lB11jD2uK"
+
+fun cleanMediaTitle(raw: String): String {
+    var text = raw
+    text = text.replace(Regex("""\.(mkv|mp4|avi|ts|m3u8|flv|wmv|mov)$""", RegexOption.IGNORE_CASE), "")
+    text = text.replace(Regex("""[._\-]"""), " ")
+    text = text.replace(Regex("""(?i)\b(s\d+e\d+|\d+x\d+|season\s*\d+|episode\s*\d+)\b"""), " ")
+    text = text.replace(Regex("""(?i)\b(1080p|720p|4k|2160p|480p|hdr|hdr10|web-dl|webrip|bluray|hdtv|x264|x265|hevc|aac|ac3|dvdrip|remux|repack|unrated|extended)\b"""), " ")
+    text = text.replace(Regex("""[\(\[\{]\d{4}[\)\]\}]"""), " ")
+    text = text.replace(Regex("""\s+"""), " ").trim()
+    return text.ifBlank { raw }
+}
+
 @Singleton
 class OpenSubtitlesRepository @Inject constructor(
     private val apiService: OpenSubtitlesApiService,
@@ -21,13 +34,14 @@ class OpenSubtitlesRepository @Inject constructor(
 ) {
 
     suspend fun searchSubtitles(
-        apiKey: String,
+        apiKey: String?,
         imdbId: String? = null,
         seasonNumber: Int? = null,
         episodeNumber: Int? = null,
         languages: String? = null,
         query: String? = null
     ): List<OpenSubtitlesItem> {
+        val effectiveKey = apiKey?.takeIf { it.isNotBlank() } ?: DEFAULT_OPENSUBTITLES_API_KEY
         val params = mutableMapOf<String, String>()
 
         val cleanImdbId = imdbId?.removePrefix("tt")?.trim()
@@ -47,8 +61,9 @@ class OpenSubtitlesRepository @Inject constructor(
             params["languages"] = languages
         }
 
-        if (params["imdb_id"] == null && !query.isNullOrBlank()) {
-            params["query"] = query
+        val cleanedQuery = query?.let { cleanMediaTitle(it) }
+        if (params["imdb_id"] == null && !cleanedQuery.isNullOrBlank()) {
+            params["query"] = cleanedQuery
         }
 
         if (params.isEmpty()) {
@@ -57,30 +72,42 @@ class OpenSubtitlesRepository @Inject constructor(
         }
 
         Log.d("OpenSubtitlesRepo", "Searching subtitles with params: $params")
-        val response = apiService.searchSubtitles(apiKey, params)
+        val response = apiService.searchSubtitles(effectiveKey, params)
 
         if (response.code() == 429 || response.code() == 406) {
             throw OpenSubtitlesQuotaException("OpenSubtitles indirme limitiniz (kullanım hakkınız) doldu.")
         }
 
-        if (!response.isSuccessful) {
-            Log.e("OpenSubtitlesRepo", "Search failed with code ${response.code()}: ${response.errorBody()?.string()}")
-            return emptyList()
+        var results = if (response.isSuccessful) {
+            response.body()?.data ?: emptyList()
+        } else {
+            Log.e("OpenSubtitlesRepo", "Error searching subtitles: ${response.code()} - ${response.errorBody()?.string()}")
+            emptyList()
         }
 
-        val searchResponse = response.body()
-        val items = searchResponse?.data ?: emptyList()
-        Log.d("OpenSubtitlesRepo", "Found ${items.size} subtitles.")
-        return items
+        // Fallback: If searching by IMDb ID returned empty, try searching by clean title query!
+        if (results.isEmpty() && params.containsKey("imdb_id") && !cleanedQuery.isNullOrBlank()) {
+            val fallbackParams = params.toMutableMap()
+            fallbackParams.remove("imdb_id")
+            fallbackParams["query"] = cleanedQuery
+            Log.d("OpenSubtitlesRepo", "Fallback searching subtitles with query params: $fallbackParams")
+            val fallbackResp = apiService.searchSubtitles(effectiveKey, fallbackParams)
+            if (fallbackResp.isSuccessful) {
+                results = fallbackResp.body()?.data ?: emptyList()
+            }
+        }
+
+        return results
     }
 
     suspend fun downloadSubtitle(
-        apiKey: String,
+        apiKey: String?,
         fileId: Int,
         context: Context
     ): File {
+        val effectiveKey = apiKey?.takeIf { it.isNotBlank() } ?: DEFAULT_OPENSUBTITLES_API_KEY
         Log.d("OpenSubtitlesRepo", "Requesting download link for fileId: $fileId")
-        val response = apiService.downloadSubtitle(apiKey, OpenSubtitlesDownloadRequest(fileId))
+        val response = apiService.downloadSubtitle(effectiveKey, OpenSubtitlesDownloadRequest(fileId))
 
         if (response.code() == 429 || response.code() == 406) {
             throw OpenSubtitlesQuotaException("OpenSubtitles indirme limitiniz (kullanım hakkınız) doldu.")
@@ -116,7 +143,7 @@ class OpenSubtitlesRepository @Inject constructor(
 
         val okRequest = Request.Builder()
             .url(link)
-            .header("User-Agent", "MaterialTV v1.0")
+            .header("User-Agent", "MaterialTV v3.1")
             .build()
 
         val okResponse = okHttpClient.newCall(okRequest).execute()

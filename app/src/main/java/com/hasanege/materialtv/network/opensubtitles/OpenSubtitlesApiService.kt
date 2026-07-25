@@ -14,7 +14,7 @@ import retrofit2.http.QueryMap
 interface OpenSubtitlesApiService {
 
     @Headers(
-        "User-Agent: MaterialTV v1.0",
+        "User-Agent: MaterialTV v3.1",
         "Accept: application/json",
         "Content-Type: application/json"
     )
@@ -25,7 +25,7 @@ interface OpenSubtitlesApiService {
     ): Response<OpenSubtitlesSearchResponse>
 
     @Headers(
-        "User-Agent: MaterialTV v1.0",
+        "User-Agent: MaterialTV v3.1",
         "Accept: application/json",
         "Content-Type: application/json"
     )

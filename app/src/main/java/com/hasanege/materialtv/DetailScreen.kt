@@ -1556,7 +1556,7 @@ fun MovieDetailScreenRoute(
     initialTitle: String,
     viewModel: DetailViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToPlayer: (String, String, Int, Int, Long, String?) -> Unit
+    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?) -> Unit
 ) {
     val downloadManager = com.hasanege.materialtv.download.DownloadManagerImpl.getInstance(androidx.compose.ui.platform.LocalContext.current)
     
@@ -1594,7 +1594,7 @@ fun MovieDetailScreenRoute(
                 onPlayMovie = {
                     val ext = movieData?.containerExtension ?: "mp4"
                     val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/movie/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${streamId}.${ext}"
-                    onNavigateToPlayer(url, movieData?.name ?: initialTitle, streamId, -1, resumePosition, coverIcon)
+                    onNavigateToPlayer(url, movieData?.name ?: initialTitle, streamId, -1, resumePosition, coverIcon, state.data.tmdbData?.imdbId)
                 },
                 onDownloadMovie = {
                     downloadManager.startDownload(vodItem, imdbId = state.data.tmdbData?.imdbId)
@@ -1623,7 +1623,7 @@ fun SeriesDetailScreenRoute(
     initialTitle: String,
     viewModel: SeriesDetailViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToPlayer: (String, String, Int, Int, Long, String?) -> Unit
+    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?, Int?, Int?) -> Unit
 ) {
     val downloadManager = com.hasanege.materialtv.download.DownloadManagerImpl.getInstance(androidx.compose.ui.platform.LocalContext.current)
     
@@ -1689,7 +1689,7 @@ fun SeriesDetailScreenRoute(
                 onPlayEpisode = { episode ->
                     // Just navigate directly with position 0
                     val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${episode.id}.${episode.containerExtension}"
-                    onNavigateToPlayer(url, episode.title ?: "", episode.id.toIntOrNull() ?: -1, seriesId, 0L, seriesCover)
+                    onNavigateToPlayer(url, episode.title ?: "", episode.id.toIntOrNull() ?: -1, seriesId, 0L, seriesCover, state.data.tmdbData?.imdbId, episode.season, episode.episodeNum?.toIntOrNull())
                 },
                 onDownloadEpisode = { episode ->
                     val seriesName = state.data.tmdbData?.title ?: state.data.xtreamData.info?.name ?: "Unknown Series"

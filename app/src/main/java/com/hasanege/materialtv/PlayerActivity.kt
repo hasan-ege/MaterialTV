@@ -13,6 +13,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.firstOrNull
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -159,9 +160,12 @@ class PlayerActivity : ComponentActivity() {
     @javax.inject.Inject
     lateinit var tmdbDao: com.hasanege.materialtv.data.dao.TmdbDao
     @javax.inject.Inject
+    lateinit var tmdbApiService: com.hasanege.materialtv.network.tmdb.TmdbApiService
+    @javax.inject.Inject
     lateinit var openSubtitlesRepository: com.hasanege.materialtv.repository.OpenSubtitlesRepository
 
     private var skipDbSegments by mutableStateOf<com.hasanege.materialtv.model.skipdb.SkipSegmentsContainer?>(null)
+    private var resolvedImdbId by mutableStateOf<String?>(null)
 
     private var playerEngine by mutableStateOf<PlayerEngine?>(null)
     private var currentMovie by mutableStateOf<VodItem?>(null)
@@ -427,7 +431,8 @@ class PlayerActivity : ComponentActivity() {
                 if (hasPlayed) {
                     val engine = playerEngine
                     if (engine != null) {
-                        val activeImdbId = intent.getStringExtra("IMDB_ID")
+                        val activeImdbId = resolvedImdbId
+                            ?: intent.getStringExtra("IMDB_ID")
                             ?: (movieState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
                             ?: (movieState as? UiState.Success)?.data?.tmdbData?.imdbId
                             ?: (seriesState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
@@ -710,14 +715,46 @@ class PlayerActivity : ComponentActivity() {
                 if (imdbId.isNullOrBlank()) {
                     val profileId = com.hasanege.materialtv.network.SessionManager.username ?: "default"
                     val targetId = if (seriesId > 0) seriesId else streamId
-                    val type = if (seriesId > 0) com.hasanege.materialtv.data.entities.ContentType.SERIES else com.hasanege.materialtv.data.entities.ContentType.VOD
+                    val contentType = if (seriesId > 0) com.hasanege.materialtv.data.entities.ContentType.SERIES else com.hasanege.materialtv.data.entities.ContentType.VOD
                     if (targetId > 0) {
-                        val dbEntity = tmdbDao.getTmdbContent(targetId.toString(), type, profileId)
+                        val dbEntity = tmdbDao.getTmdbContent(targetId.toString(), contentType, profileId)
                         imdbId = dbEntity?.imdbId?.takeIf { it.isNotBlank() }
                     }
                 }
 
-                if (!imdbId.isNullOrBlank()) {
+                // If still null, search TMDB API by title dynamically!
+                val currentTitle = this@PlayerActivity.title
+                if (imdbId.isNullOrBlank() && !currentTitle.isNullOrBlank()) {
+                    try {
+                        val cleanName = com.hasanege.materialtv.repository.cleanMediaTitle(currentTitle)
+                        val tmdbKey = com.hasanege.materialtv.data.SettingsRepository.getInstance(this@PlayerActivity).tmdbApiKey.firstOrNull()?.takeIf { it.isNotBlank() } ?: "8265a9a08a2a898d3632d4b2d308064a"
+
+                        if (seriesId > 0 || season != null) {
+                            val searchRes = tmdbApiService.searchTv(cleanName, tmdbKey)
+                            val firstMatch = searchRes.results?.firstOrNull()
+                            if (firstMatch != null) {
+                                val detailRes = tmdbApiService.getTvDetail(firstMatch.id, tmdbKey)
+                                imdbId = detailRes.externalIds?.imdbId?.takeIf { it.isNotBlank() }
+                            }
+                        } else {
+                            val searchRes = tmdbApiService.searchMovie(cleanName, tmdbKey)
+                            val firstMatch = searchRes.results?.firstOrNull()
+                            if (firstMatch != null) {
+                                val detailRes = tmdbApiService.getMovieDetail(firstMatch.id, tmdbKey)
+                                imdbId = detailRes.externalIds?.imdbId?.takeIf { it.isNotBlank() }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.w("PlayerActivity", "Dynamic IMDb search failed for: $currentTitle", e)
+                    }
+                }
+
+                val formattedImdbId = imdbId?.trim()?.let { if (!it.startsWith("tt")) "tt$it" else it }
+                if (!formattedImdbId.isNullOrBlank()) {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        resolvedImdbId = formattedImdbId
+                    }
+
                     var durationSeconds: Int? = null
                     for (i in 1..20) {
                         val dur = playerEngine?.getDuration() ?: 0L
@@ -728,9 +765,9 @@ class PlayerActivity : ComponentActivity() {
                         kotlinx.coroutines.delay(500)
                     }
 
-                    android.util.Log.d("SkipDB", "Querying SkipDB: imdb_id=$imdbId, season=$season, episode=$episode, duration=$durationSeconds")
+                    android.util.Log.d("SkipDB", "Querying SkipDB: imdb_id=$formattedImdbId, season=$season, episode=$episode, duration=$durationSeconds")
                     val response = skipDbApiService.getSegments(
-                        imdbId = imdbId,
+                        imdbId = formattedImdbId,
                         season = season,
                         episode = episode,
                         duration = durationSeconds

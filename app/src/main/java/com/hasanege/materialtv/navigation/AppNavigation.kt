@@ -88,7 +88,7 @@ fun AppNavigation(
                 streamId = streamId,
                 initialTitle = title,
                 onBack = { navController.popBackStack() },
-                onNavigateToPlayer = { url, t, sId, _, pos, icon ->
+                onNavigateToPlayer = { url, t, sId, _, pos, icon, imdbId ->
                     android.util.Log.d("AppNavigation", "Navigate to Player: ${com.hasanege.materialtv.utils.StringUtils.sanitizeUrl(url)}")
                     val intent = Intent(context, PlayerActivity::class.java).apply {
                         putExtra("url", url)
@@ -97,6 +97,7 @@ fun AppNavigation(
                         putExtra("STREAM_ICON", icon)
                         putExtra("AUTO_PLAY", true)
                         putExtra("position", pos)
+                        if (!imdbId.isNullOrBlank()) putExtra("IMDB_ID", imdbId)
                     }
                     context.startActivity(intent)
                 }
@@ -109,7 +110,7 @@ fun AppNavigation(
                 seriesId = seriesId,
                 initialTitle = title,
                 onBack = { navController.popBackStack() },
-                onNavigateToPlayer = { url, t, eId, sId, pos, icon ->
+                onNavigateToPlayer = { url, t, eId, sId, pos, icon, imdbId, season, episode ->
                     android.util.Log.d("AppNavigation", "Navigate to Player for Series: $t, seriesId: $sId, episodeId: $eId")
                     val intent = Intent(context, PlayerActivity::class.java).apply {
                         putExtra("url", url)
@@ -119,6 +120,9 @@ fun AppNavigation(
                         putExtra("STREAM_ICON", icon)
                         putExtra("AUTO_PLAY", true)
                         putExtra("position", pos)
+                        if (!imdbId.isNullOrBlank()) putExtra("IMDB_ID", imdbId)
+                        if (season != null && season > 0) putExtra("SEASON", season)
+                        if (episode != null && episode > 0) putExtra("EPISODE", episode)
                     }
                     context.startActivity(intent)
                 }

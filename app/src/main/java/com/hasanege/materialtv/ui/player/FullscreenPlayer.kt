@@ -614,14 +614,14 @@ fun FullscreenPlayer(
                 duration > 0 && currentPosition >= duration - thresholdMs
             }
 
-            val showIntro = introSeg != null && currentPosition >= (introSeg.startMs - 1500).coerceAtLeast(0) && currentPosition < introSeg.endMs
-            val showRecap = recapSeg != null && currentPosition >= (recapSeg.startMs - 1500).coerceAtLeast(0) && currentPosition < recapSeg.endMs
-            val showOutro = outroSeg != null && currentPosition >= (outroSeg.startMs - 1500).coerceAtLeast(0) && currentPosition < outroSeg.endMs
+            val inIntroWindow = introSeg != null && (controlsVisible || currentPosition >= (introSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < introSeg.endMs
+            val inRecapWindow = recapSeg != null && (controlsVisible || currentPosition >= (recapSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < recapSeg.endMs
+            val inOutroWindow = outroSeg != null && (controlsVisible || currentPosition >= (outroSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < outroSeg.endMs
 
-            if (!inPipMode && (showIntro || showRecap || showOutro)) {
+            if (!inPipMode && (inIntroWindow || inRecapWindow || inOutroWindow)) {
                 val (labelText, targetMs) = when {
-                    showIntro -> Pair(stringResource(R.string.player_skip_intro), introSeg!!.endMs)
-                    showRecap -> Pair(stringResource(R.string.player_skip_recap), recapSeg!!.endMs)
+                    inIntroWindow -> Pair(stringResource(R.string.player_skip_intro), introSeg!!.endMs)
+                    inRecapWindow -> Pair(stringResource(R.string.player_skip_recap), recapSeg!!.endMs)
                     else -> Pair(stringResource(R.string.player_skip_outro), outroSeg!!.endMs)
                 }
 
@@ -630,7 +630,7 @@ fun FullscreenPlayer(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(bottom = 120.dp, end = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.8f), contentColor = Color.Black)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.85f), contentColor = Color.Black)
                 ) {
                     Text(text = labelText, fontWeight = FontWeight.Bold)
                 }
@@ -1384,7 +1384,6 @@ private fun TrackSelectionDialog(
 
     fun performOpenSubtitlesSearch() {
         val apiKey = openSubtitlesApiKey
-        if (apiKey.isNullOrBlank()) return
         val repo = openSubtitlesRepository ?: return
 
         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -1421,8 +1420,8 @@ private fun TrackSelectionDialog(
         }
     }
 
-    LaunchedEffect(openSubtitlesApiKey) {
-        if (!openSubtitlesApiKey.isNullOrBlank() && searchResults.isEmpty() && !isSearching) {
+    LaunchedEffect(imdbId, title, seasonNumber, episodeNumber, openSubtitlesApiKey) {
+        if (searchResults.isEmpty() && !isSearching) {
             performOpenSubtitlesSearch()
         }
     }
@@ -1511,16 +1510,7 @@ private fun TrackSelectionDialog(
                 )
             }
 
-            if (openSubtitlesApiKey.isNullOrBlank()) {
-                item {
-                    Text(
-                        text = stringResource(R.string.opensubtitles_key_missing),
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
-            } else if (openSubtitlesError != null) {
+            if (openSubtitlesError != null) {
                 item {
                     Text(
                         text = openSubtitlesError ?: "",
@@ -1973,16 +1963,7 @@ private fun TrackSelectionDialog(
                         )
                     }
 
-                    if (openSubtitlesApiKey.isNullOrBlank()) {
-                        item {
-                            Text(
-                                text = stringResource(R.string.opensubtitles_key_missing),
-                                color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            )
-                        }
-                    } else if (openSubtitlesError != null) {
+                    if (openSubtitlesError != null) {
                         item {
                             Text(
                                 text = openSubtitlesError ?: "",
