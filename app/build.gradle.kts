@@ -35,7 +35,7 @@ android {
 
         ndk {
             abiFilters.clear()
-            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
+            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64"))
         }
     }
 
@@ -58,8 +58,22 @@ android {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "armeabi-v7a")
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
             isUniversalApk = true
+        }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.ApkVariantOutputImpl
+            val abi = output.getFilter(com.android.build.OutputFile.ABI)
+            val vName = variant.versionName
+            output.outputFileName = if (abi != null) {
+                "MaterialTV-${vName}-${abi}.apk"
+            } else {
+                "MaterialTV-${vName}-universal.apk"
+            }
         }
     }
 
