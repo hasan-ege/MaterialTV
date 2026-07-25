@@ -554,4 +554,10 @@
     <string name="detail_view_all_reviews">查看全部</string>
     <string name="reviews_screen_title">IMDb 影评</string>
     <string name="detail_trailer_header">预告片</string>
+    <string name="subtitle_calibration">字幕校准</string>
+    <string name="subtitle_normal">正常</string>
+    <string name="subtitle_reset">重置</string>
+    <string name="opensubtitles_applied">已应用 OpenSubtitles (%s)</string>
+    <string name="download_error">下载错误</string>
+    <string name="network_error">发生网络错误</string>
 </resources>

@@ -574,4 +574,10 @@
     <string name="watch_time_days_hours_format">%1$dT %2$dSt</string>
     <string name="watch_time_hours_format">%1$dSt</string>
     <string name="watch_time_minutes_format">%1$dMin</string>
+    <string name="subtitle_calibration">Untertitel-Kalibrierung</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Zurücksetzen</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) angewendet</string>
+    <string name="download_error">Download-Fehler</string>
+    <string name="network_error">Netzwerkfehler aufgetreten</string>
 </resources>

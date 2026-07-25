@@ -689,6 +689,12 @@
     <string name="settings_opensubtitles_languages_title">OpenSubtitles Subtitle Languages</string>
     <string name="settings_opensubtitles_languages_desc">Select preferred languages for filtering subtitle searches</string>
     <string name="opensubtitles_languages_dialog_title">Select Subtitle Languages</string>
+    <string name="subtitle_calibration">Subtitle Calibration</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Reset</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) applied</string>
+    <string name="download_error">Download error</string>
+    <string name="network_error">Network error occurred</string>
 
     <string name="settings_updates_title">Updates</string>
     <string name="settings_app_update_title">App Update</string>

@@ -656,4 +656,10 @@
     <string name="watch_time_days_hours_format">%1$dي %2$dس</string>
     <string name="watch_time_hours_format">%1$dس</string>
     <string name="watch_time_minutes_format">%1$dد</string>
+    <string name="subtitle_calibration">معايرة الترجمة</string>
+    <string name="subtitle_normal">عادي</string>
+    <string name="subtitle_reset">إعادة ضبط</string>
+    <string name="opensubtitles_applied">تم تطبيق OpenSubtitles (%s)</string>
+    <string name="download_error">خطأ في التنزيل</string>
+    <string name="network_error">حدث خطأ في الشبكة</string>
 </resources>

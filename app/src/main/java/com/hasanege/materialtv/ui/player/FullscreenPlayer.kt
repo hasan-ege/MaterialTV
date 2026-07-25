@@ -1414,7 +1414,7 @@ private fun TrackSelectionDialog(
             } catch (e: com.hasanege.materialtv.repository.OpenSubtitlesQuotaException) {
                 openSubtitlesError = e.message
             } catch (e: Exception) {
-                openSubtitlesError = e.message ?: "Ağ hatası oluştu"
+                openSubtitlesError = e.message ?: context.getString(R.string.network_error)
             } finally {
                 isSearching = false
             }
@@ -1474,8 +1474,13 @@ private fun TrackSelectionDialog(
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val displayLabel = if (trackId == -1 || label.equals("Disabled", ignoreCase = true)) {
+                            stringResource(R.string.tracks_disabled)
+                        } else {
+                            label
+                        }
                         Text(
-                            text = label,
+                            text = displayLabel,
                             fontSize = 13.sp,
                             fontWeight = if (trackId == currentSubtitleTrack) FontWeight.Bold else FontWeight.Normal,
                             color = if (trackId == currentSubtitleTrack)
@@ -1583,7 +1588,7 @@ private fun TrackSelectionDialog(
                                                 )
                                                 android.widget.Toast.makeText(
                                                     context,
-                                                    "OpenSubtitles ($lang) uygulandı",
+                                                    context.getString(R.string.opensubtitles_applied, lang),
                                                     android.widget.Toast.LENGTH_SHORT
                                                 ).show()
                                                 onDismiss()
@@ -1595,7 +1600,7 @@ private fun TrackSelectionDialog(
                                             }
                                         } catch (e: Exception) {
                                             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                                                openSubtitlesError = e.message ?: "İndirme hatası"
+                                                openSubtitlesError = e.message ?: context.getString(R.string.download_error)
                                                 downloadingFileId = null
                                             }
                                         }
@@ -1672,16 +1677,17 @@ private fun TrackSelectionDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Altyazı Kalibrasyonu",
+                    text = stringResource(R.string.subtitle_calibration),
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
                 val delaySec = subtitleDelayMs / 1000f
+                val normalStr = stringResource(R.string.subtitle_normal)
                 val delayText = when {
                     delaySec > 0f -> String.format(Locale.getDefault(), "+%.1fs", delaySec)
                     delaySec < 0f -> String.format(Locale.getDefault(), "%.1fs", delaySec)
-                    else -> "0.0s (Normal)"
+                    else -> String.format(Locale.getDefault(), "0.0s (%s)", normalStr)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -1700,7 +1706,7 @@ private fun TrackSelectionDialog(
                             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                             modifier = Modifier.height(24.dp)
                         ) {
-                            Text("Sıfırla", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                            Text(stringResource(R.string.subtitle_reset), fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -1930,8 +1936,13 @@ private fun TrackSelectionDialog(
                                     .padding(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val displayLabel = if (trackId == -1 || label.equals("Disabled", ignoreCase = true)) {
+                                    stringResource(R.string.tracks_disabled)
+                                } else {
+                                    label
+                                }
                                 Text(
-                                    text = label,
+                                    text = displayLabel,
                                     fontSize = 13.sp,
                                     fontWeight = if (trackId == currentSubtitleTrack) FontWeight.Bold else FontWeight.Normal,
                                     color = if (trackId == currentSubtitleTrack)
@@ -2039,7 +2050,7 @@ private fun TrackSelectionDialog(
                                                         )
                                                         android.widget.Toast.makeText(
                                                             context,
-                                                            "OpenSubtitles ($lang) uygulandı",
+                                                            context.getString(R.string.opensubtitles_applied, lang),
                                                             android.widget.Toast.LENGTH_SHORT
                                                         ).show()
                                                         onDismiss()
@@ -2051,7 +2062,7 @@ private fun TrackSelectionDialog(
                                                     }
                                                 } catch (e: Exception) {
                                                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                                                        openSubtitlesError = e.message ?: "İndirme hatası"
+                                                        openSubtitlesError = e.message ?: context.getString(R.string.download_error)
                                                         downloadingFileId = null
                                                     }
                                                 }

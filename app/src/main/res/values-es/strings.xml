@@ -600,4 +600,10 @@
     <string name="watch_time_days_hours_format">%1$dd %2$dh</string>
     <string name="watch_time_hours_format">%1$dh</string>
     <string name="watch_time_minutes_format">%1$dmin</string>
+    <string name="subtitle_calibration">Calibración de subtítulos</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Restablecer</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) aplicado</string>
+    <string name="download_error">Error de descarga</string>
+    <string name="network_error">Ocurrió un error de red</string>
 </resources>

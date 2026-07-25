@@ -543,4 +543,10 @@
     <string name="detail_view_all_reviews">تمام دیکھیں</string>
     <string name="reviews_screen_title">IMDb جائزے</string>
     <string name="detail_trailer_header">ٹریلر</string>
+    <string name="subtitle_calibration">ذیلی عنوانات کیلیبریشن</string>
+    <string name="subtitle_normal">نارمل</string>
+    <string name="subtitle_reset">ریسیٹ</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) لاگو ہو گیا</string>
+    <string name="download_error">ڈاؤن لوڈ کی خرابی</string>
+    <string name="network_error">نیٹ ورک میں خرابی پیش آگئی</string>
 </resources>

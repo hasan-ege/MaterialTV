@@ -602,4 +602,10 @@
     <string name="watch_time_days_hours_format">%1$dj %2$dh</string>
     <string name="watch_time_hours_format">%1$dh</string>
     <string name="watch_time_minutes_format">%1$dmin</string>
+    <string name="subtitle_calibration">Calibrage des sous-titres</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Réinitialiser</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) appliqué</string>
+    <string name="download_error">Erreur de téléchargement</string>
+    <string name="network_error">Une erreur réseau est survenue</string>
 </resources>

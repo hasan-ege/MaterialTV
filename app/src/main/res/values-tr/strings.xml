@@ -678,6 +678,12 @@
     <string name="settings_opensubtitles_languages_title">OpenSubtitles Alt Yazı Dilleri</string>
     <string name="settings_opensubtitles_languages_desc">Alt yazı arama sonuçlarında filtrelenecek dilleri seçin</string>
     <string name="opensubtitles_languages_dialog_title">Alt Yazı Dillerini Seçin</string>
+    <string name="subtitle_calibration">Altyazı Kalibrasyonu</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Sıfırla</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) uygulandı</string>
+    <string name="download_error">İndirme hatası</string>
+    <string name="network_error">Ağ hatası oluştu</string>
 
     <string name="settings_updates_title">Güncellemeler</string>
     <string name="settings_app_update_title">Uygulama Güncellemesi</string>

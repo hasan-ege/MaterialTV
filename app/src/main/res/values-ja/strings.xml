@@ -602,4 +602,10 @@
     <string name="watch_time_days_hours_format">%1$d日 %2$d時間</string>
     <string name="watch_time_hours_format">%1$d時間</string>
     <string name="watch_time_minutes_format">%1$d分</string>
+    <string name="subtitle_calibration">字幕調整</string>
+    <string name="subtitle_normal">標準</string>
+    <string name="subtitle_reset">リセット</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) が適用されました</string>
+    <string name="download_error">ダウンロードエラー</string>
+    <string name="network_error">ネットワークエラーが発生しました</string>
 </resources>

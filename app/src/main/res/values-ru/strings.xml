@@ -602,4 +602,10 @@
     <string name="watch_time_days_hours_format">%1$dд %2$dч</string>
     <string name="watch_time_hours_format">%1$dч</string>
     <string name="watch_time_minutes_format">%1$dмин</string>
+    <string name="subtitle_calibration">Калибровка субтитров</string>
+    <string name="subtitle_normal">Обычный</string>
+    <string name="subtitle_reset">Сбросить</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) применен</string>
+    <string name="download_error">Ошибка скачивания</string>
+    <string name="network_error">Произошла ошибка сети</string>
 </resources>

@@ -601,4 +601,10 @@
     <string name="watch_time_days_hours_format">%1$dd %2$dh</string>
     <string name="watch_time_hours_format">%1$dh</string>
     <string name="watch_time_minutes_format">%1$dmin</string>
+    <string name="subtitle_calibration">Calibração de legendas</string>
+    <string name="subtitle_normal">Normal</string>
+    <string name="subtitle_reset">Redefinir</string>
+    <string name="opensubtitles_applied">OpenSubtitles (%s) aplicado</string>
+    <string name="download_error">Erro de download</string>
+    <string name="network_error">Ocorreu um erro de rede</string>
 </resources>
