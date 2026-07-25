@@ -120,7 +120,8 @@ MaterialTV is a mobile application designed as an Xtream Code API player for And
 
 - **Official Release Keystore**: Release imzalarında daima `/home/hasan/ANDROİD STUDİO KEYS DO NOT KİLL/key.jks` (Alias: `key0`, Şifre: `Z&g788310`) kullanılmalıdır. Projenin `gradle.properties` dosyası bu konumu işaret etmektedir.
 - **Update Manager & Release Formatı**: `UpdateManager` GitHub REST API (`releases/latest`) üzerinden çalışır. Yeni sürüm APK dosyaları GitHub Release üzerinde `MaterialTV-{sürüm}.apk` (Örn: `MaterialTV-3.0.apk` / `MaterialTV-v3.0.apk`) adı ile yayınlanmalıdır.
+- **GitHub Push & Release Yetkisi**: GitHub'a kod pushlama veya yeni Release yayınlama/oluşturma işlemleri KESİNLİKLE kullanıcı 'GitHub'a yükle' veya 'Release aç' şeklinde açıkça talimat vermediği sürece yapılmayacaktır.
 
 ## 7. Son Güncelleme
-24 Temmuz 2026
+25 Temmuz 2026
 

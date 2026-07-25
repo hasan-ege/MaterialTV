@@ -15,6 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.LiveTv
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +48,11 @@ class WatchHistoryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        val initialFilter = intent.getStringExtra("FILTER_TYPE")
+        if (initialFilter != null) {
+            viewModel.setFilter(initialFilter)
+        }
+        
         setContent {
             MaterialTVTheme {
                 Surface(
@@ -68,6 +76,7 @@ private fun WatchHistoryScreen(
     onBack: () -> Unit
 ) {
     val history by viewModel.history.collectAsState()
+    val currentFilter by viewModel.filterType.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
@@ -94,59 +103,92 @@ private fun WatchHistoryScreen(
             )
         }
     ) { paddingValues ->
-        if (history.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Filter Chips
+            androidx.compose.foundation.lazy.LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = stringResource(com.hasanege.materialtv.R.string.history_empty_title),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                val filters = listOf(
+                    null to com.hasanege.materialtv.R.string.history_filter_all,
+                    "MOVIES" to com.hasanege.materialtv.R.string.history_filter_movies,
+                    "SERIES" to com.hasanege.materialtv.R.string.history_filter_series,
+                    "LIVE" to com.hasanege.materialtv.R.string.history_filter_live
                 )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(history, key = { "${it.streamId}_${it.type}" }) { item ->
-                    HistoryItemCard(
-                        item = item,
-                        onClick = {
-                            if (item.type == "live") {
-                                val streamUrl = if (com.hasanege.materialtv.network.SessionManager.loginType == com.hasanege.materialtv.network.SessionManager.LoginType.M3U) {
-                                    com.hasanege.materialtv.data.M3uRepository.getStreamUrl(item.streamId)
-                                } else {
-                                    "${com.hasanege.materialtv.network.SessionManager.serverUrl}/live/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${item.streamId}.ts"
-                                }
-                                if (!streamUrl.isNullOrEmpty()) {
-                                    context.startActivity(Intent(context, PlayerActivity::class.java).apply {
-                                        putExtra("url", streamUrl)
-                                        putExtra("TITLE", item.name)
-                                        putExtra("LIVE_STREAM_ID", item.streamId)
-                                        putExtra("STREAM_ICON", item.streamIcon)
-                                        putExtra("TYPE", "live")
-                                    })
-                                }
-                            } else {
-                                val intent = Intent(context, PlayerActivity::class.java).apply {
-                                    putExtra("STREAM_ID", item.streamId)
-                                    putExtra("TITLE", item.name)
-                                    putExtra("STREAM_ICON", item.streamIcon)
-                                    putExtra("AUTO_PLAY", true)
-                                    putExtra("position", item.position)
-                                }
-                                context.startActivity(intent)
-                            }
-                        },
-                        onDelete = { viewModel.removeItem(item) }
+                items(filters) { (type, stringRes) ->
+                    val isSelected = currentFilter == type || (currentFilter == null && type == null)
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.setFilter(type) },
+                        label = { Text(stringResource(stringRes)) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
+                            borderColor = MaterialTheme.colorScheme.outline
+                        )
                     )
+                }
+            }
+
+            if (history.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(com.hasanege.materialtv.R.string.history_empty_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(history, key = { "${it.streamId}_${it.type}" }) { item ->
+                        HistoryItemCard(
+                            item = item,
+                            onClick = {
+                                if (item.type == "live") {
+                                    val streamUrl = if (com.hasanege.materialtv.network.SessionManager.loginType == com.hasanege.materialtv.network.SessionManager.LoginType.M3U) {
+                                        com.hasanege.materialtv.data.M3uRepository.getStreamUrl(item.streamId)
+                                    } else {
+                                        "${com.hasanege.materialtv.network.SessionManager.serverUrl}/live/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${item.streamId}.ts"
+                                    }
+                                    if (!streamUrl.isNullOrEmpty()) {
+                                        context.startActivity(Intent(context, PlayerActivity::class.java).apply {
+                                            putExtra("url", streamUrl)
+                                            putExtra("TITLE", item.name)
+                                            putExtra("LIVE_STREAM_ID", item.streamId)
+                                            putExtra("STREAM_ICON", item.streamIcon)
+                                            putExtra("TYPE", "live")
+                                        })
+                                    }
+                                } else {
+                                    val intent = Intent(context, PlayerActivity::class.java).apply {
+                                        putExtra("STREAM_ID", item.streamId)
+                                        putExtra("TITLE", item.name)
+                                        putExtra("STREAM_ICON", item.streamIcon)
+                                        putExtra("AUTO_PLAY", true)
+                                        putExtra("position", item.position)
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            },
+                            onDelete = { viewModel.removeItem(item) }
+                        )
+                    }
                 }
             }
         }
@@ -163,12 +205,13 @@ fun HistoryItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(110.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -177,7 +220,7 @@ fun HistoryItemCard(
             // Thumbnail
             Box(
                 modifier = Modifier
-                    .width(160.dp)
+                    .width(170.dp)
                     .fillMaxHeight()
             ) {
                 if (!item.streamIcon.isNullOrEmpty()) {
@@ -199,11 +242,39 @@ fun HistoryItemCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.PlayArrow,
+                            Icons.Default.Tv,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
+                }
+                
+                // Dark overlay gradient for image
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
+                        )
+                    )
+                )
+
+                // Play icon overlay
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(36.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
                 
                 // Progress Bar
@@ -216,7 +287,7 @@ fun HistoryItemCard(
                             .height(4.dp)
                             .align(Alignment.BottomCenter),
                         color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        trackColor = Color.Transparent,
                     )
                 }
             }
@@ -225,37 +296,53 @@ fun HistoryItemCard(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(12.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
-                val progressPercent = if (item.duration > 0) {
-                    (item.position * 100 / item.duration).toInt()
-                } else 0
+                val positionMinutes = (item.position / 60000L).let { if (it == 0L && item.position > 0) 1L else it }
+                val durationMinutes = item.duration / 60000L
+                val progressText = if (durationMinutes > 0) {
+                    stringResource(com.hasanege.materialtv.R.string.history_watched_minutes, positionMinutes, durationMinutes)
+                } else {
+                    stringResource(com.hasanege.materialtv.R.string.history_watched_minutes_only, positionMinutes)
+                }
                 
-                Text(
-                    text = stringResource(com.hasanege.materialtv.R.string.history_watched_percent, progressPercent),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val icon = when (item.type) {
+                        "live" -> Icons.Default.LiveTv
+                        "series" -> Icons.Default.Tv
+                        else -> Icons.Default.Movie
+                    }
+                    Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = progressText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             // Delete Button
-            IconButton(onClick = onDelete) {
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = stringResource(R.string.action_delete),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
                 )
             }
         }

@@ -608,4 +608,17 @@
     <string name="opensubtitles_applied">OpenSubtitles (%s) применен</string>
     <string name="download_error">Ошибка скачивания</string>
     <string name="network_error">Произошла ошибка сети</string>
+    <string name="settings_opensubtitles_integration">Интеграция OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key">Ключ API OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key_desc">Введите ваш ключ API OpenSubtitles для поиска и скачивания онлайн-субтитров прямо в плеере.</string>
+    <string name="player_tab_embed">Встроенные субтитры</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">Ключ API OpenSubtitles не настроен. Пожалуйста, введите ваш ключ API в Настройках.</string>
+    <string name="opensubtitles_quota_exceeded">Превышен лимит скачиваний OpenSubtitles на сегодня. Попробуйте позже или обновите аккаунт.</string>
+    <string name="opensubtitles_search_no_results">Субтитры для этого контента не найдены на OpenSubtitles.</string>
+    <string name="opensubtitles_searching">Поиск на OpenSubtitles…</string>
+    <string name="opensubtitles_downloading">Скачивание субтитров…</string>
+    <string name="settings_opensubtitles_languages_title">Языки субтитров OpenSubtitles</string>
+    <string name="settings_opensubtitles_languages_desc">Выберите предпочитаемые языки для фильтрации поиска субтитров</string>
+    <string name="opensubtitles_languages_dialog_title">Выберите языки субтитров</string>
 </resources>

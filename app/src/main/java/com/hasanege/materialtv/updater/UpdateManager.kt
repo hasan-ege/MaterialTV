@@ -78,15 +78,29 @@ class UpdateManager(private val context: Context) {
                 val releaseNotes = json.optString("body", "Yeni güncelleme mevcut.")
                 val assets = json.getJSONArray("assets")
 
+                val supportedAbis = Build.SUPPORTED_ABIS
                 var downloadUrl = ""
+                var universalUrl = ""
+                var fallbackUrl = ""
+
                 for (i in 0 until assets.length()) {
                     val asset = assets.getJSONObject(i)
                     val url = asset.optString("browser_download_url", "")
                     val name = asset.optString("name", "")
                     if (url.endsWith(".apk", ignoreCase = true) || name.endsWith(".apk", ignoreCase = true)) {
-                        downloadUrl = url
-                        break
+                        if (supportedAbis.any { abi -> name.contains(abi, ignoreCase = true) }) {
+                            downloadUrl = url
+                            break // Found the best matching architecture
+                        } else if (name.contains("universal", ignoreCase = true)) {
+                            universalUrl = url
+                        } else if (fallbackUrl.isEmpty()) {
+                            fallbackUrl = url
+                        }
                     }
+                }
+
+                if (downloadUrl.isEmpty()) {
+                    downloadUrl = if (universalUrl.isNotEmpty()) universalUrl else fallbackUrl
                 }
 
                 if (downloadUrl.isEmpty()) {

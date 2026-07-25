@@ -549,4 +549,17 @@
     <string name="opensubtitles_applied">OpenSubtitles (%s) لاگو ہو گیا</string>
     <string name="download_error">ڈاؤن لوڈ کی خرابی</string>
     <string name="network_error">نیٹ ورک میں خرابی پیش آگئی</string>
+    <string name="settings_opensubtitles_integration">OpenSubtitles انضمام</string>
+    <string name="settings_opensubtitles_api_key">OpenSubtitles API کی</string>
+    <string name="settings_opensubtitles_api_key_desc">پلیئر میں براہ راست آن لائن ذیلی عنوانات تلاش اور ڈاؤن لوڈ کرنے کے لیے اپنی OpenSubtitles API کی درج کریں۔</string>
+    <string name="player_tab_embed">شامل شدہ ذیلی عنوانات</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">OpenSubtitles API کی ترتیب نہیں دی گئی۔ براہ کرم ترتیبات میں اپنی API کی درج کریں۔</string>
+    <string name="opensubtitles_quota_exceeded">آج کے لیے OpenSubtitles ڈاؤن لوڈ کی حد مکمل ہوگئی ہے۔ بعد میں کوشش کریں یا اپنا اکاؤنٹ اپ گریڈ کریں۔</string>
+    <string name="opensubtitles_search_no_results">اس مواد کے لیے OpenSubtitles پر کوئی ذیلی عنوان نہیں ملا۔</string>
+    <string name="opensubtitles_searching">OpenSubtitles تلاش کیا جا رہا ہے…</string>
+    <string name="opensubtitles_downloading">ذیلی عنوان ڈاؤن لوڈ ہو رہا ہے…</string>
+    <string name="settings_opensubtitles_languages_title">OpenSubtitles ذیلی عنوانات کی زبانیں</string>
+    <string name="settings_opensubtitles_languages_desc">ذیلی عنوانات کی تلاش کو فلٹر کرنے کے لیے پسندیدہ زبانیں منتخب کریں</string>
+    <string name="opensubtitles_languages_dialog_title">ذیلی عنوانات کی زبانیں منتخب کریں</string>
 </resources>

@@ -608,4 +608,17 @@
     <string name="opensubtitles_applied">OpenSubtitles (%s) が適用されました</string>
     <string name="download_error">ダウンロードエラー</string>
     <string name="network_error">ネットワークエラーが発生しました</string>
+    <string name="settings_opensubtitles_integration">OpenSubtitles 統合</string>
+    <string name="settings_opensubtitles_api_key">OpenSubtitles API キー</string>
+    <string name="settings_opensubtitles_api_key_desc">OpenSubtitles API キーを入力して、プレーヤー内でオンライン字幕を直接検索およびダウンロードします。</string>
+    <string name="player_tab_embed">組み込み字幕</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">OpenSubtitles API キーが設定されていません。設定で API キーを入力してください。</string>
+    <string name="opensubtitles_quota_exceeded">本日の OpenSubtitles ダウンロード上限に達しました。後でもう一度試すか、アカウントをアップグレードしてください。</string>
+    <string name="opensubtitles_search_no_results">このコンテンツの字幕が OpenSubtitles で見つかりませんでした。</string>
+    <string name="opensubtitles_searching">OpenSubtitles を検索中…</string>
+    <string name="opensubtitles_downloading">字幕をダウンロード中…</string>
+    <string name="settings_opensubtitles_languages_title">OpenSubtitles 字幕言語</string>
+    <string name="settings_opensubtitles_languages_desc">字幕検索のフィルターに使用する優先言語を選択します</string>
+    <string name="opensubtitles_languages_dialog_title">字幕言語を選択</string>
 </resources>

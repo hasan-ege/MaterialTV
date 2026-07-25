@@ -57,11 +57,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
@@ -75,11 +88,8 @@ import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.runtime.staticCompositionLocalOf
 import android.content.res.Configuration
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.OutlinedButton
 import android.app.PictureInPictureParams
 import android.util.Rational
@@ -335,6 +345,15 @@ fun LoginScreen(
                     
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    val focusManager = LocalFocusManager.current
+                    val usernameFocusRequester = remember { FocusRequester() }
+                    val passwordFocusRequester = remember { FocusRequester() }
+
+                    val performLogin = {
+                        focusManager.clearFocus()
+                        viewModel.onLoginClick(onLoginSuccess)
+                    }
+
                     // Animated content switch
                     AnimatedContent(
                         targetState = viewModel.isM3uLogin,
@@ -362,10 +381,17 @@ fun LoginScreen(
                                     label = { Text(stringResource(R.string.login_m3u_url_label)) },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-                                    singleLine = true
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                    keyboardActions = KeyboardActions(onDone = { performLogin() })
                                 )
                             } else {
-                                XtreamLoginFields(viewModel)
+                                XtreamLoginFields(
+                                    viewModel = viewModel,
+                                    usernameFocusRequester = usernameFocusRequester,
+                                    passwordFocusRequester = passwordFocusRequester,
+                                    onLogin = performLogin
+                                )
                             }
                         }
                     }
@@ -445,23 +471,34 @@ fun LoginScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun XtreamLoginFields(viewModel: MainViewModel) {
+fun XtreamLoginFields(
+    viewModel: MainViewModel,
+    usernameFocusRequester: FocusRequester,
+    passwordFocusRequester: FocusRequester,
+    onLogin: () -> Unit
+) {
     OutlinedTextField(
         value = viewModel.serverUrl,
         onValueChange = { viewModel.serverUrl = it },
         label = { Text(stringResource(R.string.login_server_url_label)) },
         modifier = Modifier.fillMaxWidth(),
         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-        singleLine = true
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardActions = KeyboardActions(onNext = { usernameFocusRequester.requestFocus() })
     )
     Spacer(modifier = Modifier.height(12.dp))
     OutlinedTextField(
         value = viewModel.username,
         onValueChange = { viewModel.username = it },
         label = { Text(stringResource(R.string.login_username_label)) },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(usernameFocusRequester),
         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-        singleLine = true
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() })
     )
     Spacer(modifier = Modifier.height(12.dp))
     OutlinedTextField(
@@ -469,9 +506,13 @@ fun XtreamLoginFields(viewModel: MainViewModel) {
         onValueChange = { viewModel.password = it },
         label = { Text(stringResource(R.string.login_password_label)) },
         visualTransformation = PasswordVisualTransformation(),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(passwordFocusRequester),
         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-        singleLine = true
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { onLogin() })
     )
 }
 
@@ -489,33 +530,51 @@ fun DisclaimerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         ElevatedCard(
             modifier = Modifier
-                .widthIn(max = 650.dp)
-                .fillMaxWidth(0.85f)
-                .padding(24.dp),
+                .widthIn(max = 540.dp)
+                .fillMaxWidth(0.92f),
             shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.ExtraLarge,
             colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             ),
             elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 8.dp
+                defaultElevation = 6.dp
             )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Surface(
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(56.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        androidx.compose.material3.Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = stringResource(R.string.disclaimer_title),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -523,49 +582,58 @@ fun DisclaimerScreen(
                 val scrollState = rememberScrollState()
                 Box(
                     modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(scrollState)
+                        .fillMaxWidth()
+                        .heightIn(max = 280.dp)
                         .background(
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium
+                            MaterialTheme.colorScheme.surfaceContainerLowest,
+                            shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Large
                         )
+                        .verticalScroll(scrollState)
                         .padding(16.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.disclaimer_text),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 22.sp
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedButton(
                         onClick = onDecline,
                         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
-                        modifier = Modifier.height(48.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.disclaimer_decline),
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     
-                    FilledTonalButton(
+                    Button(
                         onClick = onAccept,
                         shape = com.hasanege.materialtv.ui.theme.ExpressiveShapes.Medium,
                         modifier = Modifier
-                            .height(48.dp)
+                            .weight(1f)
+                            .height(50.dp)
                             .focusRequester(focusRequester)
                     ) {
                         Text(
                             text = stringResource(R.string.disclaimer_accept),
                             style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

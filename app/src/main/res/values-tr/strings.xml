@@ -202,6 +202,10 @@
 
     <!-- İzleme Geçmişi -->
     <string name="history_title">İzleme Geçmişi</string>
+    <string name="history_filter_all">Tümü</string>
+    <string name="history_filter_movies">Filmler</string>
+    <string name="history_filter_series">Diziler</string>
+    <string name="history_filter_live">Canlı TV</string>
     <string name="history_empty">Henüz izleme geçmişi yok</string>
     <string name="history_empty_desc">Geçmişinizi burada görmek için film ve dizi izlemeye başlayın</string>
     <string name="history_progress">İlerleme: %d%%</string>
@@ -438,6 +442,8 @@
     <!-- İzleme Geçmişi - Ek -->
     <string name="history_empty_title">Henüz izleme geçmişi yok</string>
     <string name="history_watched_percent">%%%d İzlendi</string>
+    <string name="history_watched_minutes">%1$d / %2$d dk</string>
+    <string name="history_watched_minutes_only">%1$d dk</string>
 
     <!-- Profil - Ek -->
     <string name="profile_logout_subtitle">Hesabınızdan çıkış yapın</string>

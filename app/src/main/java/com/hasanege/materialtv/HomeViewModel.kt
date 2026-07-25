@@ -26,7 +26,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
+import org.json.JSONArray
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -64,6 +67,21 @@ class HomeViewModel @Inject constructor(
 
     private var isInitialDataLoaded = false
     private val removedContinueWatchingItems = mutableSetOf<Int>() // Track removed stream IDs
+
+    // Cached SharedPreferences instance — avoid repeated lookups
+    private val categoryPrefs: SharedPreferences by lazy {
+        application.getSharedPreferences("category_prefs_v2", Context.MODE_PRIVATE)
+    }
+    private var saveCategoryJob: Job? = null
+
+    // Category Reordering & Hiding Preferences (must be before init block!)
+    var hiddenCategoryIdsMovies by mutableStateOf<Set<String>>(emptySet())
+    var hiddenCategoryIdsSeries by mutableStateOf<Set<String>>(emptySet())
+    var hiddenCategoryIdsLive by mutableStateOf<Set<String>>(emptySet())
+
+    var orderedCategoryIdsMovies by mutableStateOf<List<String>>(emptyList())
+    var orderedCategoryIdsSeries by mutableStateOf<List<String>>(emptyList())
+    var orderedCategoryIdsLive by mutableStateOf<List<String>>(emptyList())
 
     init {
         loadRemovedItems()
@@ -492,14 +510,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Category Reordering & Hiding Preferences
-    var hiddenCategoryIdsMovies by mutableStateOf<Set<String>>(emptySet())
-    var hiddenCategoryIdsSeries by mutableStateOf<Set<String>>(emptySet())
-    var hiddenCategoryIdsLive by mutableStateOf<Set<String>>(emptySet())
 
-    var orderedCategoryIdsMovies by mutableStateOf<List<String>>(emptyList())
-    var orderedCategoryIdsSeries by mutableStateOf<List<String>>(emptyList())
-    var orderedCategoryIdsLive by mutableStateOf<List<String>>(emptyList())
 
     fun toggleCategoryVisibility(tab: Int, categoryId: String) {
         when (tab) {
@@ -586,40 +597,74 @@ class HomeViewModel @Inject constructor(
         saveCategoryPreferences()
     }
 
+    /**
+     * Debounced save — rapid changes (e.g. drag-reorder) coalesce into a single disk write.
+     * Uses JSON strings instead of StringSet to completely avoid the Android
+     * SharedPreferences.getStringSet() reference-identity bug.
+     */
     private fun saveCategoryPreferences() {
-        try {
-            val prefs = application.getSharedPreferences("category_preferences", Context.MODE_PRIVATE)
-            prefs.edit()
-                .putStringSet("hidden_movies", hiddenCategoryIdsMovies)
-                .putStringSet("hidden_series", hiddenCategoryIdsSeries)
-                .putStringSet("hidden_live", hiddenCategoryIdsLive)
-                .putString("order_movies", orderedCategoryIdsMovies.joinToString(","))
-                .putString("order_series", orderedCategoryIdsSeries.joinToString(","))
-                .putString("order_live", orderedCategoryIdsLive.joinToString(","))
-                .apply()
-        } catch (e: Exception) {
-            android.util.Log.e("HomeViewModel", "Error saving category preferences", e)
+        saveCategoryJob?.cancel()
+        saveCategoryJob = viewModelScope.launch(Dispatchers.IO) {
+            delay(250) // debounce: wait 250ms for rapid-fire changes to settle
+            try {
+                categoryPrefs.edit()
+                    .putString("h_mov", JSONArray(hiddenCategoryIdsMovies.toList()).toString())
+                    .putString("h_ser", JSONArray(hiddenCategoryIdsSeries.toList()).toString())
+                    .putString("h_liv", JSONArray(hiddenCategoryIdsLive.toList()).toString())
+                    .putString("o_mov", JSONArray(orderedCategoryIdsMovies).toString())
+                    .putString("o_ser", JSONArray(orderedCategoryIdsSeries).toString())
+                    .putString("o_liv", JSONArray(orderedCategoryIdsLive).toString())
+                    .apply() // async write — UI thread stays free
+            } catch (e: Exception) {
+                android.util.Log.e("HomeViewModel", "Error saving category prefs", e)
+            }
         }
     }
 
     private fun loadCategoryPreferences() {
         try {
-            val prefs = application.getSharedPreferences("category_preferences", Context.MODE_PRIVATE)
-            hiddenCategoryIdsMovies = prefs.getStringSet("hidden_movies", emptySet()) ?: emptySet()
-            hiddenCategoryIdsSeries = prefs.getStringSet("hidden_series", emptySet()) ?: emptySet()
-            hiddenCategoryIdsLive = prefs.getStringSet("hidden_live", emptySet()) ?: emptySet()
-
-            val orderMovies = prefs.getString("order_movies", null)
-            orderedCategoryIdsMovies = if (!orderMovies.isNullOrBlank()) orderMovies.split(",") else emptyList()
-
-            val orderSeries = prefs.getString("order_series", null)
-            orderedCategoryIdsSeries = if (!orderSeries.isNullOrBlank()) orderSeries.split(",") else emptyList()
-
-            val orderLive = prefs.getString("order_live", null)
-            orderedCategoryIdsLive = if (!orderLive.isNullOrBlank()) orderLive.split(",") else emptyList()
+            // Try new v2 format first, fall back to legacy v1
+            val hasV2 = categoryPrefs.contains("h_mov")
+            if (hasV2) {
+                hiddenCategoryIdsMovies = jsonToStringSet(categoryPrefs.getString("h_mov", null))
+                hiddenCategoryIdsSeries = jsonToStringSet(categoryPrefs.getString("h_ser", null))
+                hiddenCategoryIdsLive = jsonToStringSet(categoryPrefs.getString("h_liv", null))
+                orderedCategoryIdsMovies = jsonToStringList(categoryPrefs.getString("o_mov", null))
+                orderedCategoryIdsSeries = jsonToStringList(categoryPrefs.getString("o_ser", null))
+                orderedCategoryIdsLive = jsonToStringList(categoryPrefs.getString("o_liv", null))
+            } else {
+                // Migrate from legacy v1 format (StringSet + comma-separated)
+                val legacyPrefs = application.getSharedPreferences("category_preferences", Context.MODE_PRIVATE)
+                if (legacyPrefs.all.isNotEmpty()) {
+                    hiddenCategoryIdsMovies = (legacyPrefs.getStringSet("hidden_movies", emptySet()) ?: emptySet()).toHashSet()
+                    hiddenCategoryIdsSeries = (legacyPrefs.getStringSet("hidden_series", emptySet()) ?: emptySet()).toHashSet()
+                    hiddenCategoryIdsLive = (legacyPrefs.getStringSet("hidden_live", emptySet()) ?: emptySet()).toHashSet()
+                    val om = legacyPrefs.getString("order_movies", null)
+                    orderedCategoryIdsMovies = if (!om.isNullOrBlank()) om.split(",") else emptyList()
+                    val os = legacyPrefs.getString("order_series", null)
+                    orderedCategoryIdsSeries = if (!os.isNullOrBlank()) os.split(",") else emptyList()
+                    val ol = legacyPrefs.getString("order_live", null)
+                    orderedCategoryIdsLive = if (!ol.isNullOrBlank()) ol.split(",") else emptyList()
+                    // Persist to v2 and clear legacy
+                    saveCategoryPreferences()
+                    legacyPrefs.edit().clear().apply()
+                }
+            }
         } catch (e: Exception) {
-            android.util.Log.e("HomeViewModel", "Error loading category preferences", e)
+            android.util.Log.e("HomeViewModel", "Error loading category prefs", e)
         }
+    }
+
+    private fun jsonToStringSet(json: String?): Set<String> {
+        if (json.isNullOrBlank()) return emptySet()
+        val arr = JSONArray(json)
+        return buildSet { for (i in 0 until arr.length()) add(arr.getString(i)) }
+    }
+
+    private fun jsonToStringList(json: String?): List<String> {
+        if (json.isNullOrBlank()) return emptyList()
+        val arr = JSONArray(json)
+        return buildList { for (i in 0 until arr.length()) add(arr.getString(i)) }
     }
 
     // Featured Showcase Seed Preferences (Daily Refresh & Persistent Manual Reroll)

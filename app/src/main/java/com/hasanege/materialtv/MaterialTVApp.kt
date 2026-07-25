@@ -308,7 +308,14 @@ fun MaterialTVApp(
                             when (targetState) {
                                 MainScreen.Home.route -> {
                                     if (isOnline) {
-                                        HomeScreen(homeViewModel, initialTabIndex, onSearchClick = { isSearchExpanded = true })
+                                        HomeScreen(
+                                            homeViewModel = homeViewModel, 
+                                            initialTabIndex = initialTabIndex, 
+                                            isSearchExpanded = isSearchExpanded,
+                                            searchQuery = searchQuery,
+                                            onQueryChange = { searchQuery = it },
+                                            onSearchExpandedChange = { isSearchExpanded = it }
+                                        )
                                     } else {
                                         NoConnectionScreen()
                                     }
@@ -335,7 +342,14 @@ fun MaterialTVApp(
                             when (targetState) {
                                 MainScreen.Home.route -> {
                                     if (isOnline) {
-                                        HomeScreen(homeViewModel, initialTabIndex, onSearchClick = { isSearchExpanded = true })
+                                        HomeScreen(
+                                            homeViewModel = homeViewModel, 
+                                            initialTabIndex = initialTabIndex, 
+                                            isSearchExpanded = isSearchExpanded,
+                                            searchQuery = searchQuery,
+                                            onQueryChange = { searchQuery = it },
+                                            onSearchExpandedChange = { isSearchExpanded = it }
+                                        )
                                     } else {
                                         NoConnectionScreen()
                                     }
@@ -372,16 +386,6 @@ fun MaterialTVApp(
                     }
                 }
             }
-            
-            // Expanding Search Overlay - Always render so AnimatedVisibility can animate
-            ExpandingSearchBar(
-                isExpanded = isSearchExpanded,
-                query = searchQuery,
-                onQueryChange = { searchQuery = it },
-                onSearch = { searchViewModel.search(it) },
-                onExpandedChange = { isSearchExpanded = it },
-                searchViewModel = searchViewModel
-            )
         }
     }
 }
@@ -469,94 +473,9 @@ fun ExpandingSearchBar(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 88.dp, bottom = 16.dp)
             ) {
-                // Modern Search Card with elevation and rounded corners
-                androidx.compose.material3.Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = ExpressiveShapes.Medium,
-                            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        ),
-                    shape = ExpressiveShapes.Medium,
-                    colors = androidx.compose.material3.CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Back button with ripple effect
-                        IconButton(
-                            onClick = { 
-                                onQueryChange("")
-                                onExpandedChange(false) 
-                            },
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.action_back),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        
-                        // Search TextField with custom styling
-                        androidx.compose.material3.TextField(
-                            value = query,
-                            onValueChange = onQueryChange,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(vertical = 4.dp),
-                            placeholder = { 
-                                Text(
-                                    stringResource(R.string.search_field_label),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                ) 
-                            },
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
-                            colors = androidx.compose.material3.TextFieldDefaults.colors(
-                                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
-                            ),
-                            singleLine = true
-                        )
-                        
-                        // Clear button with animation
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = query.isNotEmpty(),
-                            enter = fadeIn(animationSpec = ExpressiveAnimations.enter()) + 
-                                   androidx.compose.animation.scaleIn(animationSpec = ExpressiveAnimations.enter()),
-                            exit = fadeOut(animationSpec = ExpressiveAnimations.exit()) + 
-                                  androidx.compose.animation.scaleOut(animationSpec = ExpressiveAnimations.exit())
-                        ) {
-                            IconButton(
-                                onClick = { onQueryChange("") },
-                                modifier = Modifier.padding(4.dp)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Close,
-                                    contentDescription = stringResource(R.string.action_clear),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
-                
                 // Search Results with modern card design
                 androidx.compose.material3.Card(
                     modifier = Modifier
@@ -687,7 +606,15 @@ fun SearchResultsOverlay(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchClick: () -> Unit = {}, onCastClick: () -> Unit = {}) {
+fun HomeScreen(
+    homeViewModel: HomeViewModel, 
+    initialTabIndex: Int = 0, 
+    isSearchExpanded: Boolean = false,
+    searchQuery: String = "",
+    onQueryChange: (String) -> Unit = {},
+    onSearchExpandedChange: (Boolean) -> Unit = {},
+    onCastClick: () -> Unit = {}
+) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val selectedTabIndexState = remember { mutableIntStateOf(initialTabIndex) }
     var selectedTabIndex by selectedTabIndexState
@@ -718,23 +645,66 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
         lifecycleOwner.lifecycle.addObserver(observer)
     }
     
-    // Sync Tab selection with Pager when tab is clicked
-    LaunchedEffect(selectedTabIndex) {
-        if (pagerState.currentPage != selectedTabIndex) {
+    val animateToTab: (Int) -> Unit = { targetIndex ->
+        selectedTabIndex = targetIndex
+        scope.launch {
             pagerState.animateScrollToPage(
-                page = selectedTabIndex,
+                page = targetIndex,
                 animationSpec = androidx.compose.animation.core.spring(
-                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
-                    stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
                 )
             )
         }
     }
-    
-    // Sync Pager scroll with Tab selection
-    LaunchedEffect(pagerState.currentPage) {
-        if (selectedTabIndex != pagerState.currentPage) {
-            selectedTabIndex = pagerState.currentPage
+
+    // Sync Pager scroll with Tab selection when swipe completes
+    LaunchedEffect(pagerState) {
+        androidx.compose.runtime.snapshotFlow { pagerState.settledPage }.collect { settledPage ->
+            if (!pagerState.isScrollInProgress && selectedTabIndex != settledPage) {
+                selectedTabIndex = settledPage
+            }
+        }
+    }
+
+    var initialSearchTabIndex by remember { mutableIntStateOf(initialTabIndex) }
+
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            initialSearchTabIndex = selectedTabIndex
+        } else {
+            animateToTab(initialSearchTabIndex)
+        }
+    }
+
+    val moviesState = homeViewModel.moviesByCategoriesState
+    val seriesState = homeViewModel.seriesByCategoriesState
+    val liveState = homeViewModel.liveByCategoriesState
+
+    LaunchedEffect(searchQuery, isSearchExpanded, moviesState, seriesState, liveState) {
+        if (isSearchExpanded && searchQuery.isNotBlank()) {
+            val hasMovies = (moviesState as? UiState.Success)?.data?.values?.flatten()
+                ?.any { it.name?.contains(searchQuery, ignoreCase = true) == true } == true
+
+            val hasSeries = (seriesState as? UiState.Success)?.data?.values?.flatten()
+                ?.any { it.name?.contains(searchQuery, ignoreCase = true) == true } == true
+
+            val hasLive = (liveState as? UiState.Success)?.data?.values?.flatten()
+                ?.any { it.name?.contains(searchQuery, ignoreCase = true) == true } == true
+
+            val targetTab = when {
+                hasMovies -> 0
+                hasSeries -> 1
+                hasLive -> 2
+                else -> initialSearchTabIndex
+            }
+            if (selectedTabIndex != targetTab) {
+                animateToTab(targetTab)
+            }
+        } else if (isSearchExpanded && searchQuery.isBlank()) {
+            if (selectedTabIndex != initialSearchTabIndex) {
+                animateToTab(initialSearchTabIndex)
+            }
         }
     }
 
@@ -769,116 +739,202 @@ fun HomeScreen(homeViewModel: HomeViewModel, initialTabIndex: Int = 0, onSearchC
                 CategoryScreen(
                     viewModel = homeViewModel, 
                     selectedTab = page,
-                    contentPadding = PaddingValues(top = tabHeightDp, bottom = 100.dp)
+                    contentPadding = PaddingValues(top = tabHeightDp, bottom = 100.dp),
+                    isSearchExpanded = isSearchExpanded,
+                    searchQuery = searchQuery
                 )
             }
         }
         
-        Row(
+        Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .zIndex(2f) 
-                .padding(horizontal = 8.dp)
-                .padding(top = 12.dp, bottom = 12.dp)
-                .fillMaxWidth()
-                .height(64.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 6.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .zIndex(2f)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var showMoreMenu by remember { mutableStateOf(false) }
-            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-            Box(
+            Row(
                 modifier = Modifier
-                    .wrapContentSize(align = Alignment.TopCenter, unbounded = true)
-                    .zIndex(10f)
+                    .padding(horizontal = 8.dp)
+                    .padding(top = 12.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .height(64.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier
-                        .width(56.dp)
-                        .shadow(
-                            elevation = 6.dp,
+                androidx.compose.animation.AnimatedContent(
+                    targetState = isSearchExpanded,
+                    label = "TopBarSearchAnim"
+                ) { expanded ->
+                    if (expanded) {
+                        androidx.compose.material3.Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(
+                                    elevation = 4.dp,
+                                    shape = androidx.compose.foundation.shape.CircleShape,
+                                    ambientColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.4f),
+                                    spotColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f)
+                                ),
                             shape = androidx.compose.foundation.shape.CircleShape,
-                            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                            spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        )
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .animateContentSize(alignment = Alignment.TopCenter),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .clickable {
-                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                                showMoreMenu = !showMoreMenu
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Daha Fazla",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    if (showMoreMenu) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .clickable {
-                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                                    showMoreMenu = false
-                                    context.startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Cast,
-                                contentDescription = "Cast",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
+                            colors = androidx.compose.material3.CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
                             )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .clickable {
-                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                                    showMoreMenu = false
-                                    showManageCategoriesBottomSheet = true
-                                },
-                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Tune,
-                                contentDescription = "Kategorileri Düzenle",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .padding(horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = { 
+                                        onQueryChange("")
+                                        onSearchExpandedChange(false) 
+                                    },
+                                    modifier = Modifier.padding(4.dp)
+                                ) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back), tint = MaterialTheme.colorScheme.onSurface)
+                                }
+                                androidx.compose.material3.TextField(
+                                    value = searchQuery,
+                                    onValueChange = onQueryChange,
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text(stringResource(R.string.search_field_label), color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                                    colors = androidx.compose.material3.TextFieldDefaults.colors(
+                                        focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                                    ),
+                                    singleLine = true
+                                )
+                                androidx.compose.animation.AnimatedVisibility(visible = searchQuery.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = { onQueryChange("") },
+                                        modifier = Modifier.padding(4.dp)
+                                    ) {
+                                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.action_clear), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(if (configuration.screenWidthDp < 360) 4.dp else 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            var showMoreMenu by remember { mutableStateOf(false) }
+                            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentSize(align = Alignment.TopCenter, unbounded = true)
+                                    .zIndex(10f)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .width(56.dp)
+                                        .shadow(
+                                            elevation = 4.dp,
+                                            shape = androidx.compose.foundation.shape.CircleShape,
+                                            ambientColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.4f),
+                                            spotColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f)
+                                        )
+                                        .clip(androidx.compose.foundation.shape.CircleShape)
+                                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                                        .animateContentSize(alignment = Alignment.TopCenter),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(56.dp)
+                                            .clickable {
+                                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                                showMoreMenu = !showMoreMenu
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = "Daha Fazla",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+
+                                    if (showMoreMenu) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(56.dp)
+                                                .clickable {
+                                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                                    showMoreMenu = false
+                                                    context.startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Cast,
+                                                contentDescription = "Cast",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(56.dp)
+                                                .clickable {
+                                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                                    showMoreMenu = false
+                                                    showManageCategoriesBottomSheet = true
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Tune,
+                                                contentDescription = "Kategorileri Düzenle",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            ExpressiveTabSlider(
+                                tabs = tabs,
+                                selectedIndex = selectedTabIndex,
+                                onTabSelected = { index -> animateToTab(index) },
+                                modifier = Modifier.weight(1f),
+                                scrollable = false
+                            )
+                            
+                            FloatingActionIsland(
+                                icon = Icons.Default.Search,
+                                contentDescription = stringResource(R.string.action_search),
+                                onClick = { onSearchExpandedChange(true) }
                             )
                         }
                     }
                 }
             }
-            
-            ExpressiveTabSlider(
-                tabs = tabs,
-                selectedIndex = selectedTabIndex,
-                onTabSelected = { index -> selectedTabIndex = index },
-                modifier = Modifier.weight(1f),
-                scrollable = false
-            )
-            
-            FloatingActionIsland(
-                icon = Icons.Default.Search,
-                contentDescription = stringResource(R.string.action_search),
-                onClick = onSearchClick
-            )
+            androidx.compose.animation.AnimatedVisibility(visible = isSearchExpanded) {
+                Box(modifier = Modifier.padding(bottom = 12.dp)) {
+                    ExpressiveTabSlider(
+                        tabs = tabs,
+                        selectedIndex = selectedTabIndex,
+                        onTabSelected = { index -> animateToTab(index) },
+                        scrollable = false
+                    )
+                }
+            }
         }
 
         if (showManageCategoriesBottomSheet) {
@@ -905,14 +961,14 @@ fun FloatingActionIsland(
         modifier = modifier
             .size(56.dp)
             .shadow(
-                elevation = 6.dp,
+                elevation = 4.dp,
                 shape = androidx.compose.foundation.shape.CircleShape,
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                ambientColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.4f),
+                spotColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f)
             )
             .clip(androidx.compose.foundation.shape.CircleShape)
             .background(
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = androidx.compose.foundation.shape.CircleShape
             )
             .clickable {
@@ -936,7 +992,9 @@ fun FloatingActionIsland(
 fun CategoryScreen(
     viewModel: HomeViewModel,
     selectedTab: Int,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    isSearchExpanded: Boolean = false,
+    searchQuery: String = ""
 ) {
     val context = LocalContext.current
     val navController = com.hasanege.materialtv.navigation.LocalNavController.current
@@ -1004,16 +1062,63 @@ fun CategoryScreen(
             val continueWatchingState by viewModel.continueWatchingState.collectAsState()
             val continueWatchingList = (continueWatchingState as? UiState.Success)?.data ?: emptyList()
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .widthIn(max = 1200.dp)
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = adaptivePadding),
-                contentPadding = PaddingValues(top = 12.dp, bottom = 100.dp)
-            ) {
-                // 1. Tab Specific Content (Movies, Series, Live TV)
-                when (selectedTab) {
+            if (isSearchExpanded && searchQuery.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = adaptivePadding)
+                        .padding(top = if (isSearchExpanded) 60.dp else 0.dp)
+                ) {
+                    when (selectedTab) {
+                        0 -> {
+                            val state = viewModel.moviesByCategoriesState
+                            if (state is UiState.Success) {
+                                val searchResults = state.data.values.flatten()
+                                    .filter { it.name?.contains(searchQuery, ignoreCase = true) == true }
+                                    .distinctBy { it.streamId }
+                                if (searchResults.isEmpty()) com.hasanege.materialtv.ui.NoResultsFound()
+                                else com.hasanege.materialtv.ui.MoviesList(searchResults)
+                            } else {
+                                CenteredProgressBar()
+                            }
+                        }
+                        1 -> {
+                            val state = viewModel.seriesByCategoriesState
+                            if (state is UiState.Success) {
+                                val searchResults = state.data.values.flatten()
+                                    .filter { it.name?.contains(searchQuery, ignoreCase = true) == true }
+                                    .distinctBy { it.seriesId }
+                                if (searchResults.isEmpty()) com.hasanege.materialtv.ui.NoResultsFound()
+                                else com.hasanege.materialtv.ui.SeriesList(searchResults)
+                            } else {
+                                CenteredProgressBar()
+                            }
+                        }
+                        2 -> {
+                            val state = viewModel.liveByCategoriesState
+                            if (state is UiState.Success) {
+                                val searchResults = state.data.values.flatten()
+                                    .filter { it.name?.contains(searchQuery, ignoreCase = true) == true }
+                                    .distinctBy { it.streamId }
+                                if (searchResults.isEmpty()) com.hasanege.materialtv.ui.NoResultsFound()
+                                else com.hasanege.materialtv.ui.LiveTVList(searchResults)
+                            } else {
+                                CenteredProgressBar()
+                            }
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .widthIn(max = 1200.dp)
+                        .align(Alignment.TopCenter)
+                        .padding(horizontal = adaptivePadding),
+                    contentPadding = PaddingValues(top = 12.dp, bottom = 100.dp)
+                ) {
+                    // 1. Tab Specific Content (Movies, Series, Live TV)
+                    when (selectedTab) {
                     0 -> {
                         when (val moviesByCategoriesState = viewModel.moviesByCategoriesState) {
                             is UiState.Loading -> item { CenteredProgressBar() }
@@ -1039,43 +1144,27 @@ fun CategoryScreen(
                                         }
                                     }
 
-                                // Hero Banner: "İzlemeye DEVAM ET" (Uses Continue Watching if available, or fallback to Movies)
-                                if (continueWatchingList.isNotEmpty() || allMovies.isNotEmpty()) {
+                                // Hero Banner: "İzlemeye DEVAM ET" (Only render item if continueWatchingList is not empty)
+                                if (continueWatchingList.isNotEmpty()) {
                                     item(key = "hero_carousel_movies") {
-                                        if (continueWatchingList.isNotEmpty()) {
-                                            HeroCarousel(
-                                                items = continueWatchingList,
-                                                key = { item -> item.streamId },
-                                                imageUrlProvider = { it.streamIcon },
-                                                titleProvider = { it.name },
-                                                subtitleProvider = getSubtitleForContinueItem,
-                                                isRandom = false,
-                                                onRerollClick = {
-                                                    viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true)
-                                                },
-                                                onItemClick = { item ->
-                                                    launchContinueWatchingItem(context, navController, item)
-                                                },
-                                                onPinClick = onPinContinueItem,
-                                                onFavoriteClick = onFavoriteContinueItem,
-                                                onRemoveClick = onRemoveContinueItem,
-                                                isFavoriteProvider = isFavoriteContinueItem
-                                            )
-                                        } else if (allMovies.isNotEmpty()) {
-                                            HeroCarousel(
-                                                items = allMovies,
-                                                key = { item -> item.streamId ?: 0 },
-                                                imageUrlProvider = { it.streamIcon },
-                                                titleProvider = { it.name },
-                                                subtitleProvider = { it.year },
-                                                externalSeed = viewModel.featuredSeedMovies,
-                                                isRandom = false,
-                                                onRerollClick = { viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true) },
-                                                onItemClick = { vodItem ->
-                                                    navController.navigate(Screen.Detail.createRoute(vodItem.streamId ?: -1, vodItem.name ?: ""))
-                                                }
-                                            )
-                                        }
+                                        HeroCarousel(
+                                            items = continueWatchingList,
+                                            key = { item -> item.streamId },
+                                            imageUrlProvider = { it.streamIcon },
+                                            titleProvider = { it.name },
+                                            subtitleProvider = getSubtitleForContinueItem,
+                                            isRandom = false,
+                                            onRerollClick = {
+                                                viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true)
+                                            },
+                                            onItemClick = { item ->
+                                                launchContinueWatchingItem(context, navController, item)
+                                            },
+                                            onPinClick = onPinContinueItem,
+                                            onFavoriteClick = onFavoriteContinueItem,
+                                            onRemoveClick = onRemoveContinueItem,
+                                            isFavoriteProvider = isFavoriteContinueItem
+                                        )
                                     }
                                 }
 
@@ -1118,43 +1207,27 @@ fun CategoryScreen(
                                         }
                                     }
 
-                                // Hero Banner: "İzlemeye DEVAM ET" (Uses Continue Watching if available, or fallback to Series)
-                                if (continueWatchingList.isNotEmpty() || allSeries.isNotEmpty()) {
+                                // Hero Banner: "İzlemeye DEVAM ET" (Only render item if continueWatchingList is not empty)
+                                if (continueWatchingList.isNotEmpty()) {
                                     item(key = "hero_carousel_series") {
-                                        if (continueWatchingList.isNotEmpty()) {
-                                            HeroCarousel(
-                                                items = continueWatchingList,
-                                                key = { item -> item.streamId },
-                                                imageUrlProvider = { it.streamIcon },
-                                                titleProvider = { it.name },
-                                                subtitleProvider = getSubtitleForContinueItem,
-                                                isRandom = false,
-                                                onRerollClick = {
-                                                    viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true)
-                                                },
-                                                onItemClick = { item ->
-                                                    launchContinueWatchingItem(context, navController, item)
-                                                },
-                                                onPinClick = onPinContinueItem,
-                                                onFavoriteClick = onFavoriteContinueItem,
-                                                onRemoveClick = onRemoveContinueItem,
-                                                isFavoriteProvider = isFavoriteContinueItem
-                                            )
-                                        } else if (allSeries.isNotEmpty()) {
-                                            HeroCarousel(
-                                                items = allSeries,
-                                                key = { item -> item.seriesId ?: 0 },
-                                                imageUrlProvider = { it.cover },
-                                                titleProvider = { it.name },
-                                                subtitleProvider = { it.year },
-                                                externalSeed = viewModel.featuredSeedSeries,
-                                                isRandom = false,
-                                                onRerollClick = { viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true) },
-                                                onItemClick = { seriesItem ->
-                                                    navController.navigate(Screen.SeriesDetail.createRoute(seriesItem.seriesId ?: -1, seriesItem.name ?: ""))
-                                                }
-                                            )
-                                        }
+                                        HeroCarousel(
+                                            items = continueWatchingList,
+                                            key = { item -> item.streamId },
+                                            imageUrlProvider = { it.streamIcon },
+                                            titleProvider = { it.name },
+                                            subtitleProvider = getSubtitleForContinueItem,
+                                            isRandom = false,
+                                            onRerollClick = {
+                                                viewModel.loadInitialData(SessionManager.username ?: "", SessionManager.password ?: "", true)
+                                            },
+                                            onItemClick = { item ->
+                                                launchContinueWatchingItem(context, navController, item)
+                                            },
+                                            onPinClick = onPinContinueItem,
+                                            onFavoriteClick = onFavoriteContinueItem,
+                                            onRemoveClick = onRemoveContinueItem,
+                                            isFavoriteProvider = isFavoriteContinueItem
+                                        )
                                     }
                                 }
 
@@ -1251,6 +1324,7 @@ fun CategoryScreen(
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -1445,7 +1519,7 @@ fun <T> HeroCarousel(
                         letterSpacing = 1.sp
                     ),
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.offset(y = (-10).dp)
+                    modifier = Modifier.offset(y = (-2).dp)
                 )
             }
 
@@ -2267,7 +2341,7 @@ fun ManageCategoriesBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.manage_categories_title),
                         style = MaterialTheme.typography.titleLarge,
@@ -2286,7 +2360,7 @@ fun ManageCategoriesBottomSheet(
                 }
             }
 
-            androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
+            androidx.compose.foundation.layout.Spacer(Modifier.height(16.dp))
 
             // Tab Selection Filter Chips inside BottomSheet
             Row(
@@ -2310,8 +2384,6 @@ fun ManageCategoriesBottomSheet(
                     )
                 }
             }
-
-            androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
 
             androidx.compose.foundation.layout.Spacer(Modifier.height(16.dp))
 
@@ -2369,6 +2441,8 @@ fun ManageCategoriesBottomSheet(
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = if (isHidden) FontWeight.Normal else FontWeight.SemiBold,
                             color = if (isHidden) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
                         )
 

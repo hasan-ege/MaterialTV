@@ -662,4 +662,17 @@
     <string name="opensubtitles_applied">تم تطبيق OpenSubtitles (%s)</string>
     <string name="download_error">خطأ في التنزيل</string>
     <string name="network_error">حدث خطأ في الشبكة</string>
+    <string name="settings_opensubtitles_integration">تكامل OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key">مفتاح API لـ OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key_desc">أدخل مفتاح API الخاص بـ OpenSubtitles للبحث عن الترجمات وتنزيلها مباشرة في المشغل.</string>
+    <string name="player_tab_embed">ترجمة مدمجة</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">لم يتم تكوين مفتاح API لـ OpenSubtitles. يرجى إدخال المفتاح في الإعدادات.</string>
+    <string name="opensubtitles_quota_exceeded">تم الوصول إلى حد تنزيل OpenSubtitles اليومي. يرجى المحاولة لاحقاً أو ترقية حسابك.</string>
+    <string name="opensubtitles_search_no_results">لم يتم العثور على ترجمات في OpenSubtitles لهذا المحتوى.</string>
+    <string name="opensubtitles_searching">جاري البحث في OpenSubtitles…</string>
+    <string name="opensubtitles_downloading">جاري تنزيل الترجمة…</string>
+    <string name="settings_opensubtitles_languages_title">لغات ترجمة OpenSubtitles</string>
+    <string name="settings_opensubtitles_languages_desc">حدد اللغات المفضلة لتصفية البحث عن الترجمات</string>
+    <string name="opensubtitles_languages_dialog_title">حدد لغات الترجمة</string>
 </resources>

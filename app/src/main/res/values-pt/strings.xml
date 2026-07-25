@@ -607,4 +607,17 @@
     <string name="opensubtitles_applied">OpenSubtitles (%s) aplicado</string>
     <string name="download_error">Erro de download</string>
     <string name="network_error">Ocorreu um erro de rede</string>
+    <string name="settings_opensubtitles_integration">Integração do OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key">Chave de API do OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key_desc">Insira sua chave de API do OpenSubtitles para pesquisar e baixar legendas diretamente no reprodutor.</string>
+    <string name="player_tab_embed">Legendas integradas</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">Chave de API do OpenSubtitles não configurada. Insira sua chave nas Configurações.</string>
+    <string name="opensubtitles_quota_exceeded">Limite diário de downloads do OpenSubtitles atingido. Tente novamente mais tarde ou atualize sua conta.</string>
+    <string name="opensubtitles_search_no_results">Nenhuma legenda encontrada no OpenSubtitles para este conteúdo.</string>
+    <string name="opensubtitles_searching">Pesquisando no OpenSubtitles…</string>
+    <string name="opensubtitles_downloading">Baixando legenda…</string>
+    <string name="settings_opensubtitles_languages_title">Idiomas de legendas do OpenSubtitles</string>
+    <string name="settings_opensubtitles_languages_desc">Selecione os idiomas preferidos para filtrar pesquisas de legendas</string>
+    <string name="opensubtitles_languages_dialog_title">Selecionar idiomas de legendas</string>
 </resources>

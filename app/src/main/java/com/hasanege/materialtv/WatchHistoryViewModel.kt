@@ -8,18 +8,43 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class WatchHistoryViewModel @Inject constructor() : ViewModel() {
 
-    val history: StateFlow<List<ContinueWatchingItem>> = WatchHistoryManager.historyFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    private val _filterType = MutableStateFlow<String?>(null)
+    val filterType: StateFlow<String?> = _filterType
+
+    val history: StateFlow<List<ContinueWatchingItem>> = combine(
+        WatchHistoryManager.historyFlow,
+        _filterType
+    ) { historyList, filter ->
+        val filtered = if (filter.isNullOrEmpty() || filter == "ALL") {
+            historyList
+        } else {
+            val typeStr = when (filter) {
+                "MOVIES" -> "movie"
+                "SERIES" -> "series"
+                "LIVE" -> "live"
+                else -> filter.lowercase()
+            }
+            historyList.filter { it.type == typeStr }
+        }
+        filtered.sortedByDescending { it.isPinned }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    fun setFilter(type: String?) {
+        _filterType.value = type
+    }
 
     val continueWatching: StateFlow<List<ContinueWatchingItem>> = WatchHistoryManager.historyFlow
         .map { history ->

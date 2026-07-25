@@ -560,4 +560,17 @@
     <string name="opensubtitles_applied">已应用 OpenSubtitles (%s)</string>
     <string name="download_error">下载错误</string>
     <string name="network_error">发生网络错误</string>
+    <string name="settings_opensubtitles_integration">OpenSubtitles 集成</string>
+    <string name="settings_opensubtitles_api_key">OpenSubtitles API 密钥</string>
+    <string name="settings_opensubtitles_api_key_desc">输入您的 OpenSubtitles API 密钥，以便直接在播放器中搜索和下载在线字幕。</string>
+    <string name="player_tab_embed">内置字幕</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">未配置 OpenSubtitles API 密钥。请在“设置”中输入您的 API 密钥。</string>
+    <string name="opensubtitles_quota_exceeded">已达到今天的 OpenSubtitles 下载限制。请稍后再试或升级您的 OpenSubtitles 帐户。</string>
+    <string name="opensubtitles_search_no_results">在 OpenSubtitles 上未找到此内容的字幕。</string>
+    <string name="opensubtitles_searching">正在搜索 OpenSubtitles…</string>
+    <string name="opensubtitles_downloading">正在下载字幕…</string>
+    <string name="settings_opensubtitles_languages_title">OpenSubtitles 字幕语言</string>
+    <string name="settings_opensubtitles_languages_desc">选择用于过滤字幕搜索的首选语言</string>
+    <string name="opensubtitles_languages_dialog_title">选择字幕语言</string>
 </resources>

@@ -209,6 +209,10 @@
 
     <!-- Watch History -->
     <string name="history_title">Watch History</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_movies">Movies</string>
+    <string name="history_filter_series">Series</string>
+    <string name="history_filter_live">Live TV</string>
     <string name="history_empty">No watch history yet</string>
     <string name="history_empty_desc">Start watching movies and series to see your history here</string>
     <string name="history_progress">Progress: %d%%</string>
@@ -446,6 +450,8 @@
     <!-- Watch History - Additional -->
     <string name="history_empty_title">No watch history yet</string>
     <string name="history_watched_percent">%d%% Watched</string>
+    <string name="history_watched_minutes">%1$d / %2$d min</string>
+    <string name="history_watched_minutes_only">%1$d min</string>
 
     <!-- Profile - Additional -->
     <string name="profile_logout_subtitle">Sign out of your account</string>

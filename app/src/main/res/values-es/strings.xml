@@ -606,4 +606,17 @@
     <string name="opensubtitles_applied">OpenSubtitles (%s) aplicado</string>
     <string name="download_error">Error de descarga</string>
     <string name="network_error">Ocurrió un error de red</string>
+    <string name="settings_opensubtitles_integration">Integración de OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key">Clave API de OpenSubtitles</string>
+    <string name="settings_opensubtitles_api_key_desc">Ingrese su clave API de OpenSubtitles para buscar y descargar subtítulos en línea directamente en el reproductor.</string>
+    <string name="player_tab_embed">Subtítulos integrados</string>
+    <string name="player_tab_opensubtitles">OpenSubtitles</string>
+    <string name="opensubtitles_key_missing">Clave API de OpenSubtitles no configurada. Ingrese su clave API en Ajustes.</string>
+    <string name="opensubtitles_quota_exceeded">Límite diario de descargas de OpenSubtitles alcanzado. Inténtelo más tarde o mejore su cuenta.</string>
+    <string name="opensubtitles_search_no_results">No se encontraron subtítulos en OpenSubtitles para este contenido.</string>
+    <string name="opensubtitles_searching">Buscando en OpenSubtitles…</string>
+    <string name="opensubtitles_downloading">Descargando subtítulo…</string>
+    <string name="settings_opensubtitles_languages_title">Idiomas de subtítulos de OpenSubtitles</string>
+    <string name="settings_opensubtitles_languages_desc">Seleccione los idiomas preferidos para filtrar las búsquedas de subtítulos</string>
+    <string name="opensubtitles_languages_dialog_title">Seleccionar idiomas de subtítulos</string>
 </resources>
