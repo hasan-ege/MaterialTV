@@ -101,6 +101,7 @@
     <string name="settings_hybrid_mode">Hibrit Mod</string>
     <string name="settings_vlc">VLC</string>
     <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_mpv">LibMPV (FFmpeg)</string>
     <string name="settings_use_vlc_downloads">İndirmeler için VLC Kullan</string>
     <string name="settings_stats_for_nerds">Teknik İstatistikler</string>
     <string name="settings_subtitle_size">Altyazı Boyutu</string>

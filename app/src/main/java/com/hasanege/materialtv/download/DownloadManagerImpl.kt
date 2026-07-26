@@ -74,7 +74,8 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                 contentType = ContentType.MOVIE,
                 status = DownloadStatus.PENDING,
                 imdbId = imdbId,
-                skipDbSegments = skipSegments
+                skipDbSegments = skipSegments,
+                streamId = movie.streamId
             )
             
             repository.insertDownload(downloadItem)
@@ -88,7 +89,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
     /**
      * Bölüm indirme başlat
      */
-    override fun startDownload(episode: Episode, seriesName: String, seasonNumber: Int, episodeNumber: Int, seriesCoverUrl: String?, imdbId: String?) {
+    override fun startDownload(episode: Episode, seriesName: String, seasonNumber: Int, episodeNumber: Int, seriesCoverUrl: String?, imdbId: String?, seriesId: Int?) {
         scope.launch {
             val url = DownloadManager.getEpisodeStreamUrl(context, episode.id, episode.containerExtension)
             if (url == null) {
@@ -126,7 +127,10 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                 episodeNumber = episodeNumber,
                 status = DownloadStatus.PENDING,
                 imdbId = imdbId,
-                skipDbSegments = skipSegments
+                skipDbSegments = skipSegments,
+                episodeId = episode.id,
+                seriesId = seriesId,
+                streamId = episode.id.toIntOrNull()
             )
             
             repository.insertDownload(downloadItem)
@@ -140,7 +144,7 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
     /**
      * Tüm sezonu sıralı olarak indir (20ms gecikme ile)
      */
-    override fun downloadSeason(seriesName: String, seasonNumber: Int, episodes: List<Episode>, seriesCoverUrl: String?, imdbId: String?) {
+    override fun downloadSeason(seriesName: String, seasonNumber: Int, episodes: List<Episode>, seriesCoverUrl: String?, imdbId: String?, seriesId: Int?) {
         scope.launch {
             // Bölümleri numarasına göre sırala
             val sortedEpisodes = episodes.sortedBy { it.episodeNum?.toIntOrNull() ?: 0 }
@@ -156,7 +160,8 @@ class DownloadManagerImpl private constructor(private val context: Context) : Do
                     seasonNumber = seasonNumber,
                     episodeNumber = episodeNum,
                     seriesCoverUrl = seriesCoverUrl,
-                    imdbId = imdbId
+                    imdbId = imdbId,
+                    seriesId = seriesId
                 )
                 
                 if (index < sortedEpisodes.size - 1) {

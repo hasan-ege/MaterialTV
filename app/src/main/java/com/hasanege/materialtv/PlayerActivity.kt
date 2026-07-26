@@ -129,6 +129,7 @@ import com.hasanege.materialtv.ui.player.formatDuration
 import com.hasanege.materialtv.player.PlayerEngine
 import com.hasanege.materialtv.player.LibVlcEngine
 import com.hasanege.materialtv.player.ExoPlayerEngine
+import com.hasanege.materialtv.player.LibMpvEngine
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import androidx.lifecycle.lifecycleScope
@@ -170,10 +171,12 @@ class PlayerActivity : ComponentActivity() {
     private var playerEngine by mutableStateOf<PlayerEngine?>(null)
     private var currentMovie by mutableStateOf<VodItem?>(null)
     private var currentSeriesEpisode by mutableStateOf<Episode?>(null)
+    private var allSeriesEpisodes by mutableStateOf<List<Episode>?>(null)
     private var seriesId: Int = -1
     private var title by mutableStateOf<String?>(null)
     private var currentUrl: String? = null
-    private var isVlc by mutableStateOf(false) // Default to false (ExoPlayer) initially
+    enum class EngineType { EXOPLAYER, VLC, MPV }
+    private var engineType by mutableStateOf(EngineType.EXOPLAYER)
     private var lastPlaybackPosition: Long = 0L
     private var statsForNerds by mutableStateOf(false)
     private var liveStreamId: Int = -1
@@ -227,6 +230,7 @@ class PlayerActivity : ComponentActivity() {
         val episodeId = intent.getStringExtra("EPISODE_ID")
         this.title = intent.getStringExtra("TITLE")
         val position = intent.getLongExtra("position", 0L)
+        lastPlaybackPosition = position
         val liveUrl = intent.getStringExtra("url")
         uri = intent.getStringExtra("URI")
         isDownloadedFile = intent.getBooleanExtra("IS_DOWNLOADED_FILE", false)
@@ -235,9 +239,11 @@ class PlayerActivity : ComponentActivity() {
         streamIcon = intent.getStringExtra("STREAM_ICON")
         
         // Check if this is a live stream
+        // IMPORTANT: If SERIES_ID is set, this is a series episode, NOT a live stream,
+        // even if the URL comes via the "url" key.
         val isLiveTypeExtra = intent.getStringExtra("TYPE") == "live"
         val hasLiveId = intent.hasExtra("LIVE_STREAM_ID")
-        isLiveStream = liveUrl != null || hasLiveId || isLiveTypeExtra
+        isLiveStream = (liveUrl != null || hasLiveId || isLiveTypeExtra) && seriesId == -1
         if (isLiveStream) {
             liveStreamId = intent.getIntExtra("LIVE_STREAM_ID", if (streamId != -1) streamId else -1)
             liveStreamName = this.title ?: "Live Stream"
@@ -249,17 +255,25 @@ class PlayerActivity : ComponentActivity() {
         val settingsRepository = com.hasanege.materialtv.data.SettingsRepository.getInstance(this)
         var useVlcForDownloads = true
         // Read settings instantly from StateFlow (Memory)
-        val player = settingsRepository.defaultPlayer.value
+        val playerPref = settingsRepository.defaultPlayerPreference.value
         // Check if we're being forced to use VLC due to ExoPlayer failure
         val forceVlc = intent.getBooleanExtra("forceVlc", false)
-        isVlc = forceVlc || (player == "VLC")
+        engineType = if (forceVlc) {
+            EngineType.VLC
+        } else {
+            when (playerPref) {
+                com.hasanege.materialtv.data.PlayerPreference.VLC -> EngineType.VLC
+                com.hasanege.materialtv.data.PlayerPreference.MPV -> EngineType.MPV
+                else -> EngineType.EXOPLAYER
+            }
+        }
         statsForNerds = settingsRepository.statsForNerds.value
         useVlcForDownloads = settingsRepository.useVlcForDownloads.value
 
         // Indirilmis icerik (yerel dosya) aciliyorsa, ayara gore VLC zorla
         val currentUri = uri
         if (currentUri != null && useVlcForDownloads) {
-            isVlc = true
+            engineType = EngineType.VLC
         }
 
         if (currentUri != null) {
@@ -278,8 +292,11 @@ class PlayerActivity : ComponentActivity() {
                                 onPrevious = {}, 
                                 onSwitchEngine = { switchEngine() },
                                 skipDbSegments = skipDbSegments,
-                                imdbId = intent.getStringExtra("IMDB_ID"),
-                                openSubtitlesRepository = openSubtitlesRepository
+                                imdbId = intent.getStringExtra("IMDB_ID") ?: resolvedImdbId,
+                                tmdbId = intent.getStringExtra("TMDB_ID"),
+                                seasonNumber = intent.getIntExtra("SEASON", -1).takeIf { it > 0 },
+                                openSubtitlesRepository = openSubtitlesRepository,
+                                onEnterPip = { enterPipMode() }
                             )
                         }
                         androidx.compose.material3.SnackbarHost(
@@ -295,7 +312,8 @@ class PlayerActivity : ComponentActivity() {
             return
         }
 
-        if (liveUrl != null) {
+
+        if (liveUrl != null && isLiveStream) {
             android.util.Log.d("PlayerActivity", "Playing live URL: [REDACTED]")
             if (liveUrl.isEmpty()) {
                 android.util.Log.e("PlayerActivity", "URL is empty!")
@@ -320,6 +338,13 @@ class PlayerActivity : ComponentActivity() {
                                 onPrevious = {}, 
                                 onSwitchEngine = { switchEngine() },
                                 isLiveStream = true,
+                                skipDbSegments = skipDbSegments,
+                                imdbId = intent.getStringExtra("IMDB_ID") ?: resolvedImdbId,
+                                tmdbId = intent.getStringExtra("TMDB_ID"),
+                                seasonNumber = intent.getIntExtra("SEASON", -1).takeIf { it > 0 } ?: currentSeriesEpisode?.season,
+                                episodeNumber = intent.getIntExtra("EPISODE", -1).takeIf { it > 0 } ?: currentSeriesEpisode?.episodeNum?.toIntOrNull(),
+                                openSubtitlesRepository = openSubtitlesRepository,
+                                onEnterPip = { enterPipMode() },
                                 onShowEpg = {
                                     if (liveStreamId != -1) {
                                         showEpgSheet = true
@@ -415,8 +440,12 @@ class PlayerActivity : ComponentActivity() {
                                      this@PlayerActivity.title = targetEpisode?.title
                                      
                                      val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${targetEpisode?.id}.${targetEpisode?.containerExtension}"
-                                     val startPosition = intent.getLongExtra("position", 0L)
-                                     android.util.Log.e("PlayerActivity", "AutoPlay Series Episode: ${targetEpisode?.title}, ID: ${targetEpisode?.id}")
+                                     val intentPosition = intent.getLongExtra("position", 0L)
+                                     val historyPosition = watchHistory.find { it.episodeId == targetEpisode?.id || it.streamId.toString() == targetEpisode?.id }?.let {
+                                         if (!WatchHistoryManager.isFinished(it, nextEpisodeThreshold)) it.position else 0L
+                                     } ?: 0L
+                                     val startPosition = if (intentPosition > 0) intentPosition else historyPosition
+                                     android.util.Log.e("PlayerActivity", "AutoPlay Series Episode: ${targetEpisode?.title}, ID: ${targetEpisode?.id}, Pos: $startPosition")
                                      initializePlayer(url, startPosition)
                                  }
                              }
@@ -428,15 +457,47 @@ class PlayerActivity : ComponentActivity() {
                     }
                 }
 
+                // Populate allSeriesEpisodes reactively when seriesState is loaded
+                LaunchedEffect(seriesState) {
+                    if (seriesState is UiState.Success) {
+                        val seriesData = seriesState.data.xtreamData
+                        val epElement = seriesData.episodes
+                        if (epElement is kotlinx.serialization.json.JsonObject) {
+                            val jsonFormat = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; isLenient = true }
+                            val list = epElement.entries.flatMap { (seasonKey, element) ->
+                                val sNum = seasonKey.toIntOrNull() ?: 0
+                                try {
+                                    val eps = jsonFormat.decodeFromJsonElement<List<Episode>>(element)
+                                    eps.map { it.copy(season = sNum) }
+                                } catch (e: Exception) {
+                                    emptyList()
+                                }
+                            }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
+                            allSeriesEpisodes = list
+                            android.util.Log.d("PlayerActivity", "Loaded ${list.size} series episodes into allSeriesEpisodes state.")
+                        }
+                    }
+                }
+
                 if (hasPlayed) {
                     val engine = playerEngine
                     if (engine != null) {
-                        val activeImdbId = resolvedImdbId
+                        val rawImdbId = resolvedImdbId
                             ?: intent.getStringExtra("IMDB_ID")
-                            ?: (movieState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
                             ?: (movieState as? UiState.Success)?.data?.tmdbData?.imdbId
-                            ?: (seriesState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
+                            ?: (movieState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
                             ?: (seriesState as? UiState.Success)?.data?.tmdbData?.imdbId
+                            ?: (seriesState as? UiState.Success)?.data?.xtreamData?.info?.imdbID
+
+                        val activeImdbId = rawImdbId?.trim()?.takeIf { it.isNotBlank() && it != "N/A" }?.let {
+                            if (!it.startsWith("tt") && it.all { char -> char.isDigit() }) "tt$it" else it
+                        }
+
+                        val activeContentType = when {
+                            isLiveStream -> com.hasanege.materialtv.model.PlaybackContentType.LIVE_TV
+                            currentSeriesEpisode != null || seriesId != -1 -> com.hasanege.materialtv.model.PlaybackContentType.SERIES
+                            else -> com.hasanege.materialtv.model.PlaybackContentType.MOVIE
+                        }
 
                         FullscreenPlayer(
                             engine = engine,
@@ -449,9 +510,15 @@ class PlayerActivity : ComponentActivity() {
                             onSwitchEngine = { switchEngine() },
                             skipDbSegments = skipDbSegments,
                             imdbId = activeImdbId,
+                            tmdbId = intent.getStringExtra("TMDB_ID"),
                             seasonNumber = currentSeriesEpisode?.season,
                             episodeNumber = currentSeriesEpisode?.episodeNum?.toIntOrNull(),
-                            openSubtitlesRepository = openSubtitlesRepository
+                            openSubtitlesRepository = openSubtitlesRepository,
+                            episodes = allSeriesEpisodes,
+                            currentEpisode = currentSeriesEpisode,
+                            onSelectEpisode = { episode -> playEpisode(episode) },
+                            onEnterPip = { enterPipMode() },
+                            contentType = activeContentType
                         )
                     } else {
                         Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
@@ -549,6 +616,8 @@ class PlayerActivity : ComponentActivity() {
                                 list.map { it.copy(season = sNum) }
                             }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
 
+                            allSeriesEpisodes = allEpisodes
+
                             val lastHistoryItem = watchHistory.find { 
                                 it.seriesId == seriesId && it.type == "series" && !it.dismissedFromContinueWatching
                             }
@@ -603,11 +672,8 @@ class PlayerActivity : ComponentActivity() {
                                          historyItem.position
                                     } else 0L
                                     
+                                    skipDbSegments = null
                                     initializePlayer(episodeUrl(episode), startPosition)
-                                    fetchSkipDbSegments(
-                                        providedSeason = episode.season,
-                                        providedEpisode = episode.episodeNum?.toIntOrNull()
-                                    )
                                     hasPlayed = true
                                 },
                                 onDownloadEpisode = { episode ->
@@ -620,7 +686,8 @@ class PlayerActivity : ComponentActivity() {
                                         seriesName,
                                         sNum,
                                         epNum,
-                                        seriesState.data.tmdbData?.posterPath ?: seriesData.info?.cover
+                                        seriesState.data.tmdbData?.posterPath ?: seriesData.info?.cover,
+                                        seriesId = seriesId
                                     )
                                 },
                                 onDownloadSeason = { seasonNum, episodes ->
@@ -632,7 +699,8 @@ class PlayerActivity : ComponentActivity() {
                                             seriesName,
                                             seasonNum,
                                             epNum,
-                                            seriesState.data.tmdbData?.posterPath ?: seriesData.info?.cover
+                                            seriesState.data.tmdbData?.posterPath ?: seriesData.info?.cover,
+                                            seriesId = seriesId
                                         )
                                     }
                                 },
@@ -676,17 +744,23 @@ class PlayerActivity : ComponentActivity() {
         providedSeason: Int? = null,
         providedEpisode: Int? = null
     ) {
+        // Clear old segments immediately so stale skip buttons don't linger
+        skipDbSegments = null
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
+                var localJsonFile: java.io.File? = null
+                var localDownloadItem: com.hasanege.materialtv.download.DownloadItem? = null
+
                 // If this is a downloaded local file, try to read SkipDB segments from the sidecar JSON metadata file first
                 if (isDownloadedFile && !currentUrl.isNullOrBlank()) {
                     val path = currentUrl!!.removePrefix("file://")
                     val jsonPath = if (path.contains(".")) path.substringBeforeLast(".") + ".json" else "$path.json"
-                    val file = java.io.File(jsonPath)
-                    if (file.exists()) {
+                    localJsonFile = java.io.File(jsonPath)
+                    if (localJsonFile.exists()) {
                         try {
-                            val text = file.readText()
+                            val text = localJsonFile.readText()
                             val item = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.decodeFromString<com.hasanege.materialtv.download.DownloadItem>(text)
+                            localDownloadItem = item
                             if (item.skipDbSegments != null) {
                                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                                     skipDbSegments = item.skipDbSegments
@@ -701,15 +775,28 @@ class PlayerActivity : ComponentActivity() {
                 }
 
                 var imdbId = intent.getStringExtra("IMDB_ID")?.takeIf { it.isNotBlank() }
+                    ?: localDownloadItem?.imdbId?.takeIf { it.isNotBlank() }
 
                 val ep = currentSeriesEpisode
-                val season = providedSeason 
+                var season = providedSeason 
                     ?: ep?.season 
                     ?: intent.getIntExtra("SEASON", -1).takeIf { it > 0 }
+                    ?: localDownloadItem?.seasonNumber?.takeIf { it > 0 }
 
-                val episode = providedEpisode 
+                var episode = providedEpisode 
                     ?: ep?.episodeNum?.toIntOrNull() 
                     ?: intent.getIntExtra("EPISODE", -1).takeIf { it > 0 }
+                    ?: localDownloadItem?.episodeNumber?.takeIf { it > 0 }
+
+                val currentTitle = this@PlayerActivity.title
+                if ((season == null || episode == null) && !currentTitle.isNullOrBlank()) {
+                    val sRegex = Regex("""(?i)S(\d+)\s*E(\d+)""")
+                    val match = sRegex.find(currentTitle)
+                    if (match != null) {
+                        if (season == null) season = match.groupValues[1].toIntOrNull()
+                        if (episode == null) episode = match.groupValues[2].toIntOrNull()
+                    }
+                }
 
                 // If imdbId is null, check Room DB for tmdb_content record
                 if (imdbId.isNullOrBlank()) {
@@ -719,11 +806,13 @@ class PlayerActivity : ComponentActivity() {
                     if (targetId > 0) {
                         val dbEntity = tmdbDao.getTmdbContent(targetId.toString(), contentType, profileId)
                         imdbId = dbEntity?.imdbId?.takeIf { it.isNotBlank() }
+                        if (!imdbId.isNullOrBlank()) {
+                            android.util.Log.d("IMDB_RESOLVER", "Found IMDb ID in Room DB for targetId $targetId: $imdbId")
+                        }
                     }
                 }
 
                 // If still null, search TMDB API by title dynamically!
-                val currentTitle = this@PlayerActivity.title
                 if (imdbId.isNullOrBlank() && !currentTitle.isNullOrBlank()) {
                     try {
                         val cleanName = com.hasanege.materialtv.repository.cleanMediaTitle(currentTitle)
@@ -744,37 +833,55 @@ class PlayerActivity : ComponentActivity() {
                                 imdbId = detailRes.externalIds?.imdbId?.takeIf { it.isNotBlank() }
                             }
                         }
+                        if (!imdbId.isNullOrBlank()) {
+                            android.util.Log.d("IMDB_RESOLVER", "Dynamically resolved IMDb ID via TMDB search for '$currentTitle': $imdbId")
+                        }
                     } catch (e: Exception) {
-                        android.util.Log.w("PlayerActivity", "Dynamic IMDb search failed for: $currentTitle", e)
+                        android.util.Log.w("IMDB_RESOLVER", "Dynamic IMDb search failed for: $currentTitle", e)
                     }
                 }
 
-                val formattedImdbId = imdbId?.trim()?.let { if (!it.startsWith("tt")) "tt$it" else it }
+                val formattedImdbId = imdbId?.trim()?.let { if (!it.startsWith("tt") && it.all { c -> c.isDigit() }) "tt$it" else it }
                 if (!formattedImdbId.isNullOrBlank()) {
+                    android.util.Log.d("IMDB_RESOLVER", "Final IMDb ID resolved for title '$currentTitle' (season=$season, episode=$episode): $formattedImdbId")
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                         resolvedImdbId = formattedImdbId
                     }
+                } else {
+                    android.util.Log.w("IMDB_RESOLVER", "No IMDb ID could be resolved for '$currentTitle'. Skipping SkipDB API call.")
+                    return@launch
+                }
 
-                    var durationSeconds: Int? = null
-                    for (i in 1..20) {
-                        val dur = playerEngine?.getDuration() ?: 0L
-                        if (dur > 0) {
-                            durationSeconds = (dur / 1000).toInt()
-                            break
-                        }
-                        kotlinx.coroutines.delay(500)
+                var durationSeconds: Int? = null
+                for (i in 1..20) {
+                    val dur = playerEngine?.getDuration() ?: 0L
+                    if (dur > 0) {
+                        durationSeconds = (dur / 1000).toInt()
+                        break
                     }
+                    kotlinx.coroutines.delay(500)
+                }
 
-                    android.util.Log.d("SkipDB", "Querying SkipDB: imdb_id=$formattedImdbId, season=$season, episode=$episode, duration=$durationSeconds")
-                    val response = skipDbApiService.getSegments(
-                        imdbId = formattedImdbId,
-                        season = season,
-                        episode = episode,
-                        duration = durationSeconds
-                    )
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        skipDbSegments = response.segments
-                        android.util.Log.d("SkipDB", "SkipDB segments loaded: ${response.segments}")
+                android.util.Log.d("SkipDB", "Querying SkipDB: imdb_id=$formattedImdbId, season=$season, episode=$episode, duration=$durationSeconds")
+                val response = skipDbApiService.getSegments(
+                    imdbId = formattedImdbId,
+                    season = season,
+                    episode = episode,
+                    duration = durationSeconds
+                )
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    skipDbSegments = response.segments
+                    android.util.Log.d("SkipDB", "SkipDB segments loaded: ${response.segments}")
+                }
+
+                if (isDownloadedFile && localJsonFile != null && localDownloadItem != null && response.segments != null) {
+                    try {
+                        val updatedItem = localDownloadItem.copy(skipDbSegments = response.segments)
+                        val updatedJson = kotlinx.serialization.json.Json { prettyPrint = true }.encodeToString(com.hasanege.materialtv.download.DownloadItem.serializer(), updatedItem)
+                        localJsonFile.writeText(updatedJson)
+                        android.util.Log.d("SkipDB", "Saved live-fetched SkipDB segments to offline metadata JSON.")
+                    } catch (e: Exception) {
+                        android.util.Log.e("SkipDB", "Failed to update offline metadata JSON with fetched SkipDB segments", e)
                     }
                 }
             } catch (e: Exception) {
@@ -784,27 +891,61 @@ class PlayerActivity : ComponentActivity() {
     }
 
     private fun initializePlayer(url: String, position: Long) {
-
         currentUrl = url
-        playerEngine?.release()
 
-        // Force VLC for downloaded files if configured
-        val useVlcForDownloads = runBlocking { 
-             com.hasanege.materialtv.data.SettingsRepository.getInstance(this@PlayerActivity).useVlcForDownloads.first() 
-        }
-        
-        if (isDownloadedFile && useVlcForDownloads) {
-            isVlc = true
+        val prepareUrl = if (isDownloadedFile && !url.contains("://")) {
+            "file://$url"
+        } else {
+            url
         }
 
         val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(this@PlayerActivity)
-        val newEngine = if (isVlc) LibVlcEngine() else ExoPlayerEngine()
+        val useVlcForDownloads = settingsRepo.useVlcForDownloads.value
+
+        val targetEngineType = if (isDownloadedFile && useVlcForDownloads) {
+            EngineType.VLC
+        } else {
+            engineType
+        }
+
+        val existingEngine = playerEngine
+        if (existingEngine != null && targetEngineType == engineType) {
+            android.util.Log.d("PlayerActivity", "Reusing existing $engineType engine for seamless episode switch: $prepareUrl")
+            existingEngine.prepare(prepareUrl, position)
+            existingEngine.play()
+            setPipAutoEnterEnabled(true)
+            fetchSkipDbSegments()
+            startWatchSession()
+            return
+        }
+
+        android.util.Log.d("PlayerActivity", "Initializing new $targetEngineType engine for $prepareUrl")
+        // Null out playerEngine state first so Compose unbinds cleanly
+        playerEngine = null
+        existingEngine?.release()
+
+        val newEngine: PlayerEngine = when (targetEngineType) {
+            EngineType.EXOPLAYER -> ExoPlayerEngine()
+            EngineType.VLC -> LibVlcEngine()
+            EngineType.MPV -> LibMpvEngine()
+        }
+
+        try {
+            newEngine.initialize(this@PlayerActivity)
+        } catch (t: Throwable) {
+            android.util.Log.e("PlayerActivity", "Engine $targetEngineType initialization failed: ${t.message}", t)
+            android.widget.Toast.makeText(this@PlayerActivity, "$targetEngineType motoru bu cihazda desteklenmiyor, VLC motoruna geçiliyor.", android.widget.Toast.LENGTH_LONG).show()
+            if (targetEngineType != EngineType.VLC) {
+                engineType = EngineType.VLC
+                initializePlayer(url, position)
+                return
+            }
+        }
 
         newEngine.apply {
-            initialize(this@PlayerActivity)
             setSubtitleSize("Normal")
             setOnErrorCallback { error ->
-                 if (!isVlc) {
+                 if (engineType == EngineType.EXOPLAYER) {
                      lifecycleScope.launch {
                          val pref = settingsRepo.defaultPlayerPreference.first()
                          if (pref == com.hasanege.materialtv.data.PlayerPreference.HYBRID) {
@@ -823,16 +964,8 @@ class PlayerActivity : ComponentActivity() {
                           }
                       }
                  } else {
-                     android.widget.Toast.makeText(this@PlayerActivity, "VLC playback error: ${StringUtils.sanitizeUrl(error.message)}", android.widget.Toast.LENGTH_LONG).show()
+                      android.widget.Toast.makeText(this@PlayerActivity, "${engineType.name} playback error: ${StringUtils.sanitizeUrl(error.message)}", android.widget.Toast.LENGTH_LONG).show()
                 }
-            }
-            
-            // For local files, ensure we pass a valid URI string
-            // If it's a file path, prefix with file:// if needed (ExoPlayer handles paths, but VLC might prefer URI)
-            val prepareUrl = if (isDownloadedFile && !url.contains("://")) {
-                "file://$url"
-            } else {
-                url
             }
             
             prepare(prepareUrl, position)
@@ -874,33 +1007,57 @@ class PlayerActivity : ComponentActivity() {
         playerEngine?.release()
         playerEngine = null
         
-        // Switch engine type
-        isVlc = !isVlc
+        // Switch engine type: EXOPLAYER -> VLC -> MPV -> EXOPLAYER
+        engineType = when (engineType) {
+            EngineType.EXOPLAYER -> EngineType.VLC
+            EngineType.VLC -> EngineType.MPV
+            EngineType.MPV -> EngineType.EXOPLAYER
+        }
         
         // Initialize new player instantly
         initializePlayer(currentUrl, currentPos)
     }
 
     private fun playNextEpisode() {
-        val seriesData = (detailViewModel.series as? UiState.Success)?.data?.xtreamData ?: return
-        val episodesElement = seriesData.episodes ?: return
-        val episodesMap = json.decodeFromJsonElement<Map<String, List<Episode>>>(episodesElement)
-        val allEpisodes = episodesMap.values.flatten()
-        val currentIndex = allEpisodes.indexOf(currentSeriesEpisode)
-        if (currentIndex < allEpisodes.size - 1) {
-            val nextEpisode = allEpisodes[currentIndex + 1]
+        val episodesList = allSeriesEpisodes?.takeIf { it.isNotEmpty() } ?: run {
+            val seriesData = (detailViewModel.series as? UiState.Success)?.data?.xtreamData
+            val episodesElement = seriesData?.episodes
+            if (episodesElement is kotlinx.serialization.json.JsonObject) {
+                try {
+                    val map = json.decodeFromJsonElement<Map<String, List<Episode>>>(episodesElement)
+                    map.entries.flatMap { (seasonKey, list) ->
+                        val sNum = seasonKey.toIntOrNull() ?: 0
+                        list.map { it.copy(season = sNum) }
+                    }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
+                } catch (e: Exception) { emptyList() }
+            } else emptyList()
+        }
+
+        val currentIndex = episodesList.indexOfFirst { it.id == currentSeriesEpisode?.id }
+        if (currentIndex != -1 && currentIndex < episodesList.size - 1) {
+            val nextEpisode = episodesList[currentIndex + 1]
             playEpisode(nextEpisode)
         }
     }
 
     private fun playPreviousEpisode() {
-        val seriesData = (detailViewModel.series as? UiState.Success)?.data?.xtreamData ?: return
-        val episodesElement = seriesData.episodes ?: return
-        val episodesMap = json.decodeFromJsonElement<Map<String, List<Episode>>>(episodesElement)
-        val allEpisodes = episodesMap.values.flatten()
-        val currentIndex = allEpisodes.indexOf(currentSeriesEpisode)
+        val episodesList = allSeriesEpisodes?.takeIf { it.isNotEmpty() } ?: run {
+            val seriesData = (detailViewModel.series as? UiState.Success)?.data?.xtreamData
+            val episodesElement = seriesData?.episodes
+            if (episodesElement is kotlinx.serialization.json.JsonObject) {
+                try {
+                    val map = json.decodeFromJsonElement<Map<String, List<Episode>>>(episodesElement)
+                    map.entries.flatMap { (seasonKey, list) ->
+                        val sNum = seasonKey.toIntOrNull() ?: 0
+                        list.map { it.copy(season = sNum) }
+                    }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
+                } catch (e: Exception) { emptyList() }
+            } else emptyList()
+        }
+
+        val currentIndex = episodesList.indexOfFirst { it.id == currentSeriesEpisode?.id }
         if (currentIndex > 0) {
-            val previousEpisode = allEpisodes[currentIndex - 1]
+            val previousEpisode = episodesList[currentIndex - 1]
             playEpisode(previousEpisode)
         }
     }
@@ -909,16 +1066,22 @@ class PlayerActivity : ComponentActivity() {
         savePlaybackPosition()
 
         currentSeriesEpisode = episode
-        this.title = episode.title
+        this.title = episode.title ?: "${episode.episodeNum}. Bölüm"
 
-        playerEngine?.let { player ->
-            val historyItem = WatchHistoryManager.getHistory()
-                .find { it.streamId.toString() == episode.id }
-            val startPosition = historyItem?.position ?: 0L
-            player.prepare(episodeUrl(episode))
-            player.seekTo(startPosition)
-            player.play()
-        }
+        // Clear stale SkipDB segments from previous episode
+        skipDbSegments = null
+
+        val historyItem = WatchHistoryManager.getHistory()
+            .find { it.streamId.toString() == episode.id }
+        val startPosition = historyItem?.position ?: 0L
+
+        initializePlayer(episodeUrl(episode), startPosition)
+
+        // Fetch new SkipDB segments for this episode
+        fetchSkipDbSegments(
+            providedSeason = episode.season,
+            providedEpisode = episode.episodeNum?.toIntOrNull()
+        )
     }
 
 
@@ -1269,37 +1432,54 @@ class PlayerActivity : ComponentActivity() {
                 // Save downloaded file watch time
                 else if (isDownloadedFile && uri != null) {
                     val currentUri = uri!! // Captured because uri is a mutable property
-                    // Treat downloaded files exactly like regular content
-                    val currentOriginalUrl = originalUrl
-                    if (currentOriginalUrl != null && currentOriginalUrl.isNotEmpty()) {
-                        // This was originally a series episode, save as series
-                        val episodeInfo = com.hasanege.materialtv.data.EpisodeGroupingHelper.extractEpisodeInfo(this.title ?: "")
-                        val downloadedItem = ContinueWatchingItem(
-                            streamId = WatchHistoryManager.getDownloadId(currentUri),
-                            name = this.title ?: "Downloaded File",
-                            streamIcon = this.streamIcon, // Use original icon if available
+                    val epIdStr = intent.getStringExtra("EPISODE_ID")
+                    val intentSeriesId = intent.getIntExtra("SERIES_ID", -1)
+                    val intentStreamId = intent.getIntExtra("STREAM_ID", -1)
+
+                    if (intentSeriesId != -1 || !epIdStr.isNullOrBlank()) {
+                        val epStreamId = epIdStr?.toIntOrNull() ?: intentStreamId.takeIf { it != -1 } ?: WatchHistoryManager.getDownloadId(currentUri)
+                        val episodeItem = ContinueWatchingItem(
+                            streamId = epStreamId,
+                            name = this.title ?: "Downloaded Episode",
+                            streamIcon = this.streamIcon ?: currentUri,
                             duration = duration,
                             position = position,
-                            type = if (episodeInfo != null) "series" else "movie",
-                            seriesId = episodeInfo?.seriesName?.hashCode(),
-                            episodeId = currentOriginalUrl, // Store original URL
+                            type = "series",
+                            seriesId = intentSeriesId.takeIf { it != -1 },
+                            episodeId = epIdStr ?: epStreamId.toString(),
                             containerExtension = "file",
                             isDownloaded = true,
                             localPath = currentUri,
                             actualWatchTime = actualWatchTime
                         )
-                        WatchHistoryManager.saveItemWithWatchTime(downloadedItem, deltaWatchTime)
+                        WatchHistoryManager.saveItemWithWatchTime(episodeItem, deltaWatchTime)
+                    } else if (intentStreamId != -1) {
+                        val movieItem = ContinueWatchingItem(
+                            streamId = intentStreamId,
+                            name = this.title ?: "Downloaded Movie",
+                            streamIcon = this.streamIcon ?: currentUri,
+                            duration = duration,
+                            position = position,
+                            type = "movie",
+                            seriesId = null,
+                            episodeId = null,
+                            containerExtension = "file",
+                            isDownloaded = true,
+                            localPath = currentUri,
+                            actualWatchTime = actualWatchTime
+                        )
+                        WatchHistoryManager.saveItemWithWatchTime(movieItem, deltaWatchTime)
                     } else {
-                        // Regular downloaded file
+                        // Fallback logic for generic local file
                         val downloadedItem = ContinueWatchingItem(
                             streamId = WatchHistoryManager.getDownloadId(currentUri),
                             name = this.title ?: "Downloaded File",
-                            streamIcon = currentUri, // Store file path for playback
+                            streamIcon = currentUri,
                             duration = duration,
                             position = position,
                             type = "downloaded",
                             seriesId = null,
-                            episodeId = currentOriginalUrl,
+                            episodeId = originalUrl,
                             containerExtension = "file",
                             isDownloaded = true,
                             localPath = currentUri,
@@ -1310,16 +1490,18 @@ class PlayerActivity : ComponentActivity() {
                 }
                 // Save VoD content watch time
                 else if (seriesId != -1) {
-                    android.util.Log.d("PlayerActivity", "Saving Episode Progress -> Title: $title, SeriesID: $seriesId, StreamID: $streamId, Position: $posStr, Duration: $durStr")
+                    val epIdStr = currentSeriesEpisode?.id ?: intent.getStringExtra("EPISODE_ID")
+                    val epStreamId = epIdStr?.toIntOrNull() ?: streamId
+                    android.util.Log.d("PlayerActivity", "Saving Episode Progress -> Title: $title, SeriesID: $seriesId, EpStreamID: $epStreamId, EpID: $epIdStr, Position: $posStr, Duration: $durStr")
                     val episodeItem = ContinueWatchingItem(
-                        streamId = streamId,
-                        name = title ?: "Episode",
+                        streamId = if (epStreamId != -1) epStreamId else seriesId,
+                        name = title ?: currentSeriesEpisode?.title ?: "Episode",
                         streamIcon = streamIcon,
                         duration = duration,
                         position = position,
                         type = "series",
                         seriesId = seriesId,
-                        episodeId = null, // Can be added if needed
+                        episodeId = epIdStr,
                         actualWatchTime = actualWatchTime
                     )
                     WatchHistoryManager.saveItemWithWatchTime(episodeItem, deltaWatchTime)

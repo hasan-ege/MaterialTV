@@ -1554,9 +1554,10 @@ fun CastMemberItem(member: CastMember, modifier: Modifier = Modifier) {
 fun MovieDetailScreenRoute(
     streamId: Int,
     initialTitle: String,
+    autoPlay: Boolean = false,
     viewModel: DetailViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?) -> Unit
+    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?, String?) -> Unit
 ) {
     val downloadManager = com.hasanege.materialtv.download.DownloadManagerImpl.getInstance(androidx.compose.ui.platform.LocalContext.current)
     
@@ -1582,7 +1583,23 @@ fun MovieDetailScreenRoute(
                 containerExtension = movieData?.containerExtension
             )
             val historyItem = watchHistory.find { it.streamId == streamId && it.type == "movie" && !it.dismissedFromContinueWatching }
-            val resumePosition = historyItem?.position ?: 0L
+            val resumePosition = if (historyItem != null && !com.hasanege.materialtv.WatchHistoryManager.isFinished(historyItem, 5)) {
+                historyItem.position
+            } else 0L
+
+            val bestImdbId = state.data.tmdbData?.imdbId?.takeIf { it.isNotBlank() }
+                ?: state.data.xtreamData.info?.imdbID?.takeIf { it != "N/A" && it.isNotBlank() }
+            val tmdbId = state.data.tmdbData?.tmdbId?.takeIf { it > 0 }?.toString()
+
+            var hasAutoPlayed by remember { mutableStateOf(false) }
+            LaunchedEffect(state) {
+                if (autoPlay && !hasAutoPlayed) {
+                    hasAutoPlayed = true
+                    val ext = movieData?.containerExtension ?: "mp4"
+                    val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/movie/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${streamId}.${ext}"
+                    onNavigateToPlayer(url, movieData?.name ?: initialTitle, streamId, -1, resumePosition, coverIcon, bestImdbId, tmdbId)
+                }
+            }
 
             DetailScreen(
                 movie = vodItem,
@@ -1594,10 +1611,10 @@ fun MovieDetailScreenRoute(
                 onPlayMovie = {
                     val ext = movieData?.containerExtension ?: "mp4"
                     val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/movie/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${streamId}.${ext}"
-                    onNavigateToPlayer(url, movieData?.name ?: initialTitle, streamId, -1, resumePosition, coverIcon, state.data.tmdbData?.imdbId)
+                    onNavigateToPlayer(url, movieData?.name ?: initialTitle, streamId, -1, resumePosition, coverIcon, bestImdbId, tmdbId)
                 },
                 onDownloadMovie = {
-                    downloadManager.startDownload(vodItem, imdbId = state.data.tmdbData?.imdbId)
+                    downloadManager.startDownload(vodItem, imdbId = bestImdbId)
                 },
                 onCancelDownload = { downloadId ->
                     downloadManager.cancelDownload(downloadId)
@@ -1621,9 +1638,10 @@ fun MovieDetailScreenRoute(
 fun SeriesDetailScreenRoute(
     seriesId: Int,
     initialTitle: String,
+    autoPlay: Boolean = false,
     viewModel: SeriesDetailViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?, Int?, Int?) -> Unit
+    onNavigateToPlayer: (String, String, Int, Int, Long, String?, String?, String?, Int?, Int?) -> Unit
 ) {
     val downloadManager = com.hasanege.materialtv.download.DownloadManagerImpl.getInstance(androidx.compose.ui.platform.LocalContext.current)
     
@@ -1643,40 +1661,90 @@ fun SeriesDetailScreenRoute(
     when (val state = viewModel.seriesInfoState) {
         is UiState.Success -> {
             val seriesCover = state.data.xtreamData.info?.cover ?: state.data.tmdbData?.posterPath
-            val resumeData = androidx.compose.runtime.remember(state.data, watchHistory, nextEpisodeThreshold) {
-                val historyItem = watchHistory.find { 
-                    it.seriesId == seriesId && it.type == "series" && !it.dismissedFromContinueWatching
+            val resumeData = androidx.compose.runtime.remember(state.data, watchHistory, activeDownloads, nextEpisodeThreshold) {
+                val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; isLenient = true }
+                val epElement = state.data.xtreamData.episodes
+                val allEpisodes = try {
+                    if (epElement is kotlinx.serialization.json.JsonObject) {
+                        epElement.entries.flatMap { (key, element) ->
+                            val sNum = key.toIntOrNull() ?: 0
+                            try {
+                                json.decodeFromJsonElement<List<com.hasanege.materialtv.model.Episode>>(element)
+                                    .map { it.copy(season = sNum) }
+                            } catch (e: Exception) { emptyList() }
+                        }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
+                    } else emptyList()
+                } catch (e: Exception) { emptyList() }
+
+                if (allEpisodes.isEmpty()) return@remember null
+
+                val seriesHistory = watchHistory.filter {
+                    it.type == "series" && !it.dismissedFromContinueWatching && (
+                        it.seriesId == seriesId || 
+                        (seriesId != -1 && allEpisodes.any { ep -> ep.id == it.episodeId || ep.id == it.streamId.toString() })
+                    )
                 }
-                if (historyItem != null) {
-                    val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; isLenient = true }
-                    val epElement = state.data.xtreamData.episodes
-                    val allEpisodes = try {
-                        if (epElement is kotlinx.serialization.json.JsonObject) {
-                            epElement.entries.flatMap { (key, element) ->
-                                val sNum = key.toIntOrNull() ?: 0
-                                try {
-                                    json.decodeFromJsonElement<List<com.hasanege.materialtv.model.Episode>>(element)
-                                        .map { it.copy(season = sNum) }
-                                } catch (e: Exception) { emptyList() }
-                            }.sortedWith(compareBy({ it.season ?: 0 }, { it.episodeNum?.toIntOrNull() ?: 0 }))
-                        } else emptyList()
-                    } catch (e: Exception) { emptyList() }
-                    
-                    val currentEp = allEpisodes.find { it.id == historyItem.streamId.toString() }
-                    if (currentEp != null) {
-                        if (com.hasanege.materialtv.WatchHistoryManager.isFinished(historyItem, nextEpisodeThreshold)) {
-                            val idx = allEpisodes.indexOf(currentEp)
-                            val nextEp = if (idx >= 0 && idx < allEpisodes.size - 1) allEpisodes[idx + 1] else currentEp
-                            Pair(nextEp, 0L)
-                        } else {
-                            Pair(currentEp, historyItem.position)
+
+                val completedDownloads = activeDownloads.filter {
+                    it.status == com.hasanege.materialtv.download.DownloadStatus.COMPLETED &&
+                    it.contentType == com.hasanege.materialtv.download.ContentType.EPISODE &&
+                    (it.seriesName == state.data.xtreamData.info?.name || it.seriesName == initialTitle)
+                }
+
+                // Find highest episode index that is finished (credits reached or download completed)
+                var maxFinishedIdx = -1
+                for (i in allEpisodes.indices) {
+                    val ep = allEpisodes[i]
+                    val isDownloadedComplete = completedDownloads.any { d ->
+                        (d.seasonNumber == ep.season && d.episodeNumber == ep.episodeNum?.toIntOrNull())
+                    }
+                    val hItem = seriesHistory.find { it.episodeId == ep.id || it.streamId.toString() == ep.id }
+                    val isHistoryFinished = hItem != null && com.hasanege.materialtv.WatchHistoryManager.isFinished(hItem, nextEpisodeThreshold)
+
+                    if (isDownloadedComplete || isHistoryFinished) {
+                        if (i > maxFinishedIdx) {
+                            maxFinishedIdx = i
                         }
-                    } else null
+                    }
+                }
+
+                val lastHistoryItem = seriesHistory.firstOrNull()
+                val lastEp = if (lastHistoryItem != null) {
+                    allEpisodes.find { it.id == lastHistoryItem.episodeId || it.id == lastHistoryItem.streamId.toString() }
                 } else null
+
+                val lastEpIdx = if (lastEp != null) allEpisodes.indexOf(lastEp) else -1
+
+                if (lastHistoryItem != null && lastEp != null && lastEpIdx >= maxFinishedIdx) {
+                    if (!com.hasanege.materialtv.WatchHistoryManager.isFinished(lastHistoryItem, nextEpisodeThreshold)) {
+                        Pair(lastEp, lastHistoryItem.position)
+                    } else {
+                        val nextIdx = (lastEpIdx + 1).coerceAtMost(allEpisodes.size - 1)
+                        Pair(allEpisodes[nextIdx], 0L)
+                    }
+                } else if (maxFinishedIdx != -1) {
+                    val nextIdx = (maxFinishedIdx + 1).coerceAtMost(allEpisodes.size - 1)
+                    Pair(allEpisodes[nextIdx], 0L)
+                } else {
+                    Pair(allEpisodes.first(), 0L)
+                }
             }
             
             val resumeEpisode = resumeData?.first
             val resumePosition = resumeData?.second ?: 0L
+            val bestImdbId = state.data.tmdbData?.imdbId?.takeIf { it.isNotBlank() }
+                ?: state.data.xtreamData.info?.imdbID?.takeIf { it != "N/A" && it.isNotBlank() }
+            val tmdbId = state.data.tmdbData?.tmdbId?.takeIf { it > 0 }?.toString()
+
+            var hasAutoPlayed by remember { mutableStateOf(false) }
+            LaunchedEffect(state, resumeEpisode) {
+                if (autoPlay && !hasAutoPlayed && resumeEpisode != null) {
+                    hasAutoPlayed = true
+                    val ext = resumeEpisode.containerExtension ?: "mkv"
+                    val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${resumeEpisode.id}.${ext}"
+                    onNavigateToPlayer(url, resumeEpisode.title ?: "", resumeEpisode.id.toIntOrNull() ?: -1, seriesId, resumePosition, seriesCover, bestImdbId, tmdbId, resumeEpisode.season, resumeEpisode.episodeNum?.toIntOrNull())
+                }
+            }
 
             DetailScreen(
                 series = state.data.xtreamData,
@@ -1687,9 +1755,17 @@ fun SeriesDetailScreenRoute(
                 activeDownloads = activeDownloads,
                 onBack = onBack,
                 onPlayEpisode = { episode ->
-                    // Just navigate directly with position 0
-                    val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${episode.id}.${episode.containerExtension}"
-                    onNavigateToPlayer(url, episode.title ?: "", episode.id.toIntOrNull() ?: -1, seriesId, 0L, seriesCover, state.data.tmdbData?.imdbId, episode.season, episode.episodeNum?.toIntOrNull())
+                    val pos = if (episode.id == resumeEpisode?.id) {
+                        resumePosition
+                    } else {
+                        val hItem = watchHistory.find { it.episodeId == episode.id || it.streamId.toString() == episode.id }
+                        if (hItem != null && !com.hasanege.materialtv.WatchHistoryManager.isFinished(hItem, nextEpisodeThreshold)) {
+                            hItem.position
+                        } else 0L
+                    }
+                    val ext = episode.containerExtension ?: "mkv"
+                    val url = "${com.hasanege.materialtv.network.SessionManager.serverUrl}/series/${com.hasanege.materialtv.network.SessionManager.username}/${com.hasanege.materialtv.network.SessionManager.password}/${episode.id}.${ext}"
+                    onNavigateToPlayer(url, episode.title ?: "", episode.id.toIntOrNull() ?: -1, seriesId, pos, seriesCover, bestImdbId, tmdbId, episode.season, episode.episodeNum?.toIntOrNull())
                 },
                 onDownloadEpisode = { episode ->
                     val seriesName = state.data.tmdbData?.title ?: state.data.xtreamData.info?.name ?: "Unknown Series"
@@ -1699,7 +1775,8 @@ fun SeriesDetailScreenRoute(
                         seasonNumber = episode.season ?: 1, 
                         episodeNumber = episode.episodeNum?.toIntOrNull() ?: 1, 
                         seriesCoverUrl = state.data.tmdbData?.posterPath ?: state.data.xtreamData.info?.cover,
-                        imdbId = state.data.tmdbData?.imdbId
+                        imdbId = bestImdbId,
+                        seriesId = seriesId
                     )
                 },
                 onCancelDownload = { downloadManager.cancelDownload(it) },
@@ -1709,7 +1786,8 @@ fun SeriesDetailScreenRoute(
                         seasonNumber = seasonNum,
                         episodes = episodes,
                         seriesCoverUrl = state.data.tmdbData?.posterPath ?: state.data.xtreamData.info?.cover,
-                        imdbId = state.data.tmdbData?.imdbId
+                        imdbId = bestImdbId,
+                        seriesId = seriesId
                     )
                 },
                 seriesId = seriesId

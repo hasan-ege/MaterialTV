@@ -27,18 +27,10 @@ class LibVlcEngine : PlayerEngine {
         this.context = context
         
         try {
-            // Minimal VLC arguments for stability
+            // Standard VLC arguments for IPTV stability
             val args = ArrayList<String>().apply {
-                // Basic network caching (Ultra low for instant start)
-                add("--network-caching=300")
-                
-                // Hardware acceleration
-                add("--codec=mediacodec_ndk,all")
-                
-                // Audio output
-                add("--aout=opensles")
-                
-                // Disable unnecessary features
+                add("--network-caching=1000")
+                add("--http-reconnect")
                 add("--no-stats")
                 add("--no-osd")
                 add("--no-video-title-show")
@@ -61,17 +53,53 @@ class LibVlcEngine : PlayerEngine {
                             android.util.Log.d("LibVlcEngine", "Playback ended")
                             playbackEndedCallback?.invoke()
                         }
-                        MediaPlayer.Event.Playing -> {
-                            android.util.Log.d("LibVlcEngine", "Playback started")
-                            if (startPosition != -1L) {
-                                val current = mediaPlayer?.time ?: 0L
-                                if (java.lang.Math.abs(current - startPosition) > 1000) {
-                                     android.util.Log.d("LibVlcEngine", "Applying pending seek to $startPosition")
-                                     mediaPlayer?.time = startPosition
+                        MediaPlayer.Event.Playing,
+                        MediaPlayer.Event.TimeChanged,
+                        MediaPlayer.Event.PositionChanged,
+                        MediaPlayer.Event.LengthChanged -> {
+                            if (pendingStartPosition != -1L) {
+                                val targetPos = pendingStartPosition
+                                val isSeekable = mediaPlayer?.isSeekable == true
+                                val length = mediaPlayer?.length ?: 0L
+                                if (isSeekable || length > 0L) {
+                                    pendingStartPosition = -1L
+                                    android.util.Log.d("LibVlcEngine", "Content loaded! Seeking to $targetPos ms (length=$length, isSeekable=$isSeekable)")
+                                    mediaPlayer?.time = targetPos
+                                    if (length > 0L) {
+                                        val pct = (targetPos.toDouble() / length.toDouble()).coerceIn(0.0, 1.0).toFloat()
+                                        mediaPlayer?.position = pct
+                                    }
+                                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                        try {
+                                            if (mediaPlayer?.isPlaying == true) {
+                                                mediaPlayer?.time = targetPos
+                                                val len = mediaPlayer?.length ?: 0L
+                                                if (len > 0L) {
+                                                    val pct = (targetPos.toDouble() / len.toDouble()).coerceIn(0.0, 1.0).toFloat()
+                                                    mediaPlayer?.position = pct
+                                                }
+                                                android.util.Log.d("LibVlcEngine", "VLC Fallback seek (200ms) applied to $targetPos ms")
+                                            }
+                                        } catch (e: Exception) {}
+                                    }, 200L)
+                                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                        try {
+                                            if (mediaPlayer?.isPlaying == true) {
+                                                mediaPlayer?.time = targetPos
+                                                val len = mediaPlayer?.length ?: 0L
+                                                if (len > 0L) {
+                                                    val pct = (targetPos.toDouble() / len.toDouble()).coerceIn(0.0, 1.0).toFloat()
+                                                    mediaPlayer?.position = pct
+                                                }
+                                                android.util.Log.d("LibVlcEngine", "VLC Fallback seek (600ms) applied to $targetPos ms")
+                                            }
+                                        } catch (e: Exception) {}
+                                    }, 600L)
                                 }
-                                startPosition = -1L
                             }
-                            playbackStateCallback?.invoke(true)
+                            if (event.type == MediaPlayer.Event.Playing) {
+                                playbackStateCallback?.invoke(true)
+                            }
                         }
                         MediaPlayer.Event.Paused -> {
                             android.util.Log.d("LibVlcEngine", "Playback paused")
@@ -181,8 +209,10 @@ class LibVlcEngine : PlayerEngine {
         isAttached = false
     }
 
+    private var pendingStartPosition: Long = -1L
+
     override fun prepare(url: String, startPosition: Long) {
-        this.startPosition = -1L
+        this.pendingStartPosition = if (startPosition > 0) startPosition else -1L
         libVlc?.let { vlc ->
             try {
                 val isLocalFile = !url.startsWith("http://") && !url.startsWith("https://")
@@ -198,36 +228,21 @@ class LibVlcEngine : PlayerEngine {
                         Media(vlc, Uri.parse(url))
                     }
                     else -> {
-                        // Assume it's a raw file path
                         val file = File(url)
                         val fileUri = Uri.fromFile(file)
                         Media(vlc, fileUri)
                     }
                 }.apply {
                     if (startPosition > 0) {
-                        addOption(":start-time=${startPosition / 1000f}")
+                        addOption(":start-time=${startPosition / 1000L}")
                     }
-                    // Enable hardware decoding
                     setHWDecoderEnabled(true, false)
                     
                     if (isLocalFile) {
-                        // LOCAL FILES: Minimal caching for instant playback
-                        addOption(":file-caching=150")        // Very low for local files
-                        addOption(":network-caching=0")       // No network caching needed
-                        addOption(":live-caching=0")          // No live caching needed
-                        addOption(":clock-jitter=0")          // Instant playback
-                        addOption(":clock-synchro=0")         // No sync delay
-                        addOption(":avcodec-fast")            // Fast decoding
-                        addOption(":avcodec-threads=0")       // Auto-detect threads
+                        addOption(":file-caching=300")
                     } else {
-                        // NETWORK STREAMS: Ultra optimized
-                        addOption(":network-caching=300")     // 300ms
-                        addOption(":live-caching=300")        // 300ms
-                        addOption(":file-caching=100")        
-                        addOption(":clock-jitter=0")          
-                        addOption(":clock-synchro=0")
-                        addOption(":avcodec-fast")            // Enable fast decoding
-                        addOption(":avcodec-threads=0")       // Auto threads         
+                        addOption(":network-caching=1000")
+                        addOption(":http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
                         addOption(":sub-text-scale=$subtitleSizeScale")
                     }
                 }
@@ -237,6 +252,21 @@ class LibVlcEngine : PlayerEngine {
             } catch (e: Exception) {
                 android.util.Log.e("LibVlcEngine", "Error preparing media: ${StringUtils.sanitizeUrl(e.message)}")
             }
+        }
+    }
+
+    override fun seekTo(position: Long) {
+        try {
+            pendingStartPosition = -1L
+            mediaPlayer?.time = position
+            val len = mediaPlayer?.length ?: 0L
+            if (len > 0L) {
+                val pct = (position.toDouble() / len.toDouble()).coerceIn(0.0, 1.0).toFloat()
+                mediaPlayer?.position = pct
+            }
+            android.util.Log.d("LibVlcEngine", "Manual seekTo called: $position ms")
+        } catch (e: Exception) {
+            android.util.Log.e("LibVlcEngine", "Error seeking: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 
@@ -285,18 +315,6 @@ class LibVlcEngine : PlayerEngine {
             videoLayout = null
             surfaceView = null
             context = null
-        }
-    }
-
-    private var startPosition: Long = -1L
-
-    override fun seekTo(position: Long) {
-        try {
-            startPosition = position
-            mediaPlayer?.time = position
-            android.util.Log.d("LibVlcEngine", "Seeking to $position (pending: $startPosition)")
-        } catch (e: Exception) {
-            android.util.Log.e("LibVlcEngine", "Error seeking: ${StringUtils.sanitizeUrl(e.message)}")
         }
     }
 

@@ -1422,7 +1422,7 @@ fun launchContinueWatchingItem(
     item: ContinueWatchingItem
 ) {
     if (item.type == "series") {
-        navController.navigate(Screen.SeriesDetail.createRoute(item.seriesId ?: -1, item.name))
+        navController.navigate(Screen.SeriesDetail.createRoute(item.seriesId ?: item.streamId, item.name, autoPlay = true))
     } else if (item.type == "live") {
         val streamUrl = if (SessionManager.loginType == SessionManager.LoginType.M3U) {
             com.hasanege.materialtv.data.M3uRepository.getStreamUrl(item.streamId)
@@ -1440,14 +1440,8 @@ fun launchContinueWatchingItem(
             context.startActivity(intent)
         }
     } else {
-        val intent = Intent(context, PlayerActivity::class.java).apply {
-            putExtra("STREAM_ID", item.streamId)
-            putExtra("TITLE", item.name)
-            putExtra("STREAM_ICON", item.streamIcon)
-            putExtra("AUTO_PLAY", true)
-            putExtra("position", item.position)
-        }
-        context.startActivity(intent)
+        // Movies: Navigate to Movie Detail first, then autoPlay from saved position
+        navController.navigate(Screen.Detail.createRoute(item.streamId, item.name, autoPlay = true))
     }
 }
 

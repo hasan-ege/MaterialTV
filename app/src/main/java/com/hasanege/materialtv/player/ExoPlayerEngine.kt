@@ -170,7 +170,22 @@ class ExoPlayerEngine : PlayerEngine {
                 playbackStateCallback?.invoke(isPlaying)
             }
 
+            override fun onTimelineChanged(timeline: androidx.media3.common.Timeline, reason: Int) {
+                if (!timeline.isEmpty && pendingStartPosition > 0L) {
+                    val target = pendingStartPosition
+                    pendingStartPosition = 0L
+                    player?.seekTo(target)
+                    android.util.Log.d("ExoPlayerEngine", "ExoPlayer Timeline loaded! Seeking to $target ms")
+                }
+            }
+
             override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_READY && pendingStartPosition > 0L) {
+                    val target = pendingStartPosition
+                    pendingStartPosition = 0L
+                    player?.seekTo(target)
+                    android.util.Log.d("ExoPlayerEngine", "ExoPlayer STATE_READY: Seeking to pending position $target ms")
+                }
                 if (playbackState == Player.STATE_ENDED) {
                     playbackEndedCallback?.invoke()
                 }
@@ -243,6 +258,7 @@ class ExoPlayerEngine : PlayerEngine {
     }
 
     override fun prepare(url: String, startPosition: Long) {
+        pendingStartPosition = startPosition
         // Lokal dosyalar ve HTTP URL'leri ayır
         val isNetworkUrl = url.startsWith("http://") || url.startsWith("https://")
 
@@ -283,8 +299,10 @@ class ExoPlayerEngine : PlayerEngine {
             val mediaItem = MediaItem.fromUri(url)
             val mediaSource = mediaSourceFactory.createMediaSource(mediaItem)
 
+            val startPosMs = if (startPosition > 0) startPosition else androidx.media3.common.C.TIME_UNSET
+
             player?.apply {
-                setMediaSource(mediaSource)
+                setMediaSource(mediaSource, startPosMs)
                 prepare()
                 if (startPosition > 0) seekTo(startPosition)
                 // Instant playback for fast zapping
@@ -304,9 +322,10 @@ class ExoPlayerEngine : PlayerEngine {
                 .setDataSourceFactory(dataSourceFactory)
 
             val mediaSource = mediaSourceFactory.createMediaSource(mediaItem)
+            val startPosMs = if (startPosition > 0) startPosition else androidx.media3.common.C.TIME_UNSET
 
             player?.apply {
-                setMediaSource(mediaSource)
+                setMediaSource(mediaSource, startPosMs)
                 prepare()
                 if (startPosition > 0) seekTo(startPosition)
                 playWhenReady = true
@@ -631,6 +650,7 @@ class ExoPlayerEngine : PlayerEngine {
         playerView?.onResume()
     }
 
+    private var pendingStartPosition: Long = 0L
     private var exoSubtitleDelayMs: Long = 0L
 
     override fun setSubtitleDelay(delayMs: Long) {

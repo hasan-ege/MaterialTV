@@ -27,12 +27,12 @@ interface DownloadManager {
     /**
      * Bölüm indirme başlat
      */
-    fun startDownload(episode: Episode, seriesName: String, seasonNumber: Int, episodeNumber: Int, seriesCoverUrl: String? = null, imdbId: String? = null)
+    fun startDownload(episode: Episode, seriesName: String, seasonNumber: Int, episodeNumber: Int, seriesCoverUrl: String? = null, imdbId: String? = null, seriesId: Int? = null)
     
     /**
      * Tüm sezonu sıralı olarak indir (20ms gecikme ile)
      */
-    fun downloadSeason(seriesName: String, seasonNumber: Int, episodes: List<Episode>, seriesCoverUrl: String? = null, imdbId: String? = null)
+    fun downloadSeason(seriesName: String, seasonNumber: Int, episodes: List<Episode>, seriesCoverUrl: String? = null, imdbId: String? = null, seriesId: Int? = null)
     
     /**
      * İndirmeyi duraklat

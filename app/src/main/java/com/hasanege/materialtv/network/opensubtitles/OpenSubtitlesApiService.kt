@@ -15,8 +15,7 @@ interface OpenSubtitlesApiService {
 
     @Headers(
         "User-Agent: MaterialTV v3.1",
-        "Accept: application/json",
-        "Content-Type: application/json"
+        "Accept: application/json"
     )
     @GET("api/v1/subtitles")
     suspend fun searchSubtitles(

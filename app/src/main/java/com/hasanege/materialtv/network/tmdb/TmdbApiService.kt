@@ -65,4 +65,15 @@ interface TmdbApiService {
         @Query("language") language: String = getDeviceLanguage(),
         @Query("append_to_response") appendToResponse: String = "credits,external_ids"
     ): com.hasanege.materialtv.model.tmdb.TmdbTvDetailResponse
+    @GET("movie/{id}/external_ids")
+    suspend fun getMovieExternalIds(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String
+    ): com.hasanege.materialtv.model.tmdb.TmdbExternalIdsResponse
+
+    @GET("tv/{id}/external_ids")
+    suspend fun getTvExternalIds(
+        @Path("id") id: Int,
+        @Query("api_key") apiKey: String
+    ): com.hasanege.materialtv.model.tmdb.TmdbExternalIdsResponse
 }

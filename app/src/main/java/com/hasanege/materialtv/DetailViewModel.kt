@@ -44,9 +44,24 @@ class DetailViewModel @Inject constructor(
                         android.util.Log.d("TMDB_LOG", "TMDB API Key found. Checking local DB for movie streamId: $streamId")
                         val profileId = com.hasanege.materialtv.network.SessionManager.username ?: "default"
                         val localTmdb = tmdbDao.getTmdbContent(streamId.toString(), com.hasanege.materialtv.data.entities.ContentType.VOD, profileId)
-                        if (localTmdb != null) {
-                            android.util.Log.d("TMDB_LOG", "Loaded TMDB data from local DB for '$streamId': ${localTmdb.title}, Banner: ${localTmdb.backdropPath}")
-                            movie = UiState.Success(MovieDetailData(foundMovie, localTmdb))
+                        var currentTmdb = localTmdb
+                        if (currentTmdb != null) {
+                            val tmdbIdVal = currentTmdb.tmdbId
+                            if (currentTmdb.imdbId.isNullOrBlank() && tmdbIdVal != null) {
+                                try {
+                                    val extIds = tmdbApiService.getMovieExternalIds(tmdbIdVal, tmdbKey)
+                                    val fetchedImdb = extIds.imdbId?.takeIf { it.isNotBlank() }
+                                    if (!fetchedImdb.isNullOrBlank()) {
+                                        currentTmdb = currentTmdb.copy(imdbId = fetchedImdb)
+                                        tmdbDao.insert(currentTmdb)
+                                        android.util.Log.d("TMDB_LOG", "Backfilled IMDb ID for movie '$streamId': $fetchedImdb")
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.w("TMDB_LOG", "Failed to backfill movie IMDb ID", e)
+                                }
+                            }
+                            android.util.Log.d("TMDB_LOG", "Loaded TMDB data from local DB for '$streamId': ${currentTmdb.title}, IMDb: ${currentTmdb.imdbId}")
+                            movie = UiState.Success(MovieDetailData(foundMovie, currentTmdb))
                         } else {
                             var bestMatch: com.hasanege.materialtv.model.tmdb.TmdbMovieResult? = null
                             val imdbId = foundMovie.info?.imdbID?.takeIf { it != "N/A" && it.isNotBlank() }
@@ -170,17 +185,45 @@ class DetailViewModel @Inject constructor(
                     if (!tmdbKey.isNullOrBlank()) {
                         val profileId = com.hasanege.materialtv.network.SessionManager.username ?: "default"
                         val localTmdb = tmdbDao.getTmdbContent(seriesId.toString(), com.hasanege.materialtv.data.entities.ContentType.SERIES, profileId)
-                        if (localTmdb != null) {
-                            series = UiState.Success(SeriesDetailData(seriesDetails, localTmdb))
+                        var currentTmdb = localTmdb
+                        if (currentTmdb != null) {
+                            val tmdbIdVal = currentTmdb.tmdbId
+                            if (currentTmdb.imdbId.isNullOrBlank() && tmdbIdVal != null) {
+                                try {
+                                    val extIds = tmdbApiService.getTvExternalIds(tmdbIdVal, tmdbKey)
+                                    val fetchedImdb = extIds.imdbId?.takeIf { it.isNotBlank() }
+                                    if (!fetchedImdb.isNullOrBlank()) {
+                                        currentTmdb = currentTmdb.copy(imdbId = fetchedImdb)
+                                        tmdbDao.insert(currentTmdb)
+                                        android.util.Log.d("TMDB_LOG", "Backfilled IMDb ID for series '$seriesId': $fetchedImdb")
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.w("TMDB_LOG", "Failed to backfill series IMDb ID", e)
+                                }
+                            }
+                            android.util.Log.d("TMDB_LOG", "Loaded TMDB data from local DB for series '$seriesId': ${currentTmdb.title}, IMDb: ${currentTmdb.imdbId}")
+                            series = UiState.Success(SeriesDetailData(seriesDetails, currentTmdb))
                         } else {
                             // Search TMDB
                             val titleToSearch = seriesDetails.info?.name
                             val yearToSearch = seriesDetails.info?.releaseDate?.take(4)?.toIntOrNull()
                             if (titleToSearch != null) {
                                 try {
-                                    val searchResponse = tmdbApiService.searchTv(titleToSearch, tmdbKey, yearToSearch?.toString())
+                                    val (extractedYear, cleanTitle) = com.hasanege.materialtv.network.tmdb.TmdbTitleCleaner.extractYearAndCleanTitle(titleToSearch)
+                                    val yearVal = extractedYear?.toIntOrNull() ?: yearToSearch
+                                    
+                                    val searchResponse = tmdbApiService.searchTv(cleanTitle, tmdbKey, yearVal?.toString())
                                     val bestMatch = searchResponse.results?.firstOrNull()
                                     if (bestMatch != null) {
+                                        var extractedImdbId: String? = null
+                                        try {
+                                            val tvDetail = tmdbApiService.getTvDetail(bestMatch.id, tmdbKey)
+                                            extractedImdbId = tvDetail.externalIds?.imdbId?.takeIf { it.isNotBlank() }
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("TMDB_LOG", "Failed to fetch TV detail/external_ids for series ${bestMatch.id}", e)
+                                        }
+
+                                        android.util.Log.d("TMDB_LOG", "TMDB Series Match found: '${bestMatch.name}' (ID: ${bestMatch.id}, IMDb: $extractedImdbId)")
                                         val newEntity = com.hasanege.materialtv.data.entities.TmdbContentEntity(
                                             streamId = seriesId.toString(),
                                             type = com.hasanege.materialtv.data.entities.ContentType.SERIES,
@@ -192,13 +235,14 @@ class DetailViewModel @Inject constructor(
                                             backdropPath = bestMatch.backdropPath?.let { "https://image.tmdb.org/t/p/w1280$it" },
                                             voteAverage = bestMatch.voteAverage,
                                             releaseDate = bestMatch.firstAirDate,
+                                            imdbId = extractedImdbId,
                                             fetchedAt = System.currentTimeMillis()
                                         )
                                         tmdbDao.insert(newEntity)
                                         series = UiState.Success(SeriesDetailData(seriesDetails, newEntity))
                                     }
                                 } catch (e: Exception) {
-                                    android.util.Log.e("DetailViewModel", "TMDB error", e)
+                                    android.util.Log.e("DetailViewModel", "TMDB error for series", e)
                                 }
                             }
                         }

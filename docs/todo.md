@@ -10,6 +10,13 @@
 - [x] Redesigned Favorites sorting menu with a premium, expressive UI and removed "Custom Order" as requested.
 - [x] Unified Filter and Sort dialogs with a shared expressive design, including icons, haptics, and sort direction control.
 - [x] Refined Settings title with a premium Material 3 Expressive background chip.
+- [x] Fixed OpenSubtitles NullPointerException and GET headers.
+- [x] Fixed SkipDB segment retention across episode transitions and race conditions.
+- [x] Added `dev.jdtech.mpv:libmpv` (LibMPV / FFmpeg) player engine as a 3rd player option in Settings and quick player switcher.
+- [x] Fixed LibVLC engine options (PTS clock sync, User-Agent, network caching) so ExoPlayer, LibVLC, and LibMPV all work smoothly.
+- [x] Fixed `UnsatisfiedLinkError: __sfp_handle_exceptions` crash when VLC is selected by overriding `libc++_shared.so` with LibVLC's NDK runtime in `app/src/main/jniLibs/`.
+- [x] Implemented TMDB `external_ids` IMDb ID (`ttXXXXXXX`) resolution, caching in `TmdbContentEntity`, backfilling, and error handling for OpenSubtitles & SkipDB APIs.
+- [x] Fixed OpenSubtitles API v1 parameter mapping (`parent_imdb_id` for TV Series episodes) with 3-stage automatic fallbacks (`parent_imdb_id` -> `imdb_id` -> `query`).
 
 # MaterialTV Deficiencies & Improvements
 ...

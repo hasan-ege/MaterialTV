@@ -108,6 +108,7 @@
     <string name="settings_hybrid_mode">Hybrid Mode</string>
     <string name="settings_vlc">VLC</string>
     <string name="settings_exoplayer">ExoPlayer</string>
+    <string name="settings_mpv">LibMPV (FFmpeg)</string>
     <string name="settings_use_vlc_downloads">Use VLC for Downloads</string>
     <string name="settings_stats_for_nerds">Stats for Nerds</string>
     <string name="settings_subtitle_size">Subtitle Size</string>

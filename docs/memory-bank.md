@@ -113,7 +113,8 @@ MaterialTV is a mobile application designed as an Xtream Code API player for And
 - Kullanıcılar kendi IPTV abonelik bilgilerini girerek içeriklere erişebilirler.
 - Offline izleme için içerik indirme özelliği eklenecektir.
 - Uygulama, telefon kullanımı için optimize edilmiştir.
-- **Dual Player Engine**: Hem VLC hem ExoPlayer desteği ile maksimum uyumluluk
+- **Multi-Player Engine**: ExoPlayer, LibVLC ve LibMPV (dev.jdtech.mpv:libmpv - FFmpeg) desteği ile maksimum medya ve codec uyumluluğu
+- **OpenSubtitles & SkipDB**: Canlı altyazı arama/indirme ve otomatik intro/outro atlama desteği
 - **Track Selection**: Ses ve altyazı parçaları için tam kontrol
 
 ## 6. Proje Kuralları (Project Rules)

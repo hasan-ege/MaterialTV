@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.hasanege.materialtv"
-    compileSdk = 35
+    compileSdk = 36
 
     signingConfigs {
         create("release") {
@@ -26,10 +26,10 @@ android {
 
     defaultConfig {
         applicationId = "com.hasanege.materialtv"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "3.1"
+        versionCode = 14
+        versionName = "3.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -89,6 +89,12 @@ android {
         compose = true
         buildConfig = true
     }
+
+    packaging {
+        jniLibs {
+            pickFirsts += setOf("**/libc++_shared.so", "**/libcrypto.so", "**/libssl.so")
+        }
+    }
 }
 
 configurations.all {
@@ -127,6 +133,9 @@ dependencies {
 
     // LibVLC for fallback player
     implementation("org.videolan.android:libvlc-all:3.5.1")
+
+    // LibMPV for FFmpeg player option
+    implementation("dev.jdtech.mpv:libmpv:1.0.0")
 
     // Security & Encryption
     implementation("androidx.security:security-crypto:1.0.0")

@@ -18,10 +18,13 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -81,9 +84,19 @@ fun FullscreenPlayer(
     onShowEpg: (() -> Unit)? = null,
     skipDbSegments: com.hasanege.materialtv.model.skipdb.SkipSegmentsContainer? = null,
     imdbId: String? = null,
+    tmdbId: String? = null,
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
-    openSubtitlesRepository: com.hasanege.materialtv.repository.OpenSubtitlesRepository? = null
+    openSubtitlesRepository: com.hasanege.materialtv.repository.OpenSubtitlesRepository? = null,
+    episodes: List<com.hasanege.materialtv.model.Episode>? = null,
+    currentEpisode: com.hasanege.materialtv.model.Episode? = null,
+    onSelectEpisode: ((com.hasanege.materialtv.model.Episode) -> Unit)? = null,
+    onEnterPip: (() -> Unit)? = null,
+    contentType: com.hasanege.materialtv.model.PlaybackContentType = when {
+        isLiveStream -> com.hasanege.materialtv.model.PlaybackContentType.LIVE_TV
+        currentEpisode != null || !episodes.isNullOrEmpty() || onSelectEpisode != null -> com.hasanege.materialtv.model.PlaybackContentType.SERIES
+        else -> com.hasanege.materialtv.model.PlaybackContentType.MOVIE
+    }
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -98,6 +111,7 @@ fun FullscreenPlayer(
     var duration by remember { mutableLongStateOf(0L) }
     var controlsVisible by remember { mutableStateOf(true) }
     var showTrackSelectionDialog by remember { mutableStateOf(false) }
+    var showEpisodesDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isBuffering by remember { mutableStateOf(false) }
 
@@ -391,7 +405,12 @@ fun FullscreenPlayer(
                             )
                         }
                         
-                        Row {
+                        Row(
+                            modifier = Modifier
+                                .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(24.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                              // Audio Track Button
                              IconButton(onClick = { showAudioDialog = true }) {
                                  Icon(
@@ -410,16 +429,64 @@ fun FullscreenPlayer(
                                  )
                              }
                              
-                             if (isLiveStream) {
-                                 IconButton(onClick = { onShowEpg?.invoke() }) {
-                                     Icon(
-                                         imageVector = Icons.Default.List,
-                                         contentDescription = "EPG / Schedule",
-                                         tint = Color.White
-                                     )
-                                 }
+                              // EPG / Episode Selection Button
+                              android.util.Log.d("EpisodesBtn", "contentType=$contentType, episodes=${episodes?.size}, currentEpisode=${currentEpisode?.id}, onSelectEpisode=${onSelectEpisode != null}")
+                              when (contentType) {
+                                  com.hasanege.materialtv.model.PlaybackContentType.LIVE_TV -> {
+                                      IconButton(onClick = { onShowEpg?.invoke() }) {
+                                          Icon(
+                                              imageVector = Icons.AutoMirrored.Filled.List,
+                                              contentDescription = "Yayın Akışı (EPG)",
+                                              tint = Color.White
+                                          )
+                                      }
+                                  }
+                                  com.hasanege.materialtv.model.PlaybackContentType.SERIES -> {
+                                      IconButton(onClick = { 
+                                          android.util.Log.d("EpisodesBtn", "Button clicked! showEpisodesDialog = true")
+                                          showEpisodesDialog = true 
+                                      }) {
+                                          Icon(
+                                              imageVector = Icons.AutoMirrored.Filled.List,
+                                              contentDescription = "Bölüm Listesi",
+                                              tint = Color.White
+                                          )
+                                      }
+                                  }
+                                  com.hasanege.materialtv.model.PlaybackContentType.MOVIE -> {
+                                      // Hidden
+                                  }
+                              }
+
+                             // PiP Button
+                             IconButton(onClick = { onEnterPip?.invoke() }) {
+                                 Icon(
+                                     imageVector = Icons.Default.PictureInPictureAlt,
+                                     contentDescription = "Resim İçinde Resim (PiP)",
+                                     tint = Color.White
+                                 )
                              }
-                             
+
+                             // Screen Rotation Button
+                             IconButton(onClick = {
+                                 val currentOrientation = activity.requestedOrientation
+                                 activity.requestedOrientation = if (
+                                     currentOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+                                     currentOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE ||
+                                     currentOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                                 ) {
+                                     android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                 } else {
+                                     android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                 }
+                             }) {
+                                 Icon(
+                                     imageVector = Icons.Default.ScreenRotation,
+                                     contentDescription = "Ekranı Döndür",
+                                     tint = Color.White
+                                 )
+                             }
+
                              // Lock Button
                              IconButton(onClick = { isLocked = !isLocked }) {
                                  Icon(
@@ -614,19 +681,31 @@ fun FullscreenPlayer(
                 duration > 0 && currentPosition >= duration - thresholdMs
             }
 
-            val inIntroWindow = introSeg != null && (controlsVisible || currentPosition >= (introSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < introSeg.endMs
-            val inRecapWindow = recapSeg != null && (controlsVisible || currentPosition >= (recapSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < recapSeg.endMs
-            val inOutroWindow = outroSeg != null && (controlsVisible || currentPosition >= (outroSeg.startMs - 1500).coerceAtLeast(0)) && currentPosition < outroSeg.endMs
+            val inIntroWindow = introSeg != null && currentPosition >= (introSeg.startMs - 1000).coerceAtLeast(0) && currentPosition <= introSeg.endMs
+            val inRecapWindow = recapSeg != null && currentPosition >= (recapSeg.startMs - 1000).coerceAtLeast(0) && currentPosition <= recapSeg.endMs
+            val inOutroWindow = outroSeg != null && currentPosition >= (outroSeg.startMs - 1000).coerceAtLeast(0) && currentPosition <= outroSeg.endMs
 
             if (!inPipMode && (inIntroWindow || inRecapWindow || inOutroWindow)) {
-                val (labelText, targetMs) = when {
-                    inIntroWindow -> Pair(stringResource(R.string.player_skip_intro), introSeg!!.endMs)
-                    inRecapWindow -> Pair(stringResource(R.string.player_skip_recap), recapSeg!!.endMs)
-                    else -> Pair(stringResource(R.string.player_skip_outro), outroSeg!!.endMs)
+                val (labelText, onClickAction) = when {
+                    inIntroWindow -> Pair(stringResource(R.string.player_skip_intro), {
+                        if (duration > 0 && duration - introSeg!!.endMs < 10000) {
+                            onNext()
+                        } else {
+                            engine.seekTo(introSeg!!.endMs)
+                        }
+                    })
+                    inRecapWindow -> Pair(stringResource(R.string.player_skip_recap), {
+                        if (duration > 0 && duration - recapSeg!!.endMs < 10000) {
+                            onNext()
+                        } else {
+                            engine.seekTo(recapSeg!!.endMs)
+                        }
+                    })
+                    else -> Pair(stringResource(R.string.player_skip_outro), { onNext() })
                 }
 
                 Button(
-                    onClick = { engine.seekTo(targetMs) },
+                    onClick = { onClickAction() },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(bottom = 120.dp, end = 32.dp),
@@ -686,11 +765,25 @@ fun FullscreenPlayer(
             }
         }
         
+        // Episode Selection Dialog
+        if (showEpisodesDialog) {
+            EpisodesSelectionDialog(
+                episodes = episodes,
+                currentEpisode = currentEpisode,
+                onSelectEpisode = { ep ->
+                    onSelectEpisode?.invoke(ep)
+                    showEpisodesDialog = false
+                },
+                onDismiss = { showEpisodesDialog = false }
+            )
+        }
+
         // Track Selection Dialog
         if (showTrackSelectionDialog) {
             TrackSelectionDialog(
                 engine = engine,
                 imdbId = imdbId,
+                tmdbId = tmdbId,
                 title = title,
                 seasonNumber = seasonNumber,
                 episodeNumber = episodeNumber,
@@ -1360,6 +1453,7 @@ fun PlayerControlsOverlay(
 private fun TrackSelectionDialog(
     engine: PlayerEngine,
     imdbId: String? = null,
+    tmdbId: String? = null,
     title: String? = null,
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
@@ -1390,24 +1484,21 @@ private fun TrackSelectionDialog(
             isSearching = true
             openSubtitlesError = null
             try {
-                var results = repo.searchSubtitles(
+                val parsedSeason = seasonNumber ?: title?.let { t ->
+                    Regex("""(?i)S(\d+)\s*E(\d+)""").find(t)?.groupValues?.get(1)?.toIntOrNull()
+                }
+                val parsedEpisode = episodeNumber ?: title?.let { t ->
+                    Regex("""(?i)S(\d+)\s*E(\d+)""").find(t)?.groupValues?.get(2)?.toIntOrNull()
+                }
+
+                val results = repo.searchSubtitles(
                     apiKey = apiKey,
                     imdbId = imdbId,
-                    seasonNumber = seasonNumber,
-                    episodeNumber = episodeNumber,
-                    languages = preferredLanguage,
+                    tmdbId = tmdbId,
+                    seasonNumber = parsedSeason,
+                    episodeNumber = parsedEpisode,
                     query = title
                 )
-                if (results.isEmpty() && !preferredLanguage.isNullOrBlank()) {
-                    results = repo.searchSubtitles(
-                        apiKey = apiKey,
-                        imdbId = imdbId,
-                        seasonNumber = seasonNumber,
-                        episodeNumber = episodeNumber,
-                        languages = null,
-                        query = title
-                    )
-                }
                 // Sort descending by download count
                 searchResults = results.sortedByDescending { it.attributes?.downloadCount ?: 0 }
             } catch (e: com.hasanege.materialtv.repository.OpenSubtitlesQuotaException) {
@@ -1420,7 +1511,7 @@ private fun TrackSelectionDialog(
         }
     }
 
-    LaunchedEffect(imdbId, title, seasonNumber, episodeNumber, openSubtitlesApiKey) {
+    LaunchedEffect(imdbId, tmdbId, title, seasonNumber, episodeNumber, openSubtitlesApiKey) {
         if (searchResults.isEmpty() && !isSearching) {
             performOpenSubtitlesSearch()
         }
@@ -1537,8 +1628,13 @@ private fun TrackSelectionDialog(
                 }
             } else if (searchResults.isEmpty()) {
                 item {
+                    val noResultsMsg = if (imdbId.isNullOrBlank() && tmdbId.isNullOrBlank()) {
+                        "Bu içerik için IMDb ID bulunamadı. Altyazı veya Skip verisi mevcut değil."
+                    } else {
+                        stringResource(R.string.opensubtitles_search_no_results)
+                    }
                     Text(
-                        text = stringResource(R.string.opensubtitles_search_no_results),
+                        text = noResultsMsg,
                         color = Color.Gray,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
@@ -1566,7 +1662,7 @@ private fun TrackSelectionDialog(
                                         try {
                                             val repo = openSubtitlesRepository ?: return@launch
                                             val downloadedFile = repo.downloadSubtitle(
-                                                openSubtitlesApiKey!!,
+                                                openSubtitlesApiKey,
                                                 fileId,
                                                 context
                                             )
@@ -2019,7 +2115,7 @@ private fun TrackSelectionDialog(
                                                 try {
                                                     val repo = openSubtitlesRepository ?: return@launch
                                                     val downloadedFile = repo.downloadSubtitle(
-                                                        openSubtitlesApiKey!!,
+                                                        openSubtitlesApiKey,
                                                         fileId,
                                                         context
                                                     )
@@ -2265,6 +2361,243 @@ private fun getLanguageFlagEmoji(langCode: String?): String {
                 }
             } else {
                 "🌐"
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EpisodesSelectionDialog(
+    episodes: List<com.hasanege.materialtv.model.Episode>?,
+    currentEpisode: com.hasanege.materialtv.model.Episode? = null,
+    onSelectEpisode: (com.hasanege.materialtv.model.Episode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    android.util.Log.d("EpisodesDialog", "Dialog opened. episodes=${episodes?.size}, currentEpisode=${currentEpisode?.id}")
+
+    val safeEpisodes = episodes ?: emptyList()
+    val seasons = remember(safeEpisodes) {
+        safeEpisodes.mapNotNull { it.season }.distinct().sorted()
+    }
+
+    var selectedSeason by remember(currentEpisode, seasons) {
+        mutableStateOf(currentEpisode?.season ?: seasons.firstOrNull() ?: 1)
+    }
+
+    val filteredEpisodes = remember(safeEpisodes, selectedSeason) {
+        safeEpisodes.filter { it.season == selectedSeason }
+            .sortedBy { it.episodeNum?.toIntOrNull() ?: 0 }
+    }
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier
+            .fillMaxWidth(if (isLandscape) 0.5f else 0.95f)
+            .fillMaxHeight(if (isLandscape) 0.9f else 0.7f),
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.detail_episodes),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Kapat",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        text = {
+            if (safeEpisodes.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Bölümler yükleniyor...",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            } else if (isLandscape) {
+                // LANDSCAPE: Seasons left, episodes right
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (seasons.size > 1) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .width(115.dp)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            items(seasons) { seasonNum ->
+                                val isSelected = seasonNum == selectedSeason
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { selectedSeason = seasonNum },
+                                    label = {
+                                        Text(
+                                            text = "$seasonNum. Sezon",
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+
+                        androidx.compose.material3.VerticalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(filteredEpisodes) { episode ->
+                            val isPlaying = episode.id == currentEpisode?.id
+                            EpisodeListItem(
+                                episode = episode,
+                                isPlaying = isPlaying,
+                                onClick = {
+                                    onSelectEpisode(episode)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+            } else {
+                // PORTRAIT: Season chips top, episodes list below
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (seasons.size > 1) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        ) {
+                            items(seasons) { seasonNum ->
+                                val isSelected = seasonNum == selectedSeason
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { selectedSeason = seasonNum },
+                                    label = {
+                                        Text(
+                                            text = "$seasonNum. Sezon",
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                )
+                            }
+                        }
+
+                        androidx.compose.material3.HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(filteredEpisodes) { episode ->
+                            val isPlaying = episode.id == currentEpisode?.id
+                            EpisodeListItem(
+                                episode = episode,
+                                isPlaying = isPlaying,
+                                onClick = {
+                                    onSelectEpisode(episode)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {}
+    )
+}
+
+@Composable
+private fun EpisodeListItem(
+    episode: com.hasanege.materialtv.model.Episode,
+    isPlaying: Boolean,
+    onClick: () -> Unit
+) {
+    val epNum = episode.episodeNum?.let { "$it. Bölüm" } ?: ""
+    val epTitle = episode.title?.takeIf { it.isNotBlank() } ?: epNum
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .background(
+                if (isPlaying)
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                else
+                    MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isPlaying) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "Oynatılıyor",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = if (epTitle != epNum && epNum.isNotEmpty()) "$epNum - $epTitle" else epTitle,
+                fontSize = 14.sp,
+                fontWeight = if (isPlaying) FontWeight.Bold else FontWeight.Medium,
+                color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+            if (!episode.duration.isNullOrBlank()) {
+                Text(
+                    text = "⏱ ${episode.duration}",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

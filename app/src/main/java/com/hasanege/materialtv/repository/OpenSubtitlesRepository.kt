@@ -36,6 +36,7 @@ class OpenSubtitlesRepository @Inject constructor(
     suspend fun searchSubtitles(
         apiKey: String?,
         imdbId: String? = null,
+        tmdbId: String? = null,
         seasonNumber: Int? = null,
         episodeNumber: Int? = null,
         languages: String? = null,
@@ -44,9 +45,27 @@ class OpenSubtitlesRepository @Inject constructor(
         val effectiveKey = apiKey?.takeIf { it.isNotBlank() } ?: DEFAULT_OPENSUBTITLES_API_KEY
         val params = mutableMapOf<String, String>()
 
-        val cleanImdbId = imdbId?.removePrefix("tt")?.trim()
+        val cleanImdbId = imdbId?.removePrefix("tt")?.trim()?.trimStart('0')?.takeIf { it.isNotBlank() }
+        val isTvShow = (seasonNumber != null && seasonNumber > 0) || (episodeNumber != null && episodeNumber > 0)
+
         if (!cleanImdbId.isNullOrBlank()) {
-            params["imdb_id"] = cleanImdbId
+            if (isTvShow) {
+                params["parent_imdb_id"] = cleanImdbId
+                Log.d("OpenSubtitlesRepo", "Using parent_imdb_id param for TV series episode: parent_imdb_id=$cleanImdbId (raw=$imdbId)")
+            } else {
+                params["imdb_id"] = cleanImdbId
+                Log.d("OpenSubtitlesRepo", "Using imdb_id param for Movie: imdb_id=$cleanImdbId (raw=$imdbId)")
+            }
+        } else if (!tmdbId.isNullOrBlank()) {
+            if (isTvShow) {
+                params["parent_tmdb_id"] = tmdbId
+                Log.d("OpenSubtitlesRepo", "Using parent_tmdb_id param for TV series episode: parent_tmdb_id=$tmdbId")
+            } else {
+                params["tmdb_id"] = tmdbId
+                Log.d("OpenSubtitlesRepo", "Using tmdb_id param for Movie: tmdb_id=$tmdbId")
+            }
+        } else {
+            Log.w("OpenSubtitlesRepo", "No valid IMDb ID or TMDB ID provided for OpenSubtitles. Will fallback to title query.")
         }
 
         if (seasonNumber != null && seasonNumber > 0) {
@@ -57,17 +76,15 @@ class OpenSubtitlesRepository @Inject constructor(
             params["episode_number"] = episodeNumber.toString()
         }
 
-        if (!languages.isNullOrBlank()) {
-            params["languages"] = languages
-        }
+        // Dil filtresi tamamen kaldırıldı: OpenSubtitles API mevcut tüm dillerdeki altyazıları filtrelemeden getirir.
 
         val cleanedQuery = query?.let { cleanMediaTitle(it) }
-        if (params["imdb_id"] == null && !cleanedQuery.isNullOrBlank()) {
+        if (!params.containsKey("imdb_id") && !params.containsKey("parent_imdb_id") && !params.containsKey("tmdb_id") && !params.containsKey("parent_tmdb_id") && !cleanedQuery.isNullOrBlank()) {
             params["query"] = cleanedQuery
         }
 
         if (params.isEmpty()) {
-            Log.w("OpenSubtitlesRepo", "No search criteria provided (neither IMDb ID nor title query).")
+            Log.w("OpenSubtitlesRepo", "No search criteria provided (neither ID nor title query).")
             return emptyList()
         }
 
@@ -77,6 +94,11 @@ class OpenSubtitlesRepository @Inject constructor(
         if (response.code() == 429 || response.code() == 406) {
             throw OpenSubtitlesQuotaException("OpenSubtitles indirme limitiniz (kullanım hakkınız) doldu.")
         }
+        if (response.code() == 401 || response.code() == 403) {
+            val errBody = response.errorBody()?.string() ?: ""
+            Log.e("OpenSubtitlesRepo", "API Key rejected (${response.code()}): $errBody")
+            throw Exception("OpenSubtitles API erişimi reddedildi (${response.code()}). Lütfen Ayarlar menüsünden geçerli bir OpenSubtitles API Anahtarı tanımlayın.")
+        }
 
         var results = if (response.isSuccessful) {
             response.body()?.data ?: emptyList()
@@ -85,15 +107,43 @@ class OpenSubtitlesRepository @Inject constructor(
             emptyList()
         }
 
-        // Fallback: If searching by IMDb ID returned empty, try searching by clean title query!
-        if (results.isEmpty() && params.containsKey("imdb_id") && !cleanedQuery.isNullOrBlank()) {
-            val fallbackParams = params.toMutableMap()
-            fallbackParams.remove("imdb_id")
-            fallbackParams["query"] = cleanedQuery
-            Log.d("OpenSubtitlesRepo", "Fallback searching subtitles with query params: $fallbackParams")
-            val fallbackResp = apiService.searchSubtitles(effectiveKey, fallbackParams)
-            if (fallbackResp.isSuccessful) {
-                results = fallbackResp.body()?.data ?: emptyList()
+        // Fallback 1: If TV show search with parent_imdb_id or parent_tmdb_id returned empty, retry with imdb_id/tmdb_id (in case provided ID is specific episode ID)
+        if (results.isEmpty() && (params.containsKey("parent_imdb_id") || params.containsKey("parent_tmdb_id"))) {
+            val fallbackParams1 = params.toMutableMap()
+            val pid = fallbackParams1.remove("parent_imdb_id")
+            val ptmdb = fallbackParams1.remove("parent_tmdb_id")
+            if (pid != null) fallbackParams1["imdb_id"] = pid
+            if (ptmdb != null) fallbackParams1["tmdb_id"] = ptmdb
+            fallbackParams1.remove("season_number")
+            fallbackParams1.remove("episode_number")
+            Log.d("OpenSubtitlesRepo", "Fallback 1: Retrying TV show search with direct episode imdb_id/tmdb_id: $fallbackParams1")
+            val fbResp1 = apiService.searchSubtitles(effectiveKey, fallbackParams1)
+            if (fbResp1.isSuccessful && !fbResp1.body()?.data.isNullOrEmpty()) {
+                results = fbResp1.body()!!.data!!
+            }
+        }
+
+        // Fallback 2: If ID search returned empty, retry by clean title query with season/episode!
+        if (results.isEmpty() && !cleanedQuery.isNullOrBlank()) {
+            val fallbackParams2 = mutableMapOf<String, String>()
+            fallbackParams2["query"] = cleanedQuery
+            if (seasonNumber != null && seasonNumber > 0) fallbackParams2["season_number"] = seasonNumber.toString()
+            if (episodeNumber != null && episodeNumber > 0) fallbackParams2["episode_number"] = episodeNumber.toString()
+            Log.d("OpenSubtitlesRepo", "Fallback 2: Retrying search with title query params: $fallbackParams2")
+            val fallbackResp2 = apiService.searchSubtitles(effectiveKey, fallbackParams2)
+            if (fallbackResp2.isSuccessful && !fallbackResp2.body()?.data.isNullOrEmpty()) {
+                results = fallbackResp2.body()!!.data!!
+            }
+        }
+
+        // Fallback 3: If still empty, retry clean title query without season/episode filter
+        if (results.isEmpty() && !cleanedQuery.isNullOrBlank()) {
+            val fallbackParams3 = mutableMapOf<String, String>()
+            fallbackParams3["query"] = cleanedQuery
+            Log.d("OpenSubtitlesRepo", "Fallback 3: Retrying search with title-only query params: $fallbackParams3")
+            val fallbackResp3 = apiService.searchSubtitles(effectiveKey, fallbackParams3)
+            if (fallbackResp3.isSuccessful && !fallbackResp3.body()?.data.isNullOrEmpty()) {
+                results = fallbackResp3.body()!!.data!!
             }
         }
 

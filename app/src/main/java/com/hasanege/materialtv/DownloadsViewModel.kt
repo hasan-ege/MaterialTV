@@ -154,9 +154,13 @@ class DownloadsViewModel @Inject constructor(
             
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                 if (exists) {
-                    // Find existing watch history for this download
+                    // Find existing watch history for this download (checking downloadId, episodeId, or streamId)
                     val downloadId = WatchHistoryManager.getDownloadId(download.filePath)
-                    val historyItem = WatchHistoryManager.getHistory().find { it.streamId == downloadId }
+                    val historyItem = WatchHistoryManager.getHistory().find { 
+                        it.streamId == downloadId ||
+                        (!download.episodeId.isNullOrBlank() && it.episodeId == download.episodeId) ||
+                        (download.streamId != null && download.streamId != -1 && it.streamId == download.streamId)
+                    }
                     val resumePosition = historyItem?.position ?: 0L
     
                     val intent = Intent(context, PlayerActivity::class.java).apply {
@@ -165,6 +169,27 @@ class DownloadsViewModel @Inject constructor(
                         putExtra("TITLE", download.title)
                         putExtra("IS_DOWNLOADED_FILE", true)
                         putExtra("position", resumePosition)
+                        if (!download.imdbId.isNullOrBlank()) {
+                            putExtra("IMDB_ID", download.imdbId)
+                        }
+                        if (download.seasonNumber != null && download.seasonNumber > 0) {
+                            putExtra("SEASON", download.seasonNumber)
+                        }
+                        if (download.episodeNumber != null && download.episodeNumber > 0) {
+                            putExtra("EPISODE", download.episodeNumber)
+                        }
+                        if (!download.episodeId.isNullOrBlank()) {
+                            putExtra("EPISODE_ID", download.episodeId)
+                        }
+                        if (download.seriesId != null && download.seriesId != -1) {
+                            putExtra("SERIES_ID", download.seriesId)
+                        }
+                        if (download.streamId != null && download.streamId != -1) {
+                            putExtra("STREAM_ID", download.streamId)
+                        }
+                        if (!download.url.isNullOrBlank()) {
+                            putExtra("ORIGINAL_URL", download.url)
+                        }
                     }
                     context.startActivity(intent)
                 } else {

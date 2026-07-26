@@ -53,7 +53,10 @@ data class DownloadItem(
     val createdAt: Long = System.currentTimeMillis(),
     val error: String? = null,
     val imdbId: String? = null,
-    val skipDbSegments: com.hasanege.materialtv.model.skipdb.SkipSegmentsContainer? = null
+    val skipDbSegments: com.hasanege.materialtv.model.skipdb.SkipSegmentsContainer? = null,
+    val episodeId: String? = null,
+    val seriesId: Int? = null,
+    val streamId: Int? = null
 ) {
     /**
      * İnsan okunabilir dosya boyutu

@@ -283,13 +283,15 @@ fun SettingsScreen(onBackClick: () -> Unit) {
     if (showDefaultPlayerDialog) {
         val exoplayerLabel = stringResource(R.string.settings_exoplayer)
         val vlcLabel = stringResource(R.string.settings_vlc)
+        val mpvLabel = stringResource(R.string.settings_mpv)
         val hybridLabel = stringResource(R.string.settings_player_hybrid)
         ExpressiveSelectionDialog(
             title = stringResource(R.string.settings_default_player),
-            options = listOf(exoplayerLabel, vlcLabel, hybridLabel),
+            options = listOf(exoplayerLabel, vlcLabel, mpvLabel, hybridLabel),
             currentValue = when (defaultPlayer) {
                 com.hasanege.materialtv.data.PlayerPreference.EXOPLAYER -> exoplayerLabel
                 com.hasanege.materialtv.data.PlayerPreference.VLC -> vlcLabel
+                com.hasanege.materialtv.data.PlayerPreference.MPV -> mpvLabel
                 com.hasanege.materialtv.data.PlayerPreference.HYBRID -> hybridLabel
             },
             onDismiss = { showDefaultPlayerDialog = false },
@@ -297,6 +299,7 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                 val preference = when (selected) {
                     exoplayerLabel -> com.hasanege.materialtv.data.PlayerPreference.EXOPLAYER
                     vlcLabel -> com.hasanege.materialtv.data.PlayerPreference.VLC
+                    mpvLabel -> com.hasanege.materialtv.data.PlayerPreference.MPV
                     else -> com.hasanege.materialtv.data.PlayerPreference.HYBRID
                 }
                 viewModel.setDefaultPlayerPreference(preference)
@@ -1229,6 +1232,7 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                         value = when(defaultPlayer) {
                             com.hasanege.materialtv.data.PlayerPreference.EXOPLAYER -> stringResource(R.string.settings_exoplayer)
                             com.hasanege.materialtv.data.PlayerPreference.VLC -> stringResource(R.string.settings_vlc)
+                            com.hasanege.materialtv.data.PlayerPreference.MPV -> stringResource(R.string.settings_mpv)
                             com.hasanege.materialtv.data.PlayerPreference.HYBRID -> stringResource(R.string.settings_player_hybrid)
                         },
                         onClick = { showDefaultPlayerDialog = true }
