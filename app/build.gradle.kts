@@ -117,6 +117,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0") // Re-adding this dependency
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.tv:tv-foundation:1.0.0-alpha11")
+    implementation("androidx.tv:tv-material:1.0.0-rc02")
     implementation("com.airbnb.android:lottie-compose:4.0.0")
 
     val media3_version = "1.3.1"

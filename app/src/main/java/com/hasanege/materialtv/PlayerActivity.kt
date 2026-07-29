@@ -8,6 +8,8 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.KeyEvent
+import com.hasanege.materialtv.utils.TvUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -1131,8 +1133,13 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(this)
+        val tvPref = kotlinx.coroutines.runBlocking { settingsRepo.tvModePref.first() }
+        if (TvUtils.isTvMode(this, tvPref)) {
+            playerEngine?.pause()
+            return
+        }
         // Enter PiP when user presses home button
-        // For Android 12+ (S), Auto-Enter is enabled, so we don't need to call this manually
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && playerEngine?.isPlaying() == true) {
             isEnteringPipMode = true
             enterPipMode()
@@ -1556,4 +1563,82 @@ class PlayerActivity : ComponentActivity() {
             sessionStartTime = 0L
         }
     }
+
+    private var isContinuousSeeking = false
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(this)
+        val tvPref = kotlinx.coroutines.runBlocking { settingsRepo.tvModePref.first() }
+        if (TvUtils.isTvMode(this, tvPref)) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (isContinuousSeeking) {
+                    isContinuousSeeking = false
+                    return true
+                }
+            }
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val settingsRepo = com.hasanege.materialtv.data.SettingsRepository.getInstance(this)
+        val tvPref = kotlinx.coroutines.runBlocking { settingsRepo.tvModePref.first() }
+        val isTv = TvUtils.isTvMode(this, tvPref)
+
+        if (isTv && event.action == KeyEvent.ACTION_DOWN) {
+            val engine = playerEngine
+            val currentPos = engine?.getCurrentPosition() ?: 0L
+
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (event.repeatCount > 0) {
+                        isContinuousSeeking = true
+                        engine?.seekTo(currentPos + 15000L)
+                        return true
+                    }
+                }
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    if (event.repeatCount > 0) {
+                        isContinuousSeeking = true
+                        engine?.seekTo((currentPos - 15000L).coerceAtLeast(0L))
+                        return true
+                    }
+                }
+                KeyEvent.KEYCODE_CHANNEL_UP, KeyEvent.KEYCODE_MEDIA_NEXT -> {
+                    if (isLiveStream) {
+                        // Channel change
+                    } else if (seriesId != -1 || currentSeriesEpisode != null) {
+                        playNextEpisode()
+                    } else {
+                        engine?.seekTo(currentPos + 60000L)
+                    }
+                    return true
+                }
+                KeyEvent.KEYCODE_CHANNEL_DOWN, KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
+                    if (isLiveStream) {
+                        // Channel change
+                    } else if (seriesId != -1 || currentSeriesEpisode != null) {
+                        playPreviousEpisode()
+                    } else {
+                        engine?.seekTo((currentPos - 60000L).coerceAtLeast(0L))
+                    }
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                    if (engine?.isPlaying() == true) engine.pause() else engine?.play()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                    engine?.play()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                    engine?.pause()
+                    return true
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
 }
+

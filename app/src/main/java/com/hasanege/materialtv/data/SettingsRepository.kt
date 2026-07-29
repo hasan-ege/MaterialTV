@@ -80,6 +80,17 @@ class SettingsRepository @Inject constructor(@dagger.hilt.android.qualifiers.App
         val TMDB_API_KEY = stringPreferencesKey("tmdb_api_key")
         val OPENSUBTITLES_API_KEY = stringPreferencesKey("opensubtitles_api_key")
         val PREFERRED_SUBTITLE_LANGUAGE = stringPreferencesKey("preferred_subtitle_language")
+        val TV_MODE_PREF = stringPreferencesKey("tv_mode_pref")
+    }
+
+    val tvModePref: Flow<String> = context.settingsDataStore.data.map { prefs ->
+        prefs[TV_MODE_PREF] ?: "AUTO"
+    }
+
+    suspend fun setTvModePref(mode: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[TV_MODE_PREF] = mode
+        }
     }
 
     val bottomNavOnlyIcons: Flow<Boolean> = context.settingsDataStore.data.map { prefs ->

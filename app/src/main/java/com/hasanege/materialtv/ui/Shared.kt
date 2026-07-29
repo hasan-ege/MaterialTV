@@ -5,7 +5,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.horizontalScroll
@@ -429,6 +432,69 @@ fun MaterialTVBottomNavBar(items: List<MainScreen>, currentItemRoute: String, on
         }
     }
 }
+
+@Composable
+fun TvNavigationRail(
+    items: List<MainScreen>,
+    currentItemRoute: String,
+    onItemClick: (MainScreen) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .width(80.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+    ) {
+        for (screen in items) {
+            val isSelected = currentItemRoute == screen.route
+            var isFocused by remember { mutableStateOf(false) }
+            val scale by androidx.compose.animation.core.animateFloatAsState(
+                targetValue = if (isFocused) 1.2f else 1.0f,
+                label = "tv_rail_scale"
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(ExpressiveShapes.Full)
+                    .background(
+                        when {
+                            isSelected -> MaterialTheme.colorScheme.primaryContainer
+                            isFocused -> MaterialTheme.colorScheme.surfaceContainerHigh
+                            else -> androidx.compose.ui.graphics.Color.Transparent
+                        }
+                    )
+                    .border(
+                        width = if (isFocused) 2.dp else 0.dp,
+                        color = if (isFocused) MaterialTheme.colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent,
+                        shape = ExpressiveShapes.Full
+                    )
+                    .onFocusChanged { isFocused = it.isFocused }
+                    .focusable()
+                    .clickable { onItemClick(screen) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = screen.icon,
+                    contentDescription = stringResource(screen.labelRes),
+                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                           else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                )
+            }
+        }
+    }
+}
+
 
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
