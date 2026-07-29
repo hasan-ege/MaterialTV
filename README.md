@@ -23,7 +23,7 @@
 </a>
 &nbsp;&nbsp;
 <a href="obtainium://add/https://github.com/hasan-ege/MaterialTV">
-  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="70">
+  <img src="obtainium://add/https://github.com/hasan-ege/MaterialTV" alt="Get it on Obtainium" height="70">
 </a>
 
 > 💡 **Tip:** Clicking the **Obtainium** badge will open the app and automatically add MaterialTV for seamless updates.
