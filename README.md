@@ -19,14 +19,14 @@
 ### 📥 Download
 
 <a href="https://github.com/hasan-ege/MaterialTV/releases/latest">
-  <img src="https://img.shields.io/badge/GitHub-Get_Latest_Release-181717?style=for-the-badge&logo=github&logoColor=white" alt="Get it on GitHub" height="50">
+  <img src="Images/badge_github.png" alt="Get it on GitHub" height="70">
 </a>
 &nbsp;&nbsp;
-<a href="https://github.com/ImranR98/Obtainium">
-  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="50">
+<a href="obtainium://add/https://github.com/hasan-ege/MaterialTV">
+  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="70">
 </a>
 
-> **Obtainium Config:** Add `https://github.com/hasan-ege/MaterialTV` as the source URL in Obtainium to receive automatic updates.
+> 💡 **Tip:** Clicking the **Obtainium** badge will open the app and automatically add MaterialTV for seamless updates.
 
 </div>
 
