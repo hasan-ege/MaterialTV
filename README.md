@@ -30,17 +30,23 @@
 
 <div align="center">
 
-| 🏠 Home & Hero Carousel | 👤 Profile & Analytics | ⚙️ Settings & Customization |
-| :---: | :---: | :---: |
-| ![Home](Images/home.png) | ![Profile](Images/profile.png) | ![Settings](Images/settings.png) |
-
-| ⭐ Favorites | 📂 Categories | ⬇️ Downloads |
-| :---: | :---: | :---: |
-| ![Favorites](Images/favorites.png) | ![Categories](Images/categories.png) | ![Downloads](Images/downloads.png) |
-
-| 🔐 Login |
-| :---: |
-| ![Login](Images/login.png) |
+<table>
+  <tr>
+    <td align="center" width="33%"><b>🏠 Home & Hero Carousel</b><br><img src="Images/home.png" width="250"/></td>
+    <td align="center" width="33%"><b>👤 Profile & Analytics</b><br><img src="Images/profile.png" width="250"/></td>
+    <td align="center" width="33%"><b>⚙️ Settings & Customization</b><br><img src="Images/settings.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><b>⭐ Favorites</b><br><img src="Images/favorites.png" width="250"/></td>
+    <td align="center" width="33%"><b>📂 Categories</b><br><img src="Images/categories.png" width="250"/></td>
+    <td align="center" width="33%"><b>⬇️ Downloads</b><br><img src="Images/downloads.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><b>🔐 Login</b><br><img src="Images/login.png" width="250"/></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
 
 </div>
 
