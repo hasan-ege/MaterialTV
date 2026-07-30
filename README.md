@@ -38,9 +38,9 @@
 | :---: | :---: | :---: |
 | ![Favorites](Images/favorites.png) | ![Categories](Images/categories.png) | ![Downloads](Images/downloads.png) |
 
-| 🔐 Login | 💬 Subtitles |
-| :---: | :---: |
-| ![Login](Images/login.png) | ![Subtitles](Images/subtitle.png) |
+| 🔐 Login |
+| :---: |
+| ![Login](Images/login.png) |
 
 </div>
 
