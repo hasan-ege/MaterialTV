@@ -17,15 +17,12 @@
 ---
 
 ### 📥 Download
+
 <a href="https://github.com/hasan-ege/MaterialTV/releases/latest">
-  <img src="https://img.shields.io/github/v/release/hasan-ege/MaterialTV?style=for-the-badge&logo=github&color=181717" alt="Get it on GitHub" height="70">
-</a>
-&nbsp;&nbsp;
-<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/hasan-ege/MaterialTV">
-  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="70">
+  <img src="Images/badge_github.png" alt="Get it on GitHub" height="70">
 </a>
 
-> 💡 **Tip:** Clicking the **Obtainium** badge will open the app and automatically add MaterialTV for seamless updates.
+</div>
 
 ---
 
@@ -33,13 +30,13 @@
 
 <div align="center">
 
-| 🏠 Home & Continue Watching | 👤 Profile & Analytics | ⚙️ Settings & Customization |
+| 🏠 Home & Hero Carousel | 👤 Profile & Analytics | ⚙️ Settings & Customization |
 | :---: | :---: | :---: |
-| ![Home](Images/home.jpeg) | ![Profile](Images/profile.jpeg) | ![Settings](Images/settings.png) |
+| ![Home](Images/home.png) | ![Profile](Images/profile.png) | ![Settings](Images/settings.png) |
 
 | ⭐ Favorites | 📂 Categories | ⬇️ Downloads |
 | :---: | :---: | :---: |
-| ![Favorites](Images/favorites.jpeg) | ![Categories](Images/categories.png) | ![Downloads](Images/downloads.jpeg) |
+| ![Favorites](Images/favorites.png) | ![Categories](Images/categories.png) | ![Downloads](Images/downloads.png) |
 
 | 🔐 Login | 💬 Subtitles |
 | :---: | :---: |
@@ -121,6 +118,40 @@ SQLCipher encrypted local database, 512MB Coil image cache, and download manager
 
 ---
 
+## 📋 Changelog
+
+### v3.2 — Latest
+- LibMPV (FFmpeg) player engine added as a 3rd player option
+- OpenSubtitles & SkipDB integration with IMDb ID resolution
+- Expressive sorting & filtering dialogs with haptics
+- Sequential & batch season download support
+- Fixed LibVLC native library crash (`libc++_shared.so`)
+- 11 language localization complete
+
+### v3.0
+- Material 3 Expressive UI overhaul with hero carousel
+- TMDB metadata enrichment with poster/backdrop caching
+- Triple player engine (ExoPlayer + LibVLC + LibMPV)
+- Download manager for offline viewing
+- SQLCipher encrypted database
+
+### v2.x
+- Initial Xtream Codes API player
+- ExoPlayer & VLC dual engine
+- Fast zapping (~70% faster startup)
+- Favorites & watch history
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] 📺 **Android TV Support** — Full Android TV & Google TV experience with Leanback UI, D-pad navigation, and big-screen optimized layouts
+- [ ] 🛒 **Google Play Store** — Publish MaterialTV on the Play Store for easier discovery and automatic updates
+
+> Have a feature request? Open an [issue](https://github.com/hasan-ege/MaterialTV/issues)!
+
+---
+
 ## 🚀 Building & Installation
 
 ### Prerequisites
@@ -145,6 +176,40 @@ SQLCipher encrypted local database, 512MB Coil image cache, and download manager
 
 > [!NOTE]
 > Release builds have R8 code shrinking enabled and produce ABI-split APKs for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`.
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><b>Does MaterialTV provide IPTV content?</b></summary>
+
+No. MaterialTV is a media player only. You need to provide your own Xtream Codes API credentials or M3U playlist URL from a legal IPTV provider.
+</details>
+
+<details>
+<summary><b>Which Android versions are supported?</b></summary>
+
+Android 8.0 (Oreo) and above — API level 26+.
+</details>
+
+<details>
+<summary><b>What video formats are supported?</b></summary>
+
+With three player engines (ExoPlayer, LibVLC, LibMPV/FFmpeg), MaterialTV supports virtually all common video and audio codecs including H.264, H.265/HEVC, VP9, AV1, AAC, AC3, and more.
+</details>
+
+<details>
+<summary><b>Can I download content for offline viewing?</b></summary>
+
+Yes! MaterialTV includes a built-in download manager that supports single episode and full season batch downloads.
+</details>
+
+<details>
+<summary><b>How do I switch between player engines?</b></summary>
+
+Go to Settings → Player Engine or use the quick player switcher overlay during playback.
+</details>
 
 ---
 
